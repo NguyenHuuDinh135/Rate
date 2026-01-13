@@ -14,6 +14,7 @@
   "aliases": {
     "components": "@/components",
     "utils": "@/lib/utils",
+    "styles": "@/styles",
     "ui": "@/registry/new-york-v4/ui",
     "lib": "@/lib",
     "hooks": "@/hooks"
