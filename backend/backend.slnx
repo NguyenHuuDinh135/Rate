@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/Solution Items/" />
+  <Folder Name="/src/">
+    <Project Path="Rate.AppHost/Rate.AppHost.csproj" />
+    <Project Path="Rate.ServiceDefaults/Rate.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+</Solution>
