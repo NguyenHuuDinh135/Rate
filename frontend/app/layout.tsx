@@ -10,6 +10,7 @@ import { Analytics } from "@/components/analytics"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/registry/new-york-v4/ui/sonner"
+import { Providers } from "./provider"
 
 import "@/styles/globals.css"
 
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
     default: siteConfig.name,
     template: `%s - ${siteConfig.name}`,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL!),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL! || "http://localhost:3000"),
   description: siteConfig.description,
   keywords: ["Next.js", "React", "Tailwind CSS", "Components", "shadcn"],
   authors: [
@@ -92,7 +93,9 @@ export default function RootLayout({
           <LayoutProvider>
             <ActiveThemeProvider>
               <NuqsAdapter>
-                {children}
+                <Providers>
+                  {children}
+                </Providers>
                 <Toaster position="top-center" />
               </NuqsAdapter>
               <TailwindIndicator />
