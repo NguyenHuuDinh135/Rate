@@ -39,6 +39,23 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
+// =============
+// Cors
+// ===============
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy
+                // .AllowAnyOrigin()    // hoặc WithOrigins(...)
+                .WithOrigins("http://localhost:5173") // thay port fe
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
+
 // ==========================
 // IdentityServer
 // ==========================
@@ -72,6 +89,8 @@ if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
 }
+
+app.UseCors("AllowFrontend");
 
 app.UseStaticFiles();
 app.UseRouting();
