@@ -1,6 +1,7 @@
+"use client"
+
 import Link from "next/link"
-import { PlusSignIcon } from "@hugeicons/core-free-icons"
-import { HugeiconsIcon } from "@hugeicons/react"
+import { LogInIcon } from "lucide-react"
 
 import { siteConfig } from "@/lib/config"
 import { GitHubLink } from "@/components/github-link"
@@ -8,20 +9,20 @@ import { Icons } from "@/components/icons"
 import { MainNav } from "@/components/main-nav"
 import { MobileNav } from "@/components/mobile-nav"
 import { ModeSwitcher } from "@/components/mode-switcher"
+import { NavUser } from "@/components/nav-user"
 import { SiteConfig } from "@/components/site-config"
-// import blocks from "@/registry/__blocks__.json"
 import { Button } from "@/registry/new-york-v4/ui/button"
 import { Separator } from "@/registry/new-york-v4/ui/separator"
+import { Skeleton } from "@/registry/new-york-v4/ui/skeleton"
 
 export function SiteHeader() {
-//   const pageTree = source.pageTree
+  // const { isAuthenticated, isLoading } = useAuth()
 
   return (
     <header className="bg-background sticky top-0 z-50 w-full">
       <div className="container-wrapper 3xl:fixed:px-0 px-6">
         <div className="3xl:fixed:container flex h-(--header-height) items-center **:data-[slot=separator]:!h-4">
           <MobileNav
-            // tree={pageTree}
             items={siteConfig.navItems}
             className="flex lg:hidden"
           />
@@ -39,9 +40,7 @@ export function SiteHeader() {
           <MainNav items={siteConfig.navItems} className="hidden lg:flex" />
           <div className="ml-auto flex items-center gap-2 md:flex-1 md:justify-end">
             <div className="hidden w-full flex-1 md:flex md:w-auto md:flex-none">
-              {/* <CommandMenu
-                navItems={siteConfig.navItems}
-              /> */}
+              {/* <CommandMenu navItems={siteConfig.navItems} /> */}
             </div>
             <Separator
               orientation="vertical"
@@ -53,22 +52,31 @@ export function SiteHeader() {
             <Separator orientation="vertical" />
             <ModeSwitcher />
             <Separator orientation="vertical" className="mr-2" />
-            <Button
-              asChild
-              size="sm"
-              className="hidden h-[31px] rounded-lg sm:flex"
-            >
-              <Link href="/create">
-                <HugeiconsIcon icon={PlusSignIcon} />
-                New Project
-              </Link>
-            </Button>
-            <Button asChild size="sm" className="h-[31px] rounded-lg sm:hidden">
-              <Link href="/create">
-                <HugeiconsIcon icon={PlusSignIcon} />
-                New
-              </Link>
-            </Button>
+            
+            {/* Auth Section */}
+            {/* {isLoading ? (
+              <Skeleton className="h-9 w-9 rounded-full" />
+            ) : isAuthenticated ? (
+              <NavUser variant="header" />
+            ) : ( */}
+              <>
+                <Button
+                  asChild
+                  size="sm"
+                  className="hidden h-[31px] rounded-lg sm:flex"
+                >
+                  <Link href="/login">
+                    <LogInIcon className="mr-1 h-4 w-4" />
+                    Login
+                  </Link>
+                </Button>
+                <Button asChild size="sm" className="h-[31px] rounded-lg sm:hidden">
+                  <Link href="/login">
+                    <LogInIcon className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </>
+            {/* )} */}
           </div>
         </div>
       </div>
