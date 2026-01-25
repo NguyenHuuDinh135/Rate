@@ -5,5 +5,15 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="..\Shared\ActivityExtensions.cs" Link="ActivityExtensions.cs" />
+    </ItemGroup>
 
+    <ItemGroup>
+        <PackageReference Include="Aspire.RabbitMQ.Client" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\EventBus\EventBus.csproj" />
+    </ItemGroup>
 </Project>
