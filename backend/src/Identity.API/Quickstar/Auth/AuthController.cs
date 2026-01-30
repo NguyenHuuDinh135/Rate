@@ -3,7 +3,7 @@ using Identity.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Identity.API.Controllers
+namespace Identity.API.Quickstar.Auth
 {
     [ApiController]
     [Route("api/auth")]
