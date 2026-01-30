@@ -1,0 +1,20 @@
+### REGISTER
+POST http://localhost:5282/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@demo.com",
+  "password": "Abc12345",
+  "confirmPassword": "Abc12345"
+}
+
+###
+
+### LOGIN
+POST http://localhost:5282/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@demo.com",
+  "password": "Abc12345"
+}
