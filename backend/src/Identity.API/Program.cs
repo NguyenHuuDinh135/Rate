@@ -79,6 +79,15 @@ builder.Services.AddEndpointsApiExplorer();
 // Build app
 // ==========================
 
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddUserSecrets<Program>()       // ✅ QUAN TRỌNG
+    .AddEnvironmentVariables();
+
+
 var app = builder.Build();
 
 // ==========================
