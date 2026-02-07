@@ -5,21 +5,24 @@ using Identity.API.Configuration;
 using Identity.API.Data;
 using Identity.API.Models;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // ==========================
-// Add services
+// Configuration (secrets, env)
 // ==========================
 
-// MVC (IdentityServer UI cần Views)
-builder.Services.AddControllersWithViews();
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddUserSecrets<Program>()
+    .AddEnvironmentVariables();
 
 // ==========================
-// Database
+// Services
 // ==========================
 
-// 👉 ĐỔI UseNpgsql thành UseSqlServer nếu bạn dùng SQL Server
+builder.Services.AddControllers(); // ✅ API only — KHÔNG Views
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("IdentityDb")
@@ -39,21 +42,18 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// =============
-// Cors
-// ===============
+// ==========================
+// CORS
+// ==========================
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend",
-        policy =>
-        {
-            policy
-                // .AllowAnyOrigin()    // hoặc WithOrigins(...)
-                .WithOrigins("http://localhost:5173") // thay port fe
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-        });
+    options.AddPolicy("AllowFrontend", policy =>
+        policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+    );
 });
 
 // ==========================
@@ -72,26 +72,16 @@ builder.Services.AddIdentityServer(options =>
 .AddInMemoryApiScopes(Config.GetApiScopes())
 .AddInMemoryApiResources(Config.GetApis())
 .AddInMemoryClients(Config.GetClients(builder.Configuration))
-.AddDeveloperSigningCredential(); // 👉 tự sinh tempkey.jwk (DEV)
+.AddDeveloperSigningCredential(); // DEV ONLY
 
-builder.Services.AddEndpointsApiExplorer();
 // ==========================
-// Build app
+// Build
 // ==========================
-
-var builder = WebApplication.CreateBuilder(args);
-
-builder.Configuration
-    .AddJsonFile("appsettings.json", optional: false)
-    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
-    .AddUserSecrets<Program>()       // ✅ QUAN TRỌNG
-    .AddEnvironmentVariables();
-
 
 var app = builder.Build();
 
 // ==========================
-// HTTP pipeline
+// Middleware
 // ==========================
 
 if (app.Environment.IsDevelopment())
@@ -101,12 +91,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowFrontend");
 
-app.UseStaticFiles();
 app.UseRouting();
 
 app.UseIdentityServer();   // 🔴 BẮT BUỘC
 app.UseAuthorization();
 
-app.MapDefaultControllerRoute();
+app.MapControllers();     // ✅ API endpoints
 
 app.Run();
