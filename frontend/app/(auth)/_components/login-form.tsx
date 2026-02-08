@@ -5,6 +5,8 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { cn } from "@/lib/utils"
+import { z } from "zod"
+import { loginSchema, type LoginFormData } from "@/lib/validations/auth"
 import { Button } from "@/registry/new-york-v4/ui/button"
 import { Card, CardContent } from "@/registry/new-york-v4/ui/card"
 import {
@@ -17,44 +19,22 @@ import {
 } from "@/registry/new-york-v4/ui/field"
 import { Input } from "@/registry/new-york-v4/ui/input"
 import { Checkbox } from "@/registry/new-york-v4/ui/checkbox"
-import type { LoginCredentials, ApiError } from "@/types/auth"
+import type { ApiError } from "@/types/auth"
 
-// ============================================
-// Form Validation
-// ============================================
+// Form Errors Type
 interface FormErrors {
   email?: string
   password?: string
   general?: string
 }
 
-function validateForm(data: LoginCredentials): FormErrors {
-  const errors: FormErrors = {}
-
-  if (!data.email) {
-    errors.email = "Email is required"
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-    errors.email = "Invalid email address"
-  }
-
-  if (!data.password) {
-    errors.password = "Password is required"
-  } else if (data.password.length < 6) {
-    errors.password = "Password must be at least 6 characters"
-  }
-
-  return errors
-}
-
-// ============================================
 // Login Form Component
-// ============================================
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const { login, isLoading } = useAuth()
-  const [formData, setFormData] = useState<LoginCredentials>({
+  const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
     rememberMe: false,
@@ -77,15 +57,22 @@ export function LoginForm({
     e.preventDefault()
     setErrors({})
 
-    // Validate form
-    const validationErrors = validateForm(formData)
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors)
+    // Validate form with Zod
+    const result = loginSchema.safeParse(formData)
+    if (!result.success) {
+      const fieldErrors: FormErrors = {}
+      result.error.issues.forEach((error: z.ZodIssue) => {
+        const field = error.path[0] as keyof FormErrors
+        if (!fieldErrors[field]) {
+          fieldErrors[field] = error.message
+        }
+      })
+      setErrors(fieldErrors)
       return
     }
 
     try {
-      await login(formData)
+      await login(result.data)
     } catch (err) {
       const apiError = err as ApiError
       if (apiError.errors) {

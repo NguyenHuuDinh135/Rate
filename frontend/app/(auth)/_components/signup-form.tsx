@@ -5,6 +5,8 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { cn } from "@/lib/utils"
+import { z } from "zod"
+import { registerSchema, type RegisterFormData } from "@/lib/validations/auth"
 import { Button } from "@/registry/new-york-v4/ui/button"
 import { Card, CardContent } from "@/registry/new-york-v4/ui/card"
 import {
@@ -16,47 +18,15 @@ import {
   FieldSeparator,
 } from "@/registry/new-york-v4/ui/field"
 import { Input } from "@/registry/new-york-v4/ui/input"
-import type { RegisterCredentials, ApiError } from "@/types/auth"
+import type { ApiError } from "@/types/auth"
 
-// Form Validation
+// Form Errors Type
 interface FormErrors {
   name?: string
   email?: string
   password?: string
   confirmPassword?: string
   general?: string
-}
-
-function validateForm(data: RegisterCredentials): FormErrors {
-  const errors: FormErrors = {}
-
-  if (!data.name) {
-    errors.name = "Name is required"
-  } else if (data.name.length < 2) {
-    errors.name = "Name must be at least 2 characters"
-  }
-
-  if (!data.email) {
-    errors.email = "Email is required"
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-    errors.email = "Invalid email address"
-  }
-
-  if (!data.password) {
-    errors.password = "Password is required"
-  } else if (data.password.length < 8) {
-    errors.password = "Password must be at least 8 characters"
-  } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(data.password)) {
-    errors.password = "Password must include uppercase, lowercase and number"
-  }
-
-  if (!data.confirmPassword) {
-    errors.confirmPassword = "Please confirm your password"
-  } else if (data.password !== data.confirmPassword) {
-    errors.confirmPassword = "Passwords do not match"
-  }
-
-  return errors
 }
 
 // Password Strength Indicator
@@ -84,7 +54,7 @@ export function SignupForm({
   ...props
 }: React.ComponentProps<"div">) {
   const { register, isLoading } = useAuth()
-  const [formData, setFormData] = useState<RegisterCredentials>({
+  const [formData, setFormData] = useState<RegisterFormData>({
     name: "",
     email: "",
     password: "",
@@ -110,15 +80,22 @@ export function SignupForm({
     e.preventDefault()
     setErrors({})
 
-    // Validate form
-    const validationErrors = validateForm(formData)
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors)
+    // Validate form with Zod
+    const result = registerSchema.safeParse(formData)
+    if (!result.success) {
+      const fieldErrors: FormErrors = {}
+      result.error.issues.forEach((error: z.ZodIssue) => {
+        const field = error.path[0] as keyof FormErrors
+        if (!fieldErrors[field]) {
+          fieldErrors[field] = error.message
+        }
+      })
+      setErrors(fieldErrors)
       return
     }
 
     try {
-      await register(formData)
+      await register(result.data)
     } catch (err) {
       const apiError = err as ApiError
       if (apiError.errors) {
