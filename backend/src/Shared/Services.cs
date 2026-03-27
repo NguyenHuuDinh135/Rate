@@ -1,4 +1,4 @@
-﻿namespace backend.Shared;
+namespace backend.Shared;
 
 public static class Services
 {
@@ -25,4 +25,9 @@ public static class Services
     /// This is the name of the database that will be created and used by the application.
     /// </summary>
     public const string Database = "backendDb";
+
+    /// <summary>
+    /// The name of the Redis service.
+    /// </summary>
+    public const string Redis = "redis";
 }

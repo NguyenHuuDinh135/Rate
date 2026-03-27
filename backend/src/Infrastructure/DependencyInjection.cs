@@ -1,13 +1,17 @@
-﻿using backend.Application.Common.Interfaces;
+using backend.Application.Common.Interfaces;
 using backend.Domain.Constants;
+using backend.Infrastructure.Caching;
 using backend.Infrastructure.Data;
 using backend.Infrastructure.Data.Interceptors;
 using backend.Infrastructure.Identity;
+using backend.Shared;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using StackExchange.Redis;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -17,6 +21,25 @@ public static class DependencyInjection
     {
         var connectionString = builder.Configuration.GetConnectionString(Services.Database);
         Guard.Against.Null(connectionString, message: $"Connection string '{Services.Database}' not found.");
+
+        builder.Services
+            .AddOptions<RedisOptions>()
+            .Bind(builder.Configuration.GetSection(RedisOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+        {
+            var redisOptions = sp.GetRequiredService<IOptions<RedisOptions>>().Value;
+            var redisConnectionString =
+                builder.Configuration.GetConnectionString(Services.Redis)
+                ?? builder.Configuration[$"{RedisOptions.SectionName}:ConnectionString"];
+
+            Guard.Against.NullOrWhiteSpace(redisConnectionString, message: "Redis connection string is not configured.");
+            return ConnectionMultiplexer.Connect(redisConnectionString);
+        });
+
+        builder.Services.AddSingleton<ICacheService, RedisCacheService>();
 
         builder.Services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         builder.Services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
