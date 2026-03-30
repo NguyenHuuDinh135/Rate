@@ -11,9 +11,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-    public DbSet<TodoList> TodoLists => Set<TodoList>();
-
-    public DbSet<TodoItem> TodoItems => Set<TodoItem>();
+    public DbSet<Booking> Bookings => Set<Booking>();
+    public DbSet<Genre> Genres => Set<Genre>();
+    public DbSet<Movie> Movies => Set<Movie>();
+    public DbSet<MovieGenre> MovieGenres => Set<MovieGenre>();
+    public DbSet<MoviePerson> MoviePersons => Set<MoviePerson>();
+    public DbSet<Payment> Payments => Set<Payment>();
+    public DbSet<Person> Persons => Set<Person>();
+    public DbSet<Show> Shows => Set<Show>();
+    public DbSet<Theater> Theaters => Set<Theater>();
+    public DbSet<TheaterSeat> TheaterSeats => Set<TheaterSeat>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

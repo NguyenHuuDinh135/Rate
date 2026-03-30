@@ -43,4 +43,6 @@ app.MapEndpoints(typeof(Program).Assembly);
 
 app.UseFileServer();
 
+await app.InitialiseDatabaseAsync();
+
 app.Run();
