@@ -27,10 +27,10 @@ public class MovieConfiguration : IEntityTypeConfiguration<Movie>
         // ví dụ: 8.5 / 9.2
 
         builder.Property(x => x.TrailerUrl)
-            .HasMaxLength(500);
+            .HasColumnType("text");
 
         builder.Property(x => x.PosterUrl)
-            .HasMaxLength(500);
+            .HasColumnType("text");
 
         builder.Property(x => x.MovieType)
             .IsRequired();

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using backend.Domain.Entities;
@@ -909,696 +909,38 @@ namespace backend.Infrastructure.Data
             // Seed Shows
             if (!_context.Shows.Any())
             {
-                _context.Shows.AddRange(
-                    new Show { StartTime = TimeSpan.Parse("10:00:00"), EndTime = TimeSpan.Parse("12:15:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 4, TheaterId = 4, Status = ShowStatus.Free, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("12:30:00"), EndTime = TimeSpan.Parse("14:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 4, TheaterId = 4, Status = ShowStatus.Free, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("18:30:00"), EndTime = TimeSpan.Parse("20:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 4, TheaterId = 3, Status = ShowStatus.AlmostFull, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("21:30:00"), EndTime = TimeSpan.Parse("23:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 4, TheaterId = 3, Status = ShowStatus.Free, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("21:30:00"), EndTime = TimeSpan.Parse("23:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 4, TheaterId = 3, Status = ShowStatus.Free, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("18:30:00"), EndTime = TimeSpan.Parse("20:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 4, TheaterId = 5, Status = ShowStatus.AlmostFull, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("19:30:00"), EndTime = TimeSpan.Parse("21:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 4, TheaterId = 4, Status = ShowStatus.AlmostFull, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("12:30:00"), EndTime = TimeSpan.Parse("14:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 4, TheaterId = 4, Status = ShowStatus.AlmostFull, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("18:30:00"), EndTime = TimeSpan.Parse("20:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 4, TheaterId = 4, Status = ShowStatus.Full, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("18:30:00"), EndTime = TimeSpan.Parse("20:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 4, TheaterId = 3, Status = ShowStatus.Full, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("19:30:00"), EndTime = TimeSpan.Parse("21:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 4, TheaterId = 5, Status = ShowStatus.Full, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("21:30:00"), EndTime = TimeSpan.Parse("23:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 4, TheaterId = 4, Status = ShowStatus.Full, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("12:30:00"), EndTime = TimeSpan.Parse("14:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 2, TheaterId = 3, Status = ShowStatus.Free, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("13:30:00"), EndTime = TimeSpan.Parse("15:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 2, TheaterId = 5, Status = ShowStatus.AlmostFull, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("16:30:00"), EndTime = TimeSpan.Parse("18:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 2, TheaterId = 4, Status = ShowStatus.Free, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("16:30:00"), EndTime = TimeSpan.Parse("18:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 2, TheaterId = 4, Status = ShowStatus.Free, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("18:30:00"), EndTime = TimeSpan.Parse("20:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 2, TheaterId = 3, Status = ShowStatus.AlmostFull, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("21:30:00"), EndTime = TimeSpan.Parse("23:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 2, TheaterId = 5, Status = ShowStatus.Full, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("21:30:00"), EndTime = TimeSpan.Parse("23:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 2, TheaterId = 3, Status = ShowStatus.Free, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("15:30:00"), EndTime = TimeSpan.Parse("17:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 2, TheaterId = 3, Status = ShowStatus.Free, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("10:30:00"), EndTime = TimeSpan.Parse("12:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 2, TheaterId = 3, Status = ShowStatus.Free, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("10:30:00"), EndTime = TimeSpan.Parse("12:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 3, TheaterId = 5, Status = ShowStatus.Free, Type = ShowType.TwoD },
-                    new Show { StartTime = TimeSpan.Parse("13:30:00"), EndTime = TimeSpan.Parse("15:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 3, TheaterId = 5, Status = ShowStatus.Free, Type = ShowType.TwoD },
-                    new Show { StartTime = TimeSpan.Parse("15:30:00"), EndTime = TimeSpan.Parse("17:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 3, TheaterId = 4, Status = ShowStatus.Full, Type = ShowType.TwoD },
-                    new Show { StartTime = TimeSpan.Parse("16:30:00"), EndTime = TimeSpan.Parse("18:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 3, TheaterId = 5, Status = ShowStatus.Free, Type = ShowType.TwoD },
-                    new Show { StartTime = TimeSpan.Parse("13:30:00"), EndTime = TimeSpan.Parse("15:45:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 3, TheaterId = 5, Status = ShowStatus.AlmostFull, Type = ShowType.TwoD },
-                    new Show { StartTime = TimeSpan.Parse("16:00:00"), EndTime = TimeSpan.Parse("18:15:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 3, TheaterId = 4, Status = ShowStatus.AlmostFull, Type = ShowType.TwoD },
-                    new Show { StartTime = TimeSpan.Parse("18:00:00"), EndTime = TimeSpan.Parse("20:15:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 3, TheaterId = 3, Status = ShowStatus.AlmostFull, Type = ShowType.TwoD },
-                    new Show { StartTime = TimeSpan.Parse("18:00:00"), EndTime = TimeSpan.Parse("20:15:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 3, TheaterId = 5, Status = ShowStatus.AlmostFull, Type = ShowType.TwoD },
-                    new Show { StartTime = TimeSpan.Parse("21:00:00"), EndTime = TimeSpan.Parse("23:15:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 3, TheaterId = 3, Status = ShowStatus.AlmostFull, Type = ShowType.TwoD },
-                    new Show { StartTime = TimeSpan.Parse("21:00:00"), EndTime = TimeSpan.Parse("23:15:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 3, TheaterId = 4, Status = ShowStatus.AlmostFull, Type = ShowType.TwoD },
-                    new Show { StartTime = TimeSpan.Parse("09:00:00"), EndTime = TimeSpan.Parse("11:15:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 3, TheaterId = 5, Status = ShowStatus.Free, Type = ShowType.TwoD },
-                    new Show { StartTime = TimeSpan.Parse("18:00:00"), EndTime = TimeSpan.Parse("19:30:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 4, TheaterId = 5, Status = ShowStatus.Free, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("18:00:00"), EndTime = TimeSpan.Parse("19:30:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 4, TheaterId = 4, Status = ShowStatus.Free, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("19:00:00"), EndTime = TimeSpan.Parse("20:30:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 4, TheaterId = 3, Status = ShowStatus.Free, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("22:00:00"), EndTime = TimeSpan.Parse("23:30:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 4, TheaterId = 3, Status = ShowStatus.Free, Type = ShowType.ThreeD },
-                    new Show { StartTime = TimeSpan.Parse("21:00:00"), EndTime = TimeSpan.Parse("22:30:00"), Date = new DateTime( DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day), MovieId = 4, TheaterId = 4, Status = ShowStatus.Free, Type = ShowType.ThreeD },
-                    // Seed Shows (Extended - 2 shows per new movie on December 17, 2025)
-                    // Movie 5 - Twilight
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("14:00:00"), 
-                        EndTime = TimeSpan.Parse("16:15:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ),
-                        MovieId = 5, 
-                        TheaterId = 1, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("19:30:00"), 
-                        EndTime = TimeSpan.Parse("21:45:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 5, 
-                        TheaterId = 2, 
-                        Status = ShowStatus.AlmostFull, 
-                        Type = ShowType.TwoD 
-                    },
+                var today = DateTime.Now.Date;
+                var theaterIds = new int[] { 1, 2, 3, 4, 5 };
+                var movieIds = Enumerable.Range(2, 20).ToArray(); // MovieId từ 2 đến 21
+                var startTimes = new string[] { "10:00:00", "13:30:00", "16:30:00", "19:30:00", "22:00:00" };
+                var statuses = new ShowStatus[] { ShowStatus.Free, ShowStatus.AlmostFull, ShowStatus.Full };
+                var types = new ShowType[] { ShowType.TwoD, ShowType.ThreeD };
 
-                    // Movie 6 - The Lighthouse
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("13:30:00"), 
-                        EndTime = TimeSpan.Parse("15:45:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 6, 
-                        TheaterId = 3, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("20:00:00"), 
-                        EndTime = TimeSpan.Parse("22:15:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 6, 
-                        TheaterId = 1, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
+                var shows = new List<Show>();
 
-                    // Movie 7 - Mad Max Fury Road
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("11:00:00"), 
-                        EndTime = TimeSpan.Parse("13:15:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 7, 
-                        TheaterId = 4, 
-                        Status = ShowStatus.AlmostFull, 
-                        Type = ShowType.ThreeD 
-                    },
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("16:30:00"), 
-                        EndTime = TimeSpan.Parse("18:45:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 7, 
-                        TheaterId = 4, 
-                        Status = ShowStatus.Full, 
-                        Type = ShowType.ThreeD 
-                    },
-
-                    // Movie 8 - Dune
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("10:30:00"), 
-                        EndTime = TimeSpan.Parse("13:15:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 8, 
-                        TheaterId = 2, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("18:00:00"), 
-                        EndTime = TimeSpan.Parse("20:45:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 8, 
-                        TheaterId = 3, 
-                        Status = ShowStatus.AlmostFull, 
-                        Type = ShowType.TwoD 
-                    },
-
-                    // Movie 9 - Prisoners
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("12:00:00"), 
-                        EndTime = TimeSpan.Parse("14:45:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 9, 
-                        TheaterId = 1, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("19:00:00"), 
-                        EndTime = TimeSpan.Parse("21:45:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 9, 
-                        TheaterId = 2, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-
-                    // Movie 10 - There Will Be Blood
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("15:30:00"), 
-                        EndTime = TimeSpan.Parse("18:15:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 10, 
-                        TheaterId = 3, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("21:00:00"), 
-                        EndTime = TimeSpan.Parse("23:45:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 10, 
-                        TheaterId = 1, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-
-                    // Movie 11 - Cloverfield
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("13:00:00"), 
-                        EndTime = TimeSpan.Parse("14:45:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 11, 
-                        TheaterId = 4, 
-                        Status = ShowStatus.AlmostFull, 
-                        Type = ShowType.TwoD 
-                    },
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("20:30:00"), 
-                        EndTime = TimeSpan.Parse("22:15:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 11, 
-                        TheaterId = 4, 
-                        Status = ShowStatus.Full, 
-                        Type = ShowType.TwoD 
-                    },
-
-                    // Movie 12 - Dawn of Planet of Apes
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("11:30:00"), 
-                        EndTime = TimeSpan.Parse("14:00:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 12, 
-                        TheaterId = 2, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.ThreeD 
-                    },
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("17:00:00"), 
-                        EndTime = TimeSpan.Parse("19:30:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 12, 
-                        TheaterId = 3, 
-                        Status = ShowStatus.AlmostFull, 
-                        Type = ShowType.ThreeD 
-                    },
-
-                    // Movie 13 - The Hangover
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("14:30:00"), 
-                        EndTime = TimeSpan.Parse("16:30:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 13, 
-                        TheaterId = 1, 
-                        Status = ShowStatus.AlmostFull, 
-                        Type = ShowType.TwoD 
-                    },
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("21:30:00"), 
-                        EndTime = TimeSpan.Parse("23:30:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 13, 
-                        TheaterId = 2, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-
-                    // Movie 14 - War Dogs
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("12:30:00"), 
-                        EndTime = TimeSpan.Parse("14:45:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 14, 
-                        TheaterId = 3, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("18:30:00"), 
-                        EndTime = TimeSpan.Parse("20:45:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 14, 
-                        TheaterId = 4, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-
-                    // Movie 15 - Deadpool 2
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("10:00:00"), 
-                        EndTime = TimeSpan.Parse("12:15:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 15, 
-                        TheaterId = 1, 
-                        Status = ShowStatus.Full, 
-                        Type = ShowType.ThreeD 
-                    },
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("15:00:00"), 
-                        EndTime = TimeSpan.Parse("17:15:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 15, 
-                        TheaterId = 2, 
-                        Status = ShowStatus.AlmostFull, 
-                        Type = ShowType.ThreeD 
-                    },
-
-                    // Movie 16 - Atlanta
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("13:15:00"), 
-                        EndTime = TimeSpan.Parse("14:45:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 16, 
-                        TheaterId = 3, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("19:45:00"), 
-                        EndTime = TimeSpan.Parse("21:15:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 16, 
-                        TheaterId = 4, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-
-                    // Movie 17 - Taxi Driver
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("16:00:00"), 
-                        EndTime = TimeSpan.Parse("18:15:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 17, 
-                        TheaterId = 1, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("22:00:00"), 
-                        EndTime = TimeSpan.Parse("00:15:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 17, 
-                        TheaterId = 2, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-
-                    // Movie 18 - The Irishman
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("11:00:00"), 
-                        EndTime = TimeSpan.Parse("14:30:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 18, 
-                        TheaterId = 3, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("17:30:00"), 
-                        EndTime = TimeSpan.Parse("21:00:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 18, 
-                        TheaterId = 4, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-
-                    // Movie 19 - Her
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("14:00:00"), 
-                        EndTime = TimeSpan.Parse("16:15:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 19, 
-                        TheaterId = 1, 
-                        Status = ShowStatus.AlmostFull, 
-                        Type = ShowType.TwoD 
-                    },
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("20:15:00"), 
-                        EndTime = TimeSpan.Parse("22:30:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 19, 
-                        TheaterId = 2, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-
-                    // Movie 20 - Walk The Line
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("12:45:00"), 
-                        EndTime = TimeSpan.Parse("15:15:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 20, 
-                        TheaterId = 3, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("18:45:00"), 
-                        EndTime = TimeSpan.Parse("21:15:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 20, 
-                        TheaterId = 4, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-
-                    // Movie 21 - Enola Holmes
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("10:30:00"), 
-                        EndTime = TimeSpan.Parse("12:45:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 21, 
-                        TheaterId = 1, 
-                        Status = ShowStatus.AlmostFull, 
-                        Type = ShowType.TwoD 
-                    },
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("16:00:00"), 
-                        EndTime = TimeSpan.Parse("18:15:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 21, 
-                        TheaterId = 2, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-
-                    // Movie 22 - Stranger Things Season 4
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("13:00:00"), 
-                        EndTime = TimeSpan.Parse("15:30:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 22, 
-                        TheaterId = 3, 
-                        Status = ShowStatus.Full, 
-                        Type = ShowType.TwoD 
-                    },
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("19:30:00"), 
-                        EndTime = TimeSpan.Parse("22:00:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 22, 
-                        TheaterId = 4, 
-                        Status = ShowStatus.AlmostFull, 
-                        Type = ShowType.TwoD 
-                    },
-
-                    // Movie 23 - The Legend of Tarzan
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("11:15:00"), 
-                        EndTime = TimeSpan.Parse("13:30:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 23, 
-                        TheaterId = 1, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.ThreeD 
-                    },
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("17:45:00"), 
-                        EndTime = TimeSpan.Parse("20:00:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 23, 
-                        TheaterId = 2, 
-                        Status = ShowStatus.AlmostFull, 
-                        Type = ShowType.ThreeD 
-                    },
-
-                    // Movie 24 - True Blood
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("15:15:00"), 
-                        EndTime = TimeSpan.Parse("17:00:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 24, 
-                        TheaterId = 3, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("21:15:00"), 
-                        EndTime = TimeSpan.Parse("23:00:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 24, 
-                        TheaterId = 4, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-
-                    // Movie 25 - The Town
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("12:15:00"), 
-                        EndTime = TimeSpan.Parse("14:45:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 25, 
-                        TheaterId = 1, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
-                    },
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("18:15:00"), 
-                        EndTime = TimeSpan.Parse("20:45:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 25, 
-                        TheaterId = 2, 
-                        Status = ShowStatus.AlmostFull, 
-                        Type = ShowType.TwoD 
-                    },
-
-                    // Movie 26 - Vicky Cristina Barcelona
-                    new Show 
-                    { 
-                        StartTime = TimeSpan.Parse("14:45:00"), 
-                        EndTime = TimeSpan.Parse("17:00:00"), 
-                        Date = new DateTime(
-                            DateTime.Now.Year,
-                            DateTime.Now.Month,
-                            DateTime.Now.Day
-                        ), 
-                        MovieId = 26, 
-                        TheaterId = 3, 
-                        Status = ShowStatus.Free, 
-                        Type = ShowType.TwoD 
+                int movieIndex = 0;
+                foreach (var theaterId in theaterIds)
+                {
+                    foreach (var startTime in startTimes)
+                    {
+                        var movieId = movieIds[movieIndex % movieIds.Length];
+                        shows.Add(new Show
+                        {
+                            TheaterId = theaterId,
+                            MovieId = movieId,
+                            Date = today,
+                            StartTime = TimeSpan.Parse(startTime),
+                            EndTime = TimeSpan.Parse(TimeSpan.Parse(startTime).Add(TimeSpan.FromHours(2).Add(TimeSpan.FromMinutes(15))).ToString()),
+                            Status = statuses[movieIndex % statuses.Length],
+                            Type = types[movieIndex % types.Length]
+                        });
+                        movieIndex++;
                     }
-                );
+                }
+
+                _context.Shows.AddRange(shows);
                 await _context.SaveChangesAsync();
             }
-
-
-
 
             // Seed Bookings
             if (!_context.Bookings.Any())
@@ -1689,46 +1031,7 @@ namespace backend.Infrastructure.Data
                     new Booking { UserId = user2Id, ShowId = 7, SeatRow = "B", SeatNumber = 13, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:33:43") },
                     new Booking { UserId = user2Id, ShowId = 7, SeatRow = "G", SeatNumber = 1, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:33:44") },
                     new Booking { UserId = user2Id, ShowId = 7, SeatRow = "G", SeatNumber = 2, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:33:46") },
-                    new Booking { UserId = user2Id, ShowId = 13, SeatRow = "J", SeatNumber = 0, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:36:08") },
-                    new Booking { UserId = user2Id, ShowId = 13, SeatRow = "J", SeatNumber = 1, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:36:10") },
-                    new Booking { UserId = user2Id, ShowId = 13, SeatRow = "J", SeatNumber = 2, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:36:12") },
-                    new Booking { UserId = user2Id, ShowId = 13, SeatRow = "J", SeatNumber = 4, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:36:14") },
-                    new Booking { UserId = user2Id, ShowId = 13, SeatRow = "J", SeatNumber = 5, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:36:16") },
-                    new Booking { UserId = user2Id, ShowId = 13, SeatRow = "J", SeatNumber = 6, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:36:18") },
-                    new Booking { UserId = user2Id, ShowId = 13, SeatRow = "J", SeatNumber = 8, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:36:19") },
-                    new Booking { UserId = user2Id, ShowId = 13, SeatRow = "J", SeatNumber = 9, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:36:21") },
-                    new Booking { UserId = user2Id, ShowId = 13, SeatRow = "I", SeatNumber = 0, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:36:23") },
-                    new Booking { UserId = user2Id, ShowId = 13, SeatRow = "I", SeatNumber = 1, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:36:24") },
-                    new Booking { UserId = user2Id, ShowId = 13, SeatRow = "I", SeatNumber = 2, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:36:26") },
-                    new Booking { UserId = user2Id, ShowId = 13, SeatRow = "I", SeatNumber = 4, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:36:27") },
-                    new Booking { UserId = user2Id, ShowId = 13, SeatRow = "I", SeatNumber = 5, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:36:29") },
-                    new Booking { UserId = user2Id, ShowId = 13, SeatRow = "I", SeatNumber = 6, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:36:31") },
-                    new Booking { UserId = user2Id, ShowId = 13, SeatRow = "I", SeatNumber = 8, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:36:32") },
-                    new Booking { UserId = user2Id, ShowId = 13, SeatRow = "I", SeatNumber = 9, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:36:34") },
-                    new Booking { UserId = user2Id, ShowId = 13, SeatRow = "F", SeatNumber = 1, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:36:35") },
-                    new Booking { UserId = user2Id, ShowId = 13, SeatRow = "F", SeatNumber = 2, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:36:37") },
-                    new Booking { UserId = user2Id, ShowId = 13, SeatRow = "G", SeatNumber = 4, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:36:39") },
-                    new Booking { UserId = user2Id, ShowId = 13, SeatRow = "G", SeatNumber = 5, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:36:40") },
-                    new Booking { UserId = user2Id, ShowId = 13, SeatRow = "G", SeatNumber = 9, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:36:42") },
-                    new Booking { UserId = user2Id, ShowId = 32, SeatRow = "G", SeatNumber = 2, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:41:58") },
-                    new Booking { UserId = user2Id, ShowId = 32, SeatRow = "H", SeatNumber = 2, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:42:00") },
-                    new Booking { UserId = user2Id, ShowId = 32, SeatRow = "G", SeatNumber = 3, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:42:02") },
-                    new Booking { UserId = user2Id, ShowId = 32, SeatRow = "H", SeatNumber = 3, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:42:03") },
-                    new Booking { UserId = user2Id, ShowId = 32, SeatRow = "G", SeatNumber = 7, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:42:05") },
-                    new Booking { UserId = user2Id, ShowId = 32, SeatRow = "H", SeatNumber = 7, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:42:07") },
-                    new Booking { UserId = user2Id, ShowId = 32, SeatRow = "G", SeatNumber = 8, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:42:08") },
-                    new Booking { UserId = user2Id, ShowId = 32, SeatRow = "H", SeatNumber = 8, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:42:10") },
-                    new Booking { UserId = user2Id, ShowId = 32, SeatRow = "D", SeatNumber = 4, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:42:11") },
-                    new Booking { UserId = user2Id, ShowId = 32, SeatRow = "E", SeatNumber = 4, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:42:13") },
-                    new Booking { UserId = user2Id, ShowId = 32, SeatRow = "D", SeatNumber = 5, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:42:14") },
-                    new Booking { UserId = user2Id, ShowId = 32, SeatRow = "E", SeatNumber = 5, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:42:16") },
-                    new Booking { UserId = user2Id, ShowId = 32, SeatRow = "B", SeatNumber = 2, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:42:18") },
-                    new Booking { UserId = user2Id, ShowId = 32, SeatRow = "B", SeatNumber = 3, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:42:19") },
-                    new Booking { UserId = user2Id, ShowId = 32, SeatRow = "B", SeatNumber = 10, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:42:21") },
-                    new Booking { UserId = user2Id, ShowId = 32, SeatRow = "E", SeatNumber = 10, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:42:23") },
-                    new Booking { UserId = user2Id, ShowId = 32, SeatRow = "E", SeatNumber = 11, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:42:24") },
-                    new Booking { UserId = user2Id, ShowId = 7, SeatRow = "G", SeatNumber = 6, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 21:24:31") },
-                    new Booking { UserId = user2Id, ShowId = 7, SeatRow = "G", SeatNumber = 7, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 21:24:35") },
+                    
                     new Booking { UserId = user2Id, ShowId = 7, SeatRow = "G", SeatNumber = 8, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 21:24:37") },
                     new Booking { UserId = user2Id, ShowId = 17, SeatRow = "H", SeatNumber = 0, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 22:43:19") },
                     new Booking { UserId = user2Id, ShowId = 17, SeatRow = "H", SeatNumber = 1, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 22:43:21") },
@@ -1761,67 +1064,21 @@ namespace backend.Infrastructure.Data
                     new Booking { UserId = user2Id, ShowId = 23, SeatRow = "J", SeatNumber = 3, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-08-17 19:47:19") },
                     new Booking { UserId = user2Id, ShowId = 23, SeatRow = "I", SeatNumber = 5, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-08-18 10:46:44") },
                     new Booking { UserId = user2Id, ShowId = 23, SeatRow = "I", SeatNumber = 6, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-08-18 10:47:03") },
-                    new Booking { UserId = user2Id, ShowId = 27, SeatRow = "E", SeatNumber = 5, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-14 00:24:41") },
-                    new Booking { UserId = user2Id, ShowId = 27, SeatRow = "F", SeatNumber = 5, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-14 00:24:44") },
-                    new Booking { UserId = user2Id, ShowId = 27, SeatRow = "G", SeatNumber = 5, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-14 00:24:45") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "I", SeatNumber = 4, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:43:46") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "I", SeatNumber = 5, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:43:49") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "I", SeatNumber = 6, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:43:52") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "I", SeatNumber = 0, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:43:53") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "I", SeatNumber = 1, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:43:56") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "I", SeatNumber = 2, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:02") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "H", SeatNumber = 2, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:04") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "H", SeatNumber = 1, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:05") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "H", SeatNumber = 0, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:07") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "G", SeatNumber = 0, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:10") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "G", SeatNumber = 1, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:11") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "G", SeatNumber = 2, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:13") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "G", SeatNumber = 4, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:14") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "G", SeatNumber = 5, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:16") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "G", SeatNumber = 6, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:17") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "E", SeatNumber = 6, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:20") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "D", SeatNumber = 6, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:22") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "D", SeatNumber = 5, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:24") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "D", SeatNumber = 4, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:26") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "E", SeatNumber = 4, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:27") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "E", SeatNumber = 5, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:28") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "F", SeatNumber = 8, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:30") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "F", SeatNumber = 9, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:32") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "G", SeatNumber = 8, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:33") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "G", SeatNumber = 9, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:36") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "J", SeatNumber = 9, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:38") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "J", SeatNumber = 8, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:40") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "E", SeatNumber = 1, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:41") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "E", SeatNumber = 0, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:43") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "C", SeatNumber = 9, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:44") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "C", SeatNumber = 8, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-17 00:44:46") },
-                    new Booking { UserId = user2Id, ShowId = 23, SeatRow = "G", SeatNumber = 7, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-23 16:01:30") },
-                    new Booking { UserId = user2Id, ShowId = 23, SeatRow = "K", SeatNumber = 7, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-23 16:01:32") },
-                    new Booking { UserId = user2Id, ShowId = 23, SeatRow = "K", SeatNumber = 8, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-09-23 16:01:33") },
-                    new Booking { UserId = user2Id, ShowId = 8, SeatRow = "J", SeatNumber = 6, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-10-14 16:08:49") },
-                    new Booking { UserId = user2Id, ShowId = 8, SeatRow = "J", SeatNumber = 7, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-10-14 16:08:52") },
-                    new Booking { UserId = user2Id, ShowId = 8, SeatRow = "J", SeatNumber = 8, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-10-14 16:08:53") },
-                    new Booking { UserId = user2Id, ShowId = 8, SeatRow = "J", SeatNumber = 9, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-10-14 16:08:55") },
-                    new Booking { UserId = user2Id, ShowId = 23, SeatRow = "J", SeatNumber = 8, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-11-20 02:31:31") },
+                    
                     new Booking { UserId = user2Id, ShowId = 23, SeatRow = "J", SeatNumber = 7, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-11-20 02:31:33") },
                     new Booking { UserId = user2Id, ShowId = 23, SeatRow = "J", SeatNumber = 6, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-11-20 02:31:34") },
-                    new Booking { UserId = user2Id, ShowId = 23, SeatRow = "J", SeatNumber = 9, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-11-20 02:31:36") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "J", SeatNumber = 4, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2022-01-12 19:26:39") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "J", SeatNumber = 5, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2022-01-12 19:26:42") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "J", SeatNumber = 6, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2022-01-12 19:26:50") },
-                    new Booking { UserId = user2Id, ShowId = 26, SeatRow = "H", SeatNumber = 6, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2022-01-12 19:26:53") },
+                   
                     new Booking { UserId = user2Id, ShowId = 7, SeatRow = "K", SeatNumber = 5, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2022-01-14 19:05:08") },
                     new Booking { UserId = user2Id, ShowId = 7, SeatRow = "K", SeatNumber = 6, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2022-01-14 19:05:11") },
                     new Booking { UserId = user2Id, ShowId = 7, SeatRow = "I", SeatNumber = 8, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2022-01-14 19:05:16") },
                     new Booking { UserId = user2Id, ShowId = 7, SeatRow = "I", SeatNumber = 9, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2022-01-14 19:05:19") },
-                    new Booking { UserId = user2Id, ShowId = 27, SeatRow = "G", SeatNumber = 6, Price = 800, Status = BookingStatus.Reserved, BookingDateTime = DateTime.Parse("2022-01-15 05:49:12") },
-                    new Booking { UserId = user2Id, ShowId = 24, SeatRow = "F", SeatNumber = 6, Price = 800, Status = BookingStatus.Reserved, BookingDateTime = DateTime.Parse("2022-01-17 14:49:31") },
+                    
                     new Booking { UserId = user2Id, ShowId = 24, SeatRow = "F", SeatNumber = 7, Price = 800, Status = BookingStatus.Reserved, BookingDateTime = DateTime.Parse("2022-01-17 14:49:33") },
                     new Booking { UserId = user2Id, ShowId = 24, SeatRow = "F", SeatNumber = 8, Price = 800, Status = BookingStatus.Reserved, BookingDateTime = DateTime.Parse("2022-01-17 14:49:34") },
                     new Booking { UserId = user2Id, ShowId = 24, SeatRow = "G", SeatNumber = 8, Price = 800, Status = BookingStatus.Reserved, BookingDateTime = DateTime.Parse("2022-01-17 14:49:36") },
                     new Booking { UserId = user2Id, ShowId = 24, SeatRow = "G", SeatNumber = 6, Price = 800, Status = BookingStatus.Reserved, BookingDateTime = DateTime.Parse("2022-01-17 14:49:38") },
                     new Booking { UserId = user2Id, ShowId = 24, SeatRow = "G", SeatNumber = 7, Price = 800, Status = BookingStatus.Reserved, BookingDateTime = DateTime.Parse("2021-01-17 14:49:40") },
-                    new Booking { UserId = user2Id, ShowId = 27, SeatRow = "A", SeatNumber = 5, Price = 800, Status = BookingStatus.Reserved, BookingDateTime = DateTime.Parse("2022-01-17 14:51:09") },
+                    
                     new Booking { UserId = user2Id, ShowId = 14, SeatRow = "A", SeatNumber = 0, Price = 800, Status = BookingStatus.Reserved, BookingDateTime = DateTime.Parse("2022-01-17 15:39:17") },
                     new Booking { UserId = user2Id, ShowId = 14, SeatRow = "A", SeatNumber = 1, Price = 800, Status = BookingStatus.Reserved, BookingDateTime = DateTime.Parse("2022-01-17 15:39:18") },
                     new Booking { UserId = user2Id, ShowId = 14, SeatRow = "A", SeatNumber = 2, Price = 800, Status = BookingStatus.Reserved, BookingDateTime = DateTime.Parse("2022-01-17 15:39:20") },
@@ -1890,8 +1147,8 @@ namespace backend.Infrastructure.Data
                     new Booking { UserId = user2Id, ShowId = 14, SeatRow = "G", SeatNumber = 2, Price = 800, Status = BookingStatus.Reserved, BookingDateTime = DateTime.Parse("2022-01-17 15:41:07") },
                     new Booking { UserId = user2Id, ShowId = 14, SeatRow = "G", SeatNumber = 3, Price = 800, Status = BookingStatus.Reserved, BookingDateTime = DateTime.Parse("2022-01-17 15:41:09") },
                     new Booking { UserId = user2Id, ShowId = 14, SeatRow = "H", SeatNumber = 2, Price = 800, Status = BookingStatus.Reserved, BookingDateTime = DateTime.Parse("2022-01-17 15:41:11") },
-                    new Booking { UserId = user4Id, ShowId = 33, SeatRow = "G", SeatNumber = 2, Price = 800, Status = BookingStatus.Reserved, BookingDateTime = DateTime.Parse("2022-01-18 15:34:50") },
-                    new Booking { UserId = user4Id, ShowId = 33, SeatRow = "D", SeatNumber = 0, Price = 800, Status = BookingStatus.Reserved, BookingDateTime = DateTime.Parse("2022-01-18 15:34:52") }
+                    new Booking { UserId = user4Id, ShowId = 10, SeatRow = "G", SeatNumber = 2, Price = 800, Status = BookingStatus.Reserved, BookingDateTime = DateTime.Parse("2022-01-18 15:34:50") },
+                    new Booking { UserId = user4Id, ShowId = 10, SeatRow = "D", SeatNumber = 0, Price = 800, Status = BookingStatus.Reserved, BookingDateTime = DateTime.Parse("2022-01-18 15:34:52") }
                     );
                 await _context.SaveChangesAsync();
             }
@@ -1901,7 +1158,7 @@ namespace backend.Infrastructure.Data
                 _context.Payments.AddRange(
                     new Payment { Amount = 68000, PaymentDateTime = DateTime.Parse("2021-06-06 03:33:47"), Method = PaymentMethod.Card, UserId = user2Id, ShowId = 7 },
                     new Payment { Amount = 16800, PaymentDateTime = DateTime.Parse("2021-06-06 03:36:43"), Method = PaymentMethod.Card, UserId = user2Id, ShowId = 13 },
-                    new Payment { Amount = 13600, PaymentDateTime = DateTime.Parse("2021-06-06 03:42:26"), Method = PaymentMethod.Card, UserId = user2Id, ShowId = 32 },
+                    new Payment { Amount = 13600, PaymentDateTime = DateTime.Parse("2021-06-06 03:42:26"), Method = PaymentMethod.Card, UserId = user2Id, ShowId = 15 },
                     new Payment { Amount = 2400, PaymentDateTime = DateTime.Parse("2021-06-06 21:24:38"), Method = PaymentMethod.Card, UserId = user2Id, ShowId = 7 },
                     new Payment { Amount = 4800, PaymentDateTime = DateTime.Parse("2021-06-06 22:43:28"), Method = PaymentMethod.Card, UserId = user2Id, ShowId = 17 },
                     new Payment { Amount = 4800, PaymentDateTime = DateTime.Parse("2021-06-10 19:00:53"), Method = PaymentMethod.Card, UserId = user3Id, ShowId = 19 },
@@ -1910,12 +1167,12 @@ namespace backend.Infrastructure.Data
                     new Payment { Amount = 800, PaymentDateTime = DateTime.Parse("2021-08-08 03:35:43"), Method = PaymentMethod.Card, UserId = user2Id, ShowId = 8 },
                     new Payment { Amount = 800, PaymentDateTime = DateTime.Parse("2021-08-17 19:47:21"), Method = PaymentMethod.Card, UserId = user2Id, ShowId = 23 },
                     new Payment { Amount = 1600, PaymentDateTime = DateTime.Parse("2021-08-18 10:47:04"), Method = PaymentMethod.Card, UserId = user2Id, ShowId = 23 },
-                    new Payment { Amount = 2400, PaymentDateTime = DateTime.Parse("2021-09-14 00:24:47"), Method = PaymentMethod.Card, UserId = user2Id, ShowId = 27 },
-                    new Payment { Amount = 24800, PaymentDateTime = DateTime.Parse("2021-09-17 00:44:47"), Method = PaymentMethod.Card, UserId = user2Id, ShowId = 26 },
+                    new Payment { Amount = 2400, PaymentDateTime = DateTime.Parse("2021-09-14 00:24:47"), Method = PaymentMethod.Card, UserId = user2Id, ShowId = 25 },
+                    new Payment { Amount = 24800, PaymentDateTime = DateTime.Parse("2021-09-17 00:44:47"), Method = PaymentMethod.Card, UserId = user2Id, ShowId = 2 },
                     new Payment { Amount = 2400, PaymentDateTime = DateTime.Parse("2021-09-23 16:01:34"), Method = PaymentMethod.Card, UserId = user2Id, ShowId = 23 },
                     new Payment { Amount = 3200, PaymentDateTime = DateTime.Parse("2021-10-14 16:08:56"), Method = PaymentMethod.Card, UserId = user2Id, ShowId = 8 },
                     new Payment { Amount = 3200, PaymentDateTime = DateTime.Parse("2021-11-20 02:31:38"), Method = PaymentMethod.Card, UserId = user2Id, ShowId = 23 },
-                    new Payment { Amount = 3200, PaymentDateTime = DateTime.Parse("2022-01-12 19:26:56"), Method = PaymentMethod.Card, UserId = user2Id, ShowId = 26 },
+                
                     new Payment { Amount = 3200, PaymentDateTime = DateTime.Parse("2022-01-14 19:05:21"), Method = PaymentMethod.Card, UserId = user2Id, ShowId = 7 }
                 );
                 await _context.SaveChangesAsync();
