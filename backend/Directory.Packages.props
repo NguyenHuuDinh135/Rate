@@ -47,5 +47,6 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.15.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.0" />
     <PackageVersion Include="StackExchange.Redis" Version="2.7.33" />
+    <PackageVersion Include="DistributedLock.Redis" Version="1.1.1" />
   </ItemGroup>
 </Project>

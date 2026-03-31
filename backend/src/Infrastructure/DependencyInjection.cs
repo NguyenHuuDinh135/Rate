@@ -12,6 +12,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
+using Medallion.Threading; 
+using Medallion.Threading.Redis;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -38,9 +40,14 @@ public static class DependencyInjection
             Guard.Against.NullOrWhiteSpace(redisConnectionString, message: "Redis connection string is not configured.");
             return ConnectionMultiplexer.Connect(redisConnectionString);
         });
-
+        builder.Services.AddSingleton<IDistributedLockProvider>(sp =>
+        {
+            var connection = sp.GetRequiredService<IConnectionMultiplexer>();
+            // Medallion sẽ quản lý việc tạo Lock trên Database của Redis
+            return new RedisDistributedSynchronizationProvider(connection.GetDatabase());
+        });
         builder.Services.AddSingleton<ICacheService, RedisCacheService>();
-
+        builder.Services.AddSingleton<ILockService, RedisLockService>();
         builder.Services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         builder.Services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
 
