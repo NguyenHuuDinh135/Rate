@@ -48,5 +48,7 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.0" />
     <PackageVersion Include="StackExchange.Redis" Version="2.7.33" />
     <PackageVersion Include="DistributedLock.Redis" Version="1.1.1" />
+    <PackageVersion Include="Hangfire.AspNetCore" Version="1.8.23" />
+    <PackageVersion Include="Hangfire.PostgreSql" Version="1.21.1" />
   </ItemGroup>
 </Project>

@@ -5,6 +5,8 @@ using backend.Infrastructure.Data;
 using backend.Infrastructure.Data.Interceptors;
 using backend.Infrastructure.Identity;
 using backend.Shared;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -48,6 +50,23 @@ public static class DependencyInjection
         });
         builder.Services.AddSingleton<ICacheService, RedisCacheService>();
         builder.Services.AddSingleton<ILockService, RedisLockService>();
+        
+        // Đăng ký Hangfire sử dụng PostgreSQL
+        builder.Services.AddHangfire(config => config
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UsePostgreSqlStorage(
+                options => options.UseNpgsqlConnection(connectionString!), 
+                new PostgreSqlStorageOptions
+                {
+                    QueuePollInterval = TimeSpan.FromSeconds(15),       // Tối ưu tần suất quét DB
+                    InvisibilityTimeout = TimeSpan.FromMinutes(5),      // Thời gian ẩn Job đang chạy
+                    DistributedLockTimeout = TimeSpan.FromMinutes(5)    // Thời gian khóa Job
+                }
+            ));
+        // Đăng ký Hangfire Server để xử lý các Job ngầm
+        builder.Services.AddHangfireServer();
         builder.Services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         builder.Services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
 
