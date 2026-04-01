@@ -15,6 +15,8 @@
     <PackageReference Include="DistributedLock.Redis" />
     <PackageReference Include="Hangfire.AspNetCore" />
     <PackageReference Include="Hangfire.PostgreSql" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="MassTransit.RabbitMQ" />
   </ItemGroup>
 
   <ItemGroup>

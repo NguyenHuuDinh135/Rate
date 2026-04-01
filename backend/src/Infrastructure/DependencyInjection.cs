@@ -7,6 +7,7 @@ using backend.Infrastructure.Identity;
 using backend.Shared;
 using Hangfire;
 using Hangfire.PostgreSql;
+using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -66,6 +67,22 @@ public static class DependencyInjection
                 }
             ));
         // Đăng ký Hangfire Server để xử lý các Job ngầm
+        builder.Services.AddMassTransit(x =>
+        {
+            x.SetKebabCaseEndpointNameFormatter();
+
+            // Đăng ký Consumer
+           // x.AddConsumer<SendEmailConsumer>();
+
+            // Cấu hình RabbitMQ
+            x.UsingRabbitMq((context, cfg) =>
+            {
+                var rabbitConnectionString = builder.Configuration.GetConnectionString("rabbitmq");
+        
+                cfg.Host(rabbitConnectionString);
+                cfg.ConfigureEndpoints(context);
+            });
+        });
         builder.Services.AddHangfireServer();
         builder.Services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         builder.Services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();

@@ -7,10 +7,12 @@ var databaseServer = builder
     .AddDatabase(Services.Database);
 
 var redis = builder.AddRedis(Services.Redis);
+var rabbitmq = builder.AddRabbitMQ("rabbitmq").WithManagementPlugin();
 
 var web = builder.AddProject<Projects.Web>(Services.WebApi)
     .WithReference(databaseServer)
     .WithReference(redis)
+    .WithReference(rabbitmq)
     .WaitFor(databaseServer)
     .WaitFor(redis)
     .WithUrlForEndpoint("http", url =>
