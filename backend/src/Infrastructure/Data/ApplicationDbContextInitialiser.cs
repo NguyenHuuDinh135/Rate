@@ -23,6 +23,7 @@ namespace backend.Infrastructure.Data
             var initialiser = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
 
             await initialiser.InitialiseAsync();
+            await initialiser.SeedAsync();
         }
     }
     public class ApplicationDbContextInitialiser
@@ -43,7 +44,10 @@ namespace backend.Infrastructure.Data
         {
             try
             {
-                await _context.Database.MigrateAsync();
+                _logger.LogInformation("Bắt đầu khởi tạo Database...");
+                await _context.Database.EnsureDeletedAsync();
+                await _context.Database.EnsureCreatedAsync();
+                _logger.LogInformation("Khởi tạo Database thành công.");
             }
             catch (Exception ex)
             {
@@ -56,7 +60,9 @@ namespace backend.Infrastructure.Data
         {
             try
             {
+                _logger.LogInformation("Bắt đầu Seed dữ liệu quản lý cây xanh Hải Châu...");
                 await TrySeedAsync();
+                _logger.LogInformation("✅ Seed dữ liệu thành công (10 records mỗi bảng).");
             }
             catch (Exception ex)
             {
@@ -909,7 +915,7 @@ namespace backend.Infrastructure.Data
             // Seed Shows
             if (!_context.Shows.Any())
             {
-                var today = DateTime.Now.Date;
+                var today = DateTime.UtcNow.Date;
                 var theaterIds = new int[] { 1, 2, 3, 4, 5 };
                 var movieIds = Enumerable.Range(2, 20).ToArray(); // MovieId từ 2 đến 21
                 var startTimes = new string[] { "10:00:00", "13:30:00", "16:30:00", "19:30:00", "22:00:00" };
@@ -942,10 +948,20 @@ namespace backend.Infrastructure.Data
                 await _context.SaveChangesAsync();
             }
 
+            // // Seed Bookings1 
+            // if (!_context.Bookings.Any())
+            // {
+            //     _context.Bookings.AddRange(
+                    
+            //         );
+            //     await _context.SaveChangesAsync();
+            // }
+
             // Seed Bookings
-            if (!_context.Bookings.Any())
+            if (!await _context.Bookings.AnyAsync())
             {
-                _context.Bookings.AddRange(
+                var bookings = new List<Booking>
+                {
                     new Booking { UserId = user2Id, ShowId = 7, SeatRow = "E", SeatNumber = 0, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:31:29") },
                     new Booking { UserId = user2Id, ShowId = 7, SeatRow = "E", SeatNumber = 1, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:31:31") },
                     new Booking { UserId = user2Id, ShowId = 7, SeatRow = "E", SeatNumber = 2, Price = 800, Status = BookingStatus.Confirmed, BookingDateTime = DateTime.Parse("2021-06-06 03:31:33") },
@@ -1149,9 +1165,22 @@ namespace backend.Infrastructure.Data
                     new Booking { UserId = user2Id, ShowId = 14, SeatRow = "H", SeatNumber = 2, Price = 800, Status = BookingStatus.Reserved, BookingDateTime = DateTime.Parse("2022-01-17 15:41:11") },
                     new Booking { UserId = user4Id, ShowId = 10, SeatRow = "G", SeatNumber = 2, Price = 800, Status = BookingStatus.Reserved, BookingDateTime = DateTime.Parse("2022-01-18 15:34:50") },
                     new Booking { UserId = user4Id, ShowId = 10, SeatRow = "D", SeatNumber = 0, Price = 800, Status = BookingStatus.Reserved, BookingDateTime = DateTime.Parse("2022-01-18 15:34:52") }
-                    );
-                await _context.SaveChangesAsync();
-            }
+                };
+
+                const int batchSize = 80;   // Có thể thử 50 hoặc 100 tùy máy
+
+                for (int i = 0; i < bookings.Count; i += batchSize)
+                {
+                    var batch = bookings.Skip(i).Take(batchSize).ToList();
+                    
+                    _context.Bookings.AddRange(batch);
+                    await _context.SaveChangesAsync();
+
+                    Console.WriteLine($"Đã seed {Math.Min(i + batchSize, bookings.Count)}/{bookings.Count} bookings...");
+                }
+
+                Console.WriteLine("Seed Bookings hoàn tất!");
+            }     
             // Seed Payments
             if (!_context.Payments.Any())
             {

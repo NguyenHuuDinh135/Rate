@@ -2,8 +2,9 @@ using backend.Infrastructure.Data;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
+// AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 // Add services to the container.
 builder.AddServiceDefaults();
@@ -45,24 +46,6 @@ app.MapEndpoints(typeof(Program).Assembly);
 
 app.UseFileServer();
 
-await app.InitialiseDatabaseAsync();
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var logger = services.GetRequiredService<ILogger<Program>>();
-    try
-    {
-        var dbInitialiser = services.GetRequiredService<ApplicationDbContextInitialiser>();
 
-        // Seed roles, users và bookings
-        await dbInitialiser.SeedAsync();
-
-        logger.LogInformation("Database seeded successfully.");
-    }
-    catch (Exception ex)
-    {
-        logger.LogError(ex, "An error occurred while seeding the database.");
-    }
-}
 
 app.Run();
