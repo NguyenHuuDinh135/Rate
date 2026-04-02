@@ -3,6 +3,9 @@ using Hangfire;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
+// AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 // Add services to the container.
 builder.AddServiceDefaults();
@@ -43,5 +46,7 @@ app.MapDefaultEndpoints();
 app.MapEndpoints(typeof(Program).Assembly);
 
 app.UseFileServer();
+
+
 
 app.Run();
