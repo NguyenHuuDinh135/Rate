@@ -1,4 +1,5 @@
 using backend.Infrastructure.Data;
+using Hangfire;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -40,7 +41,7 @@ app.MapScalarApiReference();
 app.UseExceptionHandler(options => { });
 
 app.Map("/", () => Results.Redirect("/scalar"));
-
+app.UseHangfireDashboard("/hangfire");
 app.MapDefaultEndpoints();
 app.MapEndpoints(typeof(Program).Assembly);
 

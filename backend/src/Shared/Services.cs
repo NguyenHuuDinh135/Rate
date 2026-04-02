@@ -1,4 +1,4 @@
-﻿namespace backend.Shared;
+namespace backend.Shared;
 
 public static class Services
 {

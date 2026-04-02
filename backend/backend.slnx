@@ -8,7 +8,7 @@
     <File Path="README.md" />
   </Folder>
   <Folder Name="/src/">
-    <Project Path="src/AppHost/AppHost.csproj" DefaultStartup="true" />
+    <Project Path="src/AppHost/AppHost.csproj"/>
     <Project Path="src/ServiceDefaults/ServiceDefaults.csproj" />
     <Project Path="src/Application/Application.csproj" />
     <Project Path="src/Domain/Domain.csproj" />
