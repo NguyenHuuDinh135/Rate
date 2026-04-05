@@ -1,32 +1,18 @@
 using backend.Shared;
 
-var databaseName = "MovieDb";
-
 var builder = DistributedApplication.CreateBuilder(args);
 
-// Fix password
-var postgresPassword = builder.AddParameter(
-    "postgres-password",
-    "123",
-    secret: true
-);
+var postgres = builder.AddPostgres(Services.DatabaseServer);
 
-// Cấu hình Postgres giống đoạn trên
-var postgres = builder
-    .AddPostgres(
-        Services.DatabaseServer,
-        password: postgresPassword,   // fix password
-        port: 5432                    // fix port
-    )
-    .WithEnvironment("POSTGRES_DB", databaseName);
+var database = postgres.AddDatabase("MovieDb");
 
-// Tạo database
-var database = postgres.AddDatabase(databaseName);
+var redis = builder.AddRedis(Services.Redis);
 
-// Web
 var web = builder.AddProject<Projects.Web>(Services.WebApi)
-    .WithReference(database)        // ⚠️ nên reference database, không phải server
+    .WithReference(database)   // inject connection string
+    .WithReference(redis)      // inject redis
     .WaitFor(database)
+    .WaitFor(redis)
     .WithUrlForEndpoint("http", url =>
     {
         url.DisplayText = "Scalar API Reference";
