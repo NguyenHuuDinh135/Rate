@@ -24,6 +24,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
+using backend.Infrastructure.Persistence.Dapper;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -42,6 +43,8 @@ public static class DependencyInjection
             .AddIdentity()
             .AddJwt(configuration)
             .AddApplicationServices();
+
+        builder.Services.AddScoped<MovieDapperRepository>();
 
         return builder.Services;
     }
