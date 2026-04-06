@@ -33,6 +33,7 @@
     <PackageVersion Include="Scalar.AspNetCore" Version="2.13.11" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.1.2" />
     <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.1.2" />
     <PackageVersion Include="Aspire.Hosting.Redis" Version="13.1.2" />
