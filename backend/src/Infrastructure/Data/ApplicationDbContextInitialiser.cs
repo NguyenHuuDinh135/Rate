@@ -1,4 +1,4 @@
-﻿﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using backend.Domain.Entities;
@@ -9,20 +9,22 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using backend.Infrastructure.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace backend.Infrastructure.Data
 {
     public static class InitialiserExtensions
     {
-
         public static async Task InitialiseDatabaseAsync(this WebApplication app)
         {
             using var scope = app.Services.CreateScope();
 
             var initialiser = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
+            var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+            var resetOnStartup = configuration.GetValue<bool>("Database:ResetOnStartup");
 
-            await initialiser.InitialiseAsync();
+            await initialiser.InitialiseAsync(resetOnStartup);
             await initialiser.SeedAsync();
         }
     }
@@ -40,13 +42,21 @@ namespace backend.Infrastructure.Data
             _userManager = userManager;
             _roleManager = roleManager;
         }
-        public async Task InitialiseAsync()
+        public async Task InitialiseAsync(bool resetOnStartup = false)
         {
             try
             {
                 _logger.LogInformation("Bắt đầu khởi tạo Database...");
-                await _context.Database.EnsureDeletedAsync();
-                await _context.Database.EnsureCreatedAsync();
+                if (resetOnStartup)
+                {
+                    _logger.LogWarning("Database reset is enabled. Dropping and recreating schema.");
+                    await _context.Database.EnsureDeletedAsync();
+                    await _context.Database.EnsureCreatedAsync();
+                }
+                else
+                {
+                    await _context.Database.MigrateAsync();
+                }
                 _logger.LogInformation("Khởi tạo Database thành công.");
             }
             catch (Exception ex)

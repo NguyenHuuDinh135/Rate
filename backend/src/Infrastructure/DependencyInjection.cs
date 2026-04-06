@@ -6,6 +6,7 @@ using backend.Domain.Constants;
 using backend.Infrastructure.Caching;
 using backend.Infrastructure.Data;
 using backend.Infrastructure.Data.Interceptors;
+using backend.Infrastructure.Email;
 using backend.Infrastructure.Identity;
 using backend.Infrastructure.Jwt;
 using backend.Shared;
@@ -37,6 +38,7 @@ public static class DependencyInjection
         builder.Services
             .AddDatabase(configuration)
             .AddRedis(configuration)
+            .AddEmail(configuration)
             .AddHangfire(configuration)
             .AddMessaging(configuration) // optional
             .AddIdentity()
@@ -69,9 +71,22 @@ public static class DependencyInjection
         services.AddScoped<ApplicationDbContextInitialiser>();
 
         Console.WriteLine(
-            $"DB: {config.GetConnectionString(Services.Database)}"
+            $"DB: {connectionString}"
         );
 
+        return services;
+    }
+
+    private static IServiceCollection AddEmail(
+        this IServiceCollection services, IConfiguration config)
+    {
+        services
+            .AddOptions<SmtpOptions>()
+            .Bind(config.GetSection(SmtpOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddScoped<IEmailSender, SmtpEmailSender>();
         return services;
     }
 
@@ -86,9 +101,8 @@ public static class DependencyInjection
 
         services.AddSingleton<IConnectionMultiplexer>(sp =>
         {
-            var redisConnectionString =
-                config.GetConnectionString(Services.Redis) ??
-                config[$"{RedisOptions.SectionName}:ConnectionString"];
+            var redisConnectionString = config.GetConnectionString(Services.Redis)
+                ?? config[$"{RedisOptions.SectionName}:ConnectionString"];
 
             Guard.Against.NullOrWhiteSpace(redisConnectionString, "Redis not configured.");
 
@@ -103,6 +117,10 @@ public static class DependencyInjection
 
         services.AddSingleton<ICacheService, RedisCacheService>();
         services.AddSingleton<ILockService, RedisLockService>();
+        services.AddSingleton<IRateLimitService, RedisRateLimitService>();
+        services.AddSingleton<IIdempotencyService, RedisIdempotencyService>();
+        services.AddSingleton<IRevokeTokenService, RedisTokenRevocationService>();
+        services.AddSingleton<IOneTimeTokenService, RedisOneTimeTokenService>();
 
         return services;
     }
@@ -158,7 +176,16 @@ public static class DependencyInjection
     {
         services.AddAuthorizationBuilder();
         services
-            .AddIdentityCore<ApplicationUser>()
+            .AddIdentityCore<ApplicationUser>(
+                options =>{
+                    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                    options.Password.RequireUppercase = true;
+                    options.Password.RequireLowercase = true;
+                    options.Password.RequireDigit = true;
+                    options.Password.RequireNonAlphanumeric = true;
+                    options.Password.RequiredLength = 6;
+                }
+            )
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>();
         services.AddAuthorization(options =>
@@ -173,6 +200,8 @@ public static class DependencyInjection
     {
         services.AddSingleton(TimeProvider.System);
         services.AddTransient<IIdentityService, IdentityService>();
+        services.AddTransient<IAuthenticationService, AuthenticationService>();
+        services.AddSingleton<IRefreshTokenStore, RedisRefreshTokenStore>();
 
         return services;
     }
@@ -208,7 +237,28 @@ public static class DependencyInjection
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
                 };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        var jti = context.Principal?.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+                        if (string.IsNullOrWhiteSpace(jti))
+                        {
+                            context.Fail("Token is missing jti.");
+                            return;
+                        }
+
+                        var tokenRevocationService = context.HttpContext.RequestServices.GetRequiredService<IRevokeTokenService>();
+                        if (await tokenRevocationService.IsRevokedAsync(jti, context.HttpContext.RequestAborted))
+                        {
+                            context.Fail("Token has been revoked.");
+                        }
+                    }
+                };
             });
+
+        services.AddScoped<IJwtService, JwtService>();
             
         return services;
     }

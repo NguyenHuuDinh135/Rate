@@ -34,6 +34,9 @@ app.UseCors(static builder =>
         .AllowAnyHeader()
         .AllowAnyOrigin());
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapOpenApi();
 app.MapScalarApiReference();
 
