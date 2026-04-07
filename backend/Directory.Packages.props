@@ -5,7 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Ardalis.GuardClauses" Version="5.0.0" />
-    <PackageVersion Include="Aspire.Hosting.Elasticsearch" Version="9.4.1" />
+    <PackageVersion Include="Aspire.Hosting.Elasticsearch" Version="13.2.0" />
     <PackageVersion Include="Aspire.RabbitMQ.Client" Version="13.2.1" />
     <PackageVersion Include="AutoMapper" Version="16.1.1" />
     <PackageVersion Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.5.0" />
@@ -15,7 +15,8 @@
     <PackageVersion Include="Dapper.AOT" Version="1.0.48" />
     <PackageVersion Include="Elastic.Clients.Elasticsearch" Version="9.3.4" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
-    <PackageVersion Include="MassTransit.EntityFrameworkCore" Version="9.1.0" />
+    <PackageVersion Include="MassTransit.EntityFrameworkCore" Version="8.3.2" />
+    <!-- <PackageVersion Include="MassTransit.EntityFrameworkCore" Version="9.0.0" /> -->
     <PackageVersion Include="MediatR" Version="14.1.0" />
     <PackageVersion Include="MediatR.Contracts" Version="2.0.1" />
     <PackageVersion Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.5" />
@@ -41,13 +42,13 @@
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.1.2" />
-    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="9.4.1" />
-    <PackageVersion Include="Aspire.Hosting.Redis" Version="9.4.1" />
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.2.0" />
+    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.2.0" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
-    <PackageVersion Include="Aspire.Hosting.AppHost" Version="9.4.1" />
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.2.0" />
     <PackageVersion Include="Aspire.Hosting.Testing" Version="13.1.2" />
     <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.1.2" />
-    <PackageVersion Include="Aspire.Hosting.RabbitMQ" Version="9.4.1" />
+    <PackageVersion Include="Aspire.Hosting.RabbitMQ" Version="13.2.0" />
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.4.0" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.4.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.0" />
@@ -59,6 +60,7 @@
     <PackageVersion Include="DistributedLock.Redis" Version="1.1.1" />
     <PackageVersion Include="Hangfire.AspNetCore" Version="1.8.23" />
     <PackageVersion Include="Hangfire.PostgreSql" Version="1.21.1" />
-    <PackageVersion Include="MassTransit.RabbitMQ" Version="8.0.0" />
+    <PackageVersion Include="MassTransit.RabbitMQ" Version="8.3.2" />
+    <!-- <PackageVersion Include="MassTransit.RabbitMQ" Version="9.0.0" /> -->
   </ItemGroup>
 </Project>

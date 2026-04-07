@@ -4,6 +4,7 @@ using Scalar.AspNetCore;
 using Elastic.Clients.Elasticsearch;
 using MassTransit;
 using backend.Infrastructure.Consumers;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -21,7 +22,7 @@ builder.AddWebServices();
 // ===============================
 // PostgreSQL DbContext từ Aspire
 // ===============================
-builder.AddNpgsqlDbContext<ApplicationDbContext>("MovieDb");
+// builder.AddNpgsqlDbContext<ApplicationDbContext>("MovieDb");
 
 
 // ===============================
@@ -39,7 +40,7 @@ builder.Services.AddSingleton(sp =>
 });
 
 
-// ===============================
+// ==============================
 // MassTransit + RabbitMQ + Outbox
 // ===============================
 builder.Services.AddMassTransit(x =>
@@ -61,7 +62,11 @@ builder.Services.AddMassTransit(x =>
     x.UsingRabbitMq((context, cfg) =>
     {
         cfg.Host(builder.Configuration.GetConnectionString("messaging"));
+
         cfg.ConfigureEndpoints(context);
+
+        // Khuyến nghị dùng khi development (nhanh và ổn định)
+        cfg.UseInMemoryOutbox(context);
     });
 });
 

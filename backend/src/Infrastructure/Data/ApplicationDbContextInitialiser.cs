@@ -246,7 +246,7 @@ namespace backend.Infrastructure.Data
                 {
                     new Movie
                     {
-                        Id = Guid.NewGuid(),
+                        
                         Title = "GODZILLA VS KONG",
                         Summary = "Legends collide as Godzilla and Kong, the two most powerful forces of nature, clash on the big screen in a spectacular battle for the ages. As a squadron embarks on a perilous mission into fantastic uncharted terrain, unearthing clues to the Titans' very origins and mankind's survival, a conspiracy threatens to wipe the creatures, both good and bad, from the face of the earth forever.",
                         Year = 2021,
@@ -257,7 +257,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(),
+                        
                         Title = "JOKER",
                         Summary = "Arthur Fleck, a party clown, leads an impoverished life with his ailing mother. However, when society shuns him and brands him as a freak, he decides to embrace the life of crime and chaos.",
                         Year = 2019,
@@ -268,7 +268,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(),
+                        
                         Title = "SUICIDE SQUAD 2",
                         Summary = "The government sends the most dangerous supervillains in the world -- Bloodsport, Peacemaker, King Shark, Harley Quinn and others -- to the remote, enemy-infused island of Corto Maltese. Armed with high-tech weapons, they trek through the dangerous jungle on a search-and-destroy mission, with only Col. Rick Flag on the ground to make them behave.",
                         Year = 2021,
@@ -279,7 +279,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(),
+                        
                         Title = "THE BATMAN",
                         Summary = "The Riddler plays a deadly game of cat and mouse with Batman and Commissioner Gordon in Gotham City.",
                         Year = 2022,
@@ -291,7 +291,7 @@ namespace backend.Infrastructure.Data
                     // Seed Movies - Extended
                     new Movie
                     {
-                        Id = Guid.NewGuid(),
+                        
                         Title = "TWILIGHT", 
                         Summary = "Bella Swan moves to Forks and encounters Edward Cullen, a gorgeous boy with a secret. When Bella discovers that Edward is a vampire, she must choose between her love for him and her own safety.", 
                         Year = 2008, 
@@ -302,7 +302,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(),
+                        
                         Title = "THE LIGHTHOUSE", 
                         Summary = "Two lighthouse keepers try to maintain their sanity while living on a remote and mysterious New England island in the 1890s.", 
                         Year = 2019, 
@@ -313,7 +313,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(),
+                        
                         Title = "MAD MAX FURY ROAD", 
                         Summary = "In a post-apocalyptic wasteland, a woman rebels against a tyrannical ruler in search for her homeland with the aid of a group of female prisoners, a psychotic worshiper and a drifter named Max.", 
                         Year = 2015, 
@@ -324,7 +324,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "DUNE", 
                         Summary = "Paul Atreides arrives on Arrakis after his father accepts the stewardship of the dangerous planet. However, chaos ensues after a betrayal as forces clash to control melange, a precious resource.", 
                         Year = 2021, 
@@ -335,7 +335,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "PRISONERS", 
                         Summary = "When the police take time to find Keller Dover's daughter and her friend, he decides to go on a search himself. His desperation leads him to questionable actions.", 
                         Year = 2013, 
@@ -346,7 +346,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "THERE WILL BE BLOOD", 
                         Summary = "A story of family, religion, hatred, oil and madness, focusing on a turn-of-the-century prospector in the early days of the business.", 
                         Year = 2007, 
@@ -357,7 +357,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "CLOVERFIELD", 
                         Summary = "A group of friends venture deep into the streets of New York on a rescue mission during a rampaging monster attack.", 
                         Year = 2008, 
@@ -368,7 +368,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "DAWN OF THE PLANET OF THE APES", 
                         Summary = "A growing nation of genetically evolved apes led by Caesar is threatened by a band of human survivors of the devastating virus unleashed a decade earlier.", 
                         Year = 2014, 
@@ -379,7 +379,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "THE HANGOVER", 
                         Summary = "Three buddies wake up from a bachelor party in Las Vegas, with no memory of the previous night and the bachelor missing. They make their way around the city in order to find their friend before his wedding.", 
                         Year = 2009, 
@@ -390,7 +390,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "WAR DOGS", 
                         Summary = "Loosely based on the true story of two young men, David Packouz and Efraim Diveroli, who won a three hundred million dollar contract from the Pentagon to arm America's allies in Afghanistan.", 
                         Year = 2016, 
@@ -401,7 +401,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "DEADPOOL 2", 
                         Summary = "Foul-mouthed mutant mercenary Wade Wilson, brings together a team of fellow mutant rogues to protect a young boy with supernatural abilities from the brutal, time-traveling cyborg Cable.", 
                         Year = 2018, 
@@ -412,7 +412,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "ATLANTA", 
                         Summary = "Earn and his cousin Alfred try to make their way in the world through Atlanta's rap scene. Along the way they come face-to-face with social and economic issues touching on race, relationships, poverty, status and parenthood.", 
                         Year = 2016, 
@@ -423,7 +423,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "TAXI DRIVER", 
                         Summary = "A mentally unstable veteran works as a nighttime taxi driver in New York City, where the perceived decadence and sleaze fuels his urge for violent action.", 
                         Year = 1976, 
@@ -434,7 +434,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "THE IRISHMAN", 
                         Summary = "An aging hitman recalls his time with the mob and the intersecting events with his friend, Jimmy Hoffa, through the 1950-70s.", 
                         Year = 2019, 
@@ -445,7 +445,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "HER", 
                         Summary = "In a near future, a lonely writer develops an unlikely relationship with an operating system designed to meet his every need.", 
                         Year = 2013, 
@@ -456,7 +456,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "WALK THE LINE", 
                         Summary = "A chronicle of country music legend Johnny Cash's life, from his early days on an Arkansas cotton farm to his rise to fame with Sun Records in Memphis.", 
                         Year = 2005, 
@@ -467,7 +467,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "ENOLA HOLMES", 
                         Summary = "When Enola Holmes, Sherlock's teen sister, discovers her mother is missing, she endeavours to find her, becoming a super-sleuth in her own right as she outwits her famous brother and unravels a dangerous conspiracy.", 
                         Year = 2020, 
@@ -478,7 +478,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "STRANGER THINGS SEASON 4", 
                         Summary = "When a young boy disappears, his mother, a police chief and his friends must confront terrifying supernatural forces in order to get him back.", 
                         Year = 2022, 
@@ -489,7 +489,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "THE LEGEND OF TARZAN", 
                         Summary = "Tarzan, having acclimated to life in London, is called back to his former home in the jungle to investigate the activities at a mining encampment.", 
                         Year = 2016, 
@@ -500,7 +500,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "TRUE BLOOD", 
                         Summary = "Telepathic waitress Sookie Stackhouse encounters a strange new supernatural world when she meets the mysterious Bill Compton, a southern Louisiana gentleman and vampire.", 
                         Year = 2008, 
@@ -511,7 +511,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "THE TOWN", 
                         Summary = "A proficient group of thieves rob a bank and hold Claire, the assistant manager, hostage. Things begin to get complicated when one of the crew members falls in love with Claire.", 
                         Year = 2010, 
@@ -522,7 +522,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "VICKY CRISTINA BARCELONA", 
                         Summary = "Two friends on a summer holiday in Spain become enamored with the same painter, unaware that his ex-wife, with whom he has a tempestuous relationship, is about to re-enter the picture.", 
                         Year = 2008, 
@@ -533,7 +533,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "GODZILLA", 
                         Summary = "The world is beset by the appearance of monstrous creatures, but one of them may be the only one who can save humanity.", 
                         Year = 2014, 
@@ -544,7 +544,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "KONG SKULL ISLAND", 
                         Summary = "After the Vietnam war, a team of scientists explores an uncharted island in the Pacific, venturing into the domain of the mighty Kong, and must fight to escape a primal Eden.", 
                         Year = 2017, 
@@ -555,7 +555,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "YOU'RE NEXT", 
                         Summary = "When the Davison family comes under attack during their wedding anniversary getaway, the gang of mysterious killers soon learns that one of the victims harbors a secret talent for fighting back.", 
                         Year = 2011, 
@@ -566,7 +566,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "THE GUEST", 
                         Summary = "A soldier introduces himself to the Peterson family, claiming to be a friend of their son who died in action. After the young man is welcomed into their home, a series of accidental deaths seem to be connected to his presence.", 
                         Year = 2014, 
@@ -577,7 +577,7 @@ namespace backend.Infrastructure.Data
                     },
                     new Movie
                     {
-                        Id = Guid.NewGuid(), 
+                         
                         Title = "LEGENDARY PICTURES", 
                         Summary = "A behind-the-scenes documentary exploring the journey of creating some of the biggest blockbuster films from Legendary Pictures.", 
                         Year = 2021, 

@@ -4,7 +4,6 @@ namespace backend.Domain.Entities
 {
     public class Movie : BaseEntity
     {
-        public new Guid Id { get; set; } = Guid.NewGuid();
         public string Title { get; set; } = string.Empty;
         public string Summary { get; set; } = string.Empty;
         public int Year { get; set; }

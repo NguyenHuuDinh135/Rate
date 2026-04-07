@@ -26,6 +26,7 @@ using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using backend.Infrastructure.Persistence.Dapper;
 
+
 namespace Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjection
@@ -39,7 +40,7 @@ public static class DependencyInjection
             .AddDatabase(configuration)
             .AddRedis(configuration)
             .AddHangfire(configuration)
-            .AddMessaging(configuration) // optional
+
             .AddIdentity()
             .AddJwt(configuration)
             .AddApplicationServices();
@@ -52,16 +53,19 @@ public static class DependencyInjection
     private static IServiceCollection AddDatabase(
         this IServiceCollection services, IConfiguration config)
     {
-        var connectionString = config.GetConnectionString(Services.Database);
-        Guard.Against.Null(connectionString, $"Connection string '{Services.Database}' not found.");
+        var connectionString = config.GetConnectionString("MovieDb")
+            ?? throw new InvalidOperationException("Connection string 'MovieDb' not found.");
 
         services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
 
         services.AddDbContext<ApplicationDbContext>((sp, options) =>
         {
-            options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
+            var interceptors = sp.GetServices<ISaveChangesInterceptor>();
+
             options.UseNpgsql(connectionString);
+            options.AddInterceptors(interceptors);
+
             options.ConfigureWarnings(w =>
                 w.Ignore(RelationalEventId.PendingModelChangesWarning));
         });
@@ -71,9 +75,7 @@ public static class DependencyInjection
 
         services.AddScoped<ApplicationDbContextInitialiser>();
 
-        Console.WriteLine(
-            $"DB: {config.GetConnectionString(Services.Database)}"
-        );
+        Console.WriteLine($"Postgres connected via Aspire");
 
         return services;
     }
@@ -134,27 +136,27 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddMessaging(
-        this IServiceCollection services, IConfiguration config)
-    {
-        var rabbitConnectionString = config.GetConnectionString("rabbitmq");
+    // private static IServiceCollection AddMessaging(
+    //     this IServiceCollection services, IConfiguration config)
+    // {
+    //     var rabbitConnectionString = config.GetConnectionString("rabbitmq");
 
-        if (string.IsNullOrWhiteSpace(rabbitConnectionString))
-            return services;
+    //     if (string.IsNullOrWhiteSpace(rabbitConnectionString))
+    //         return services;
 
-        services.AddMassTransit(x =>
-        {
-            x.SetKebabCaseEndpointNameFormatter();
+    //     services.AddMassTransit(x =>
+    //     {
+    //         x.SetKebabCaseEndpointNameFormatter();
 
-            x.UsingRabbitMq((context, cfg) =>
-            {
-                cfg.Host(rabbitConnectionString);
-                cfg.ConfigureEndpoints(context);
-            });
-        });
+    //         x.UsingRabbitMq((context, cfg) =>
+    //         {
+    //             cfg.Host(rabbitConnectionString);
+    //             cfg.ConfigureEndpoints(context);
+    //         });
+    //     });
 
-        return services;
-    }
+    //     return services;
+    // }
 
     private static IServiceCollection AddIdentity(
         this IServiceCollection services)

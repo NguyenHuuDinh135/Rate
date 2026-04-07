@@ -1,4 +1,16 @@
-namespace backend.Application.Common.Contracts
+namespace backend.Application.Common.Contracts;
+
+public record MovieCreatedEvent
 {
-    public record MovieCreatedEvent(Guid Id, string Title);
+    // Thêm constructor mặc định cho MassTransit
+    public MovieCreatedEvent() { }
+
+    public MovieCreatedEvent(int id, string title)
+    {
+        Id = id;
+        Title = title;
+    }
+
+    public int Id { get; init; }
+    public string Title { get; init; } = string.Empty;
 }
