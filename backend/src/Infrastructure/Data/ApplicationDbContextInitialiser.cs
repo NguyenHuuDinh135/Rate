@@ -24,10 +24,20 @@ namespace backend.Infrastructure.Data
 
             var initialiser = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
             var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+            var applyMigrations = configuration.GetValue("Database:ApplyMigrationsOnStartup", true);
             var resetOnStartup = configuration.GetValue<bool>("Database:ResetOnStartup");
+            var seedOnStartup = configuration.GetValue("Database:SeedOnStartup", true);
+
+            if (!applyMigrations)
+            {
+                return;
+            }
 
             await initialiser.InitialiseAsync(resetOnStartup);
-            await initialiser.SeedAsync();
+            if (seedOnStartup)
+            {
+                await initialiser.SeedAsync();
+            }
         }
     }
     public class ApplicationDbContextInitialiser

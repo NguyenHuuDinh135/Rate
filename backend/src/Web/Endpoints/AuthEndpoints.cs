@@ -155,40 +155,5 @@ namespace backend.Web.Endpoints
                 ? TypedResults.Ok(result)
                 : TypedResults.BadRequest(result);
         }
-
-        // public static async Task<IResult> RefreshToken(ISender sender, RefreshTokenRequest request)
-        // {
-        //     var result = await sender.Send(request);
-
-        //     return result.Match(
-        //         authResult => Results.Ok(authResult),
-        //         error => Results.BadRequest(error));
-        // }
-
-        // public static async Task<IResult> ForgotPassword(ISender sender, ForgotPasswordRequest request)
-        // {
-        //     var result = await sender.Send(request);
-
-        //     return result.Match(
-        //         _ => Results.Ok(),
-        //         error => Results.BadRequest(error));
-        // }
-
-        // public static async Task<IResult> ChangePassword(ISender sender, ChangePasswordRequest request)
-        // {
-        //     var result = await sender.Send(request);
-
-        //     return result.Match(
-        //         _ => Results.Ok(),
-        //         error => Results.BadRequest(error));
-        // }
-
-        // public static async Task<IResult> Logout(ISender sender, LogoutRequest request)
-        // {
-        //     var result = await sender.Send(request);
-
-        //     return result.Match(
-        //         _ => Results.Ok(),
-        //         error => Results.BadRequest(error));
     }
 }

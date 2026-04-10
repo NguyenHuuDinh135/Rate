@@ -9,7 +9,7 @@ namespace backend.Application.Auth.Commands.Register
 {
     public record RegisterRequest : IRequest<Result>
     {
-        public string UserName { get; init; } = string.Empty;
+        public string FullName { get; init; } = string.Empty;
         public string Email { get; init; } = string.Empty;
         public string Password { get; init; } = string.Empty;
     }
@@ -26,7 +26,7 @@ namespace backend.Application.Auth.Commands.Register
         public async Task<Result> Handle(RegisterRequest request, CancellationToken cancellationToken)
         {
             var result = await _identityService.CreateUserAsync(
-                request.UserName,
+                request.FullName,
                 request.Email,
                 request.Password);
 

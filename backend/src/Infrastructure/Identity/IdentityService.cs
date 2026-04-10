@@ -29,11 +29,12 @@ public class IdentityService : IIdentityService
         return user?.UserName;
     }
 
-    public async Task<(Result Result, string UserId)> CreateUserAsync(string userName, string email, string password)
+    public async Task<(Result Result, string UserId)> CreateUserAsync(string FullName, string email, string password)
     {
         var user = new ApplicationUser
         {
-            UserName = userName,
+            FullName = FullName,
+            UserName = email.Split('@')[0],
             Email = email,
         };
 
