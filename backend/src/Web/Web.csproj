@@ -1,8 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <RootNamespace>backend.Web</RootNamespace>
     <AssemblyName>backend.Web</AssemblyName>
+    <UserSecretsId>fffcef97-5743-4df2-b4ea-83b47761e87d</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

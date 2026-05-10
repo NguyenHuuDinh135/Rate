@@ -1,139 +1,437 @@
-﻿# For more info on HTTP files go to https://aka.ms/vs/httpfile
-@Web_HostAddress = https://localhost:7260
+﻿@host = https://localhost:7260
 
-@Email=administrator@localhost
-@Password=Administrator1!
-@BearerToken=<YourToken>
+# Global params — fill in before testing
+@fullName = Nguyễn Quang Vinh
+@email = qvinhkl01@gmail.com
+@password = 123123@Nqv
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjMDlkMmZjNy01OTMzLTRkYmQtOTBkZi02Mzk5OWRhM2FlMzEiLCJlbWFpbCI6InF2aW5oa2wwMUBnbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoicXZpbmhrbDAxIiwianRpIjoiZDVhNDQzNDUtMTFkOS00MjQ4LThiOGMtZGE4YjdjMjM2NzIyIiwiaWF0IjoxNzc2MDg1NjI1LCJleHAiOjE3NzYwODkyMjUsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0OjcyNjAiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjMwMDAifQ.tSG-idbl3S2iYzMfE0zvBu5UDOCeDSjLvgauKrAbJRs
+@refreshToken =
 
-# POST Users Register
-POST {{Web_HostAddress}}/api/Users/Register
+# ============================================================
+# AUTH
+# ============================================================
+
+### Register
+POST {{host}}/api/auth/register
 Content-Type: application/json
 
 {
-  "email": "{{Email}}",
-  "password": "{{Password}}"
+  "fullName": "{{fullName}}",
+  "email": "{{email}}",
+  "password": "{{password}}"
 }
 
-###
-
-# POST Users Login
-POST {{Web_HostAddress}}/api/Users/Login
+### Login
+# @name login
+POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "{{Email}}",
-  "password": "{{Password}}"
+  "email": "{{email}}",
+  "password": "{{password}}"
 }
 
-###
-
-# POST Users Refresh
-POST {{Web_HostAddress}}/api/Users/Refresh
-Authorization: Bearer {{BearerToken}}
+### Refresh Token
+POST {{host}}/api/auth/refresh
 Content-Type: application/json
 
 {
-  "refreshToken": ""
+  "accessToken": "{{token}}",
+  "refreshToken": "{{refreshToken}}"
 }
 
-###
+### Logout
+POST {{host}}/api/auth/logout
+Authorization: Bearer {{token}}
 
-# GET WeatherForecast
-GET {{Web_HostAddress}}/api/WeatherForecasts
-Authorization: Bearer {{BearerToken}}
-
-###
-
-# GET TodoLists
-GET {{Web_HostAddress}}/api/TodoLists
-Authorization: Bearer {{BearerToken}}
-
-###
-
-# POST TodoLists
-POST {{Web_HostAddress}}/api/TodoLists
-Authorization: Bearer {{BearerToken}}
+### Forgot Password
+POST {{host}}/api/auth/forgot-password
 Content-Type: application/json
 
-// CreateTodoListCommand
 {
-  "Title": "Backlog"
+  "email": "{{email}}"
 }
 
-###
-
-# PUT TodoLists
-PUT {{Web_HostAddress}}/api/TodoLists/1
-Authorization: Bearer {{BearerToken}}
+### Reset Password
+POST {{host}}/api/auth/reset-password
 Content-Type: application/json
 
-// UpdateTodoListCommand
 {
-  "Id": 1,
-  "Title": "Product Backlog"
+  "email": "{{email}}",
+  "resetToken": "123456",
+  "newPassword": "NewPass@123"
 }
 
-###
-
-# DELETE TodoLists
-DELETE {{Web_HostAddress}}/api/TodoLists/1
-Authorization: Bearer {{BearerToken}}
-
-###
-
-# GET TodoItems
-@PageNumber = 1
-@PageSize = 10
-GET {{Web_HostAddress}}/api/TodoItems?ListId=1&PageNumber={{PageNumber}}&PageSize={{PageSize}}
-
-Authorization: Bearer {{BearerToken}}
-
-###
-
-# POST TodoItems
-POST {{Web_HostAddress}}/api/TodoItems
-Authorization: Bearer {{BearerToken}}
+### Change Password
+POST {{host}}/api/auth/change-password
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
-// CreateTodoItemCommand
 {
-  "ListId": 1,
-  "Title": "Eat a burrito 🌯"
+  "currentPassword": "{{password}}",
+  "newPassword": "NewPass@123"
 }
 
-###
+# ============================================================
+# USERS
+# ============================================================
 
-#PUT TodoItems UpdateItemDetails
-PUT {{Web_HostAddress}}/api/TodoItems/UpdateItemDetails?Id=1
-Authorization: Bearer {{BearerToken}}
+### Get My Info
+GET {{host}}/api/users/me
+Authorization: Bearer {{token}}
+
+### Get User By Id
+GET {{host}}/api/users/id/{userId}
+Authorization: Bearer {{token}}
+
+# ============================================================
+# GENRES
+# ============================================================
+
+### Get All Genres
+GET {{host}}/api/genres/all
+
+### Create Genre
+# @name createGenre
+POST {{host}}/api/genres/create
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
-// UpdateTodoItemDetailCommand
 {
-  "Id": 1,
-  "ListId": 1,
-  "Priority": 3,
-  "Note": "This is a good idea!"
+  "name": "Action"
 }
 
-###
+@genreId = {{createGenre.response.body.data}}
 
-# PUT TodoItems
-PUT {{Web_HostAddress}}/api/TodoItems/1
-Authorization: Bearer {{BearerToken}}
+### Get Genre By Id
+GET {{host}}/api/genres/id/{{genreId}}
+Authorization: Bearer {{token}}
+
+### Update Genre
+PUT {{host}}/api/genres/update
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
-// UpdateTodoItemCommand
 {
-  "Id": 1,
-  "Title": "Eat a yummy burrito 🌯",
-  "Done": true
+  "id": "{{genreId}}",
+  "name": "Action & Adventure"
 }
 
-###
+### Get Genres By Movie
+GET {{host}}/api/genres/movies/1
 
-# DELETE TodoItem
-DELETE {{Web_HostAddress}}/api/TodoItems/1
-Authorization: Bearer {{BearerToken}}
+### Delete Genre
+DELETE {{host}}/api/genres/delete/{{genreId}}
+Authorization: Bearer {{token}}
 
-###
+# ============================================================
+# MOVIES — MovieType: ComingSoon=0, NowShowing=1, Removed=2
+# ============================================================
+
+### Get All Movies
+GET {{host}}/api/movies/all
+
+### Create Movie
+# @name createMovie
+POST {{host}}/api/movies/create
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Inception",
+  "summary": "A thief who steals corporate secrets through dream-sharing technology.",
+  "year": 2010,
+  "rating": 8.8,
+  "trailerUrl": "https://youtube.com/watch?v=inception",
+  "posterUrl": "https://image.tmdb.org/inception.jpg",
+  "movieType": 1
+}
+
+@movieId = {{createMovie.response.body.data}}
+
+### Get Movie By Id
+GET {{host}}/api/movies/id/{{movieId}}
+
+### Get Filtered Movies — by title
+GET {{host}}/api/movies/filtered?title=Inception
+
+### Get Filtered Movies — by type (NowShowing=1)
+GET {{host}}/api/movies/filtered?type=1
+
+### Get Filtered Movies — by year
+GET {{host}}/api/movies/filtered?year=2010
+
+### Update Movie
+PUT {{host}}/api/movies/update
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "id": "{{movieId}}",
+  "title": "Inception (Updated)",
+  "summary": "Updated summary for Inception.",
+  "year": 2010,
+  "rating": 9.0,
+  "trailerUrl": "https://youtube.com/watch?v=inception-v2",
+  "posterUrl": "https://image.tmdb.org/inception-v2.jpg",
+  "movieType": 1
+}
+
+### Get Persons For Movie
+GET {{host}}/api/movies/id/{{movieId}}/persons
+
+### Delete Movie
+DELETE {{host}}/api/movies/delete/id/{{movieId}}
+Authorization: Bearer {{token}}
+
+# ============================================================
+# PERSONS — RoleType: Director=0, Producer=1, Cast=2
+# ============================================================
+
+### Get All Persons
+GET {{host}}/api/persons/all
+
+### Create Person
+# @name createPerson
+POST {{host}}/api/persons/create
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "fullName": "Christopher Nolan",
+  "age": 54,
+  "pictureUrl": "https://image.tmdb.org/nolan.jpg"
+}
+
+@personId = {{createPerson.response.body.data}}
+
+### Get Person By Id
+GET {{host}}/api/persons/id/{{personId}}
+
+### Update Person
+PUT {{host}}/api/persons/update
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "id": "{{personId}}",
+  "fullName": "Christopher Edward Nolan",
+  "age": 54,
+  "pictureUrl": "https://image.tmdb.org/nolan-updated.jpg"
+}
+
+### Add Person To Movie
+POST {{host}}/api/persons/movies/add
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "movieId": "{{movieId}}",
+  "personId": "{{personId}}",
+  "roleType": 0
+}
+
+### Get Persons By Movie
+GET {{host}}/api/persons/movies/{{movieId}}
+
+### Get Movies By Person
+GET {{host}}/api/persons/id/{{personId}}/movies
+
+### Remove Person From Movie
+DELETE {{host}}/api/persons/movies/remove?movieId={{movieId}}&personId={{personId}}
+Authorization: Bearer {{token}}
+
+### Delete Person
+DELETE {{host}}/api/persons/delete/{{personId}}
+Authorization: Bearer {{token}}
+
+# ============================================================
+# THEATERS — TheaterType: Normal=0, Royal=1
+# ============================================================
+
+### Get All Theaters
+GET {{host}}/api/theaters/
+
+### Create Theater
+# @name createTheater
+POST {{host}}/api/theaters/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Theater 1",
+  "numOfRows": 10,
+  "seatsPerRow": 12,
+  "type": 0
+}
+
+@theaterId = {{createTheater.response.body.data}}
+
+### Get Theater By Id
+GET {{host}}/api/theaters/id/{{theaterId}}
+
+### Update Theater
+PUT {{host}}/api/theaters/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "id": "{{theaterId}}",
+  "name": "Theater 1 (Royal)",
+  "numOfRows": 10,
+  "seatsPerRow": 14,
+  "type": 1
+}
+
+### Delete Theater
+DELETE {{host}}/api/theaters/id/{{theaterId}}
+Authorization: Bearer {{token}}
+
+# ============================================================
+# SHOWS — ShowType: ThreeD=0, TwoD=1 | ShowStatus: Free=0, AlmostFull=1, Full=2
+# ============================================================
+
+### Get All Shows
+GET {{host}}/api/shows/all
+
+### Create Show
+# @name createShow
+POST {{host}}/api/shows/create
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "date": "2026-05-01",
+  "startTime": "14:00:00",
+  "endTime": "16:30:00",
+  "movieId": "{{movieId}}",
+  "theaterId": "{{theaterId}}",
+  "type": 1
+}
+
+@showId = {{createShow.response.body.data}}
+
+### Get Show By Id
+GET {{host}}/api/shows/id/{{showId}}
+
+### Get Filtered Shows — by date
+GET {{host}}/api/shows/filters?date=2026-05-01
+
+### Update Show
+PUT {{host}}/api/shows/update
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "id": "{{showId}}",
+  "date": "2026-05-01",
+  "startTime": "15:00:00",
+  "endTime": "17:30:00",
+  "movieId": "{{movieId}}",
+  "theaterId": "{{theaterId}}",
+  "type": 0,
+  "status": 1
+}
+
+### Delete Show
+DELETE {{host}}/api/shows/id/{{showId}}
+Authorization: Bearer {{token}}
+
+# ============================================================
+# BOOKINGS — BookingStatus: Confirmed=0, Reserved=1, Cancelled=2
+# ============================================================
+
+### Get All Bookings
+GET {{host}}/api/bookings/all
+Authorization: Bearer {{token}}
+
+### Create Booking
+# @name createBooking
+POST {{host}}/api/bookings/create
+Authorization: Bearer {{token}}
+Idempotency-Key: booking-unique-key-001
+Content-Type: application/json
+
+{
+  "showId": "{{showId}}",
+  "seatRow": "A",
+  "seatNumber": 5,
+  "price": 120000
+}
+
+@bookingId = {{createBooking.response.body.data}}
+
+### Get Booking By Id
+GET {{host}}/api/bookings/id/{{bookingId}}
+Authorization: Bearer {{token}}
+
+### Get Bookings By User
+GET {{host}}/api/bookings/users/{userId}
+Authorization: Bearer {{token}}
+
+### Get Bookings By Show
+GET {{host}}/api/bookings/shows/{{showId}}
+Authorization: Bearer {{token}}
+
+### Update Booking
+PUT {{host}}/api/bookings/update
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "id": "{{bookingId}}",
+  "seatRow": "A",
+  "seatNumber": 5,
+  "price": 150000,
+  "status": 0
+}
+
+### Delete Booking
+DELETE {{host}}/api/bookings/delete/{{bookingId}}
+Authorization: Bearer {{token}}
+
+# ============================================================
+# PAYMENTS — PaymentMethod: Cash=0, Card=1, Cod=2
+# ============================================================
+
+### Get All Payments
+GET {{host}}/api/payments/all
+Authorization: Bearer {{token}}
+
+### Create Payment
+# @name createPayment
+POST {{host}}/api/payments/create
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "amount": 120000,
+  "method": 1,
+  "userId": "{userId}",
+  "showId": "{{showId}}"
+}
+
+@paymentId = {{createPayment.response.body.data}}
+
+### Get Payment By Id
+GET {{host}}/api/payments/id/{{paymentId}}
+Authorization: Bearer {{token}}
+
+### Get Payments By User
+GET {{host}}/api/payments/users/{userId}
+Authorization: Bearer {{token}}
+
+### Update Payment
+PUT {{host}}/api/payments/update
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "id": "{{paymentId}}",
+  "amount": 150000,
+  "method": 0
+}
+
+### Delete Payment
+DELETE {{host}}/api/payments/delete/{{paymentId}}
+Authorization: Bearer {{token}}

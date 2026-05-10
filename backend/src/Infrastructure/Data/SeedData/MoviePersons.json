@@ -1,0 +1,257 @@
+[
+  {
+    "MovieId": 1,
+    "PersonId": 13,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 1,
+    "PersonId": 14,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 1,
+    "PersonId": 15,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 1,
+    "PersonId": 16,
+    "RoleType": "Director"
+  },
+  {
+    "MovieId": 1,
+    "PersonId": 17,
+    "RoleType": "Producer"
+  },
+  {
+    "MovieId": 2,
+    "PersonId": 9,
+    "RoleType": "Director"
+  },
+  {
+    "MovieId": 2,
+    "PersonId": 10,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 2,
+    "PersonId": 11,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 2,
+    "PersonId": 14,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 3,
+    "PersonId": 5,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 3,
+    "PersonId": 6,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 3,
+    "PersonId": 7,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 3,
+    "PersonId": 8,
+    "RoleType": "Director"
+  },
+  {
+    "MovieId": 4,
+    "PersonId": 1,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 4,
+    "PersonId": 2,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 4,
+    "PersonId": 3,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 4,
+    "PersonId": 4,
+    "RoleType": "Director"
+  },
+  {
+    "MovieId": 5,
+    "PersonId": 1,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 6,
+    "PersonId": 1,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 7,
+    "PersonId": 2,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 8,
+    "PersonId": 2,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 9,
+    "PersonId": 3,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 10,
+    "PersonId": 3,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 11,
+    "PersonId": 4,
+    "RoleType": "Director"
+  },
+  {
+    "MovieId": 12,
+    "PersonId": 4,
+    "RoleType": "Director"
+  },
+  {
+    "MovieId": 13,
+    "PersonId": 5,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 14,
+    "PersonId": 5,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 15,
+    "PersonId": 6,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 16,
+    "PersonId": 6,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 15,
+    "PersonId": 7,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 14,
+    "PersonId": 7,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 8,
+    "PersonId": 8,
+    "RoleType": "Producer"
+  },
+  {
+    "MovieId": 15,
+    "PersonId": 8,
+    "RoleType": "Producer"
+  },
+  {
+    "MovieId": 13,
+    "PersonId": 9,
+    "RoleType": "Director"
+  },
+  {
+    "MovieId": 14,
+    "PersonId": 9,
+    "RoleType": "Director"
+  },
+  {
+    "MovieId": 15,
+    "PersonId": 10,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 16,
+    "PersonId": 10,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 17,
+    "PersonId": 11,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 18,
+    "PersonId": 11,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 19,
+    "PersonId": 12,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 20,
+    "PersonId": 12,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 21,
+    "PersonId": 13,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 22,
+    "PersonId": 13,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 23,
+    "PersonId": 14,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 24,
+    "PersonId": 14,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 25,
+    "PersonId": 15,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 26,
+    "PersonId": 15,
+    "RoleType": "Cast"
+  },
+  {
+    "MovieId": 29,
+    "PersonId": 16,
+    "RoleType": "Director"
+  },
+  {
+    "MovieId": 30,
+    "PersonId": 16,
+    "RoleType": "Director"
+  },
+  {
+    "MovieId": 27,
+    "PersonId": 17,
+    "RoleType": "Producer"
+  },
+  {
+    "MovieId": 28,
+    "PersonId": 17,
+    "RoleType": "Producer"
+  }
+]

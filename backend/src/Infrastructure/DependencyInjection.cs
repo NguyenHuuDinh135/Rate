@@ -25,6 +25,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
+using backend.Infrastructure.AI;
 using backend.Infrastructure.Persistence.Dapper;
 
 
@@ -42,6 +43,7 @@ public static class DependencyInjection
             .AddRedis(configuration)
             .AddEmail(configuration)
             .AddHangfire(configuration)
+            .AddAIServices(configuration)
 
             .AddIdentity()
             .AddJwt(configuration)
@@ -65,7 +67,7 @@ public static class DependencyInjection
         {
             var interceptors = sp.GetServices<ISaveChangesInterceptor>();
 
-            options.UseNpgsql(connectionString);
+            options.UseNpgsql(connectionString, o => o.UseVector());
             options.AddInterceptors(interceptors);
 
             options.ConfigureWarnings(w =>
@@ -76,6 +78,7 @@ public static class DependencyInjection
             sp.GetRequiredService<ApplicationDbContext>());
 
         services.AddScoped<ApplicationDbContextInitialiser>();
+        services.AddScoped<backend.Application.Common.BackgroundJobs.IEmbeddingSyncJob, backend.Infrastructure.AI.BackgroundJobs.EmbeddingSyncJob>();
 
         Console.WriteLine($"Postgres connected via Aspire");
         Console.WriteLine(

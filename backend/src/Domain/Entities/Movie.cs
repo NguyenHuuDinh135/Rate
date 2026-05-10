@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Pgvector;
 
 namespace backend.Domain.Entities
 {
@@ -11,6 +12,7 @@ namespace backend.Domain.Entities
         public string TrailerUrl { get; set; } = string.Empty;
         public string PosterUrl { get; set; } = string.Empty;
         public MovieType MovieType { get; set; }
+        public Vector? Embedding { get; set; }
 
         public ICollection<Show> Shows { get; set; } = new List<Show>();
         public ICollection<MovieGenre> MovieGenres { get; set; } = new List<MovieGenre>();

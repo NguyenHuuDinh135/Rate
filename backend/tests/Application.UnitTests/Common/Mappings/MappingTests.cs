@@ -2,8 +2,6 @@
 using AutoMapper;
 using backend.Application.Common.Interfaces;
 using backend.Application.Common.Models;
-using backend.Application.TodoItems.Queries.GetTodoItemsWithPagination;
-using backend.Application.TodoLists.Queries.GetTodos;
 using backend.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
@@ -33,19 +31,6 @@ public class MappingTests
     public void ShouldHaveValidConfiguration()
     {
         _configuration!.AssertConfigurationIsValid();
-    }
-
-    [Test]
-    [TestCase(typeof(TodoList), typeof(TodoListDto))]
-    [TestCase(typeof(TodoItem), typeof(TodoItemDto))]
-    [TestCase(typeof(TodoList), typeof(LookupDto))]
-    [TestCase(typeof(TodoItem), typeof(LookupDto))]
-    [TestCase(typeof(TodoItem), typeof(TodoItemBriefDto))]
-    public void ShouldSupportMappingFromSourceToDestination(Type source, Type destination)
-    {
-        var instance = GetInstanceOf(source);
-
-        _mapper!.Map(instance, source, destination);
     }
 
     private static object GetInstanceOf(Type type)

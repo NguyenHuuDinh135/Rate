@@ -14,6 +14,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<Booking> Bookings => Set<Booking>();
     public DbSet<Genre> Genres => Set<Genre>();
+    public DbSet<Review> Reviews => Set<Review>();
     public DbSet<Movie> Movies => Set<Movie>();
     public DbSet<MovieGenre> MovieGenres => Set<MovieGenre>();
     public DbSet<MoviePerson> MoviePersons => Set<MoviePerson>();
@@ -23,9 +24,15 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public DbSet<Theater> Theaters => Set<Theater>();
     public DbSet<TheaterSeat> TheaterSeats => Set<TheaterSeat>();
 
+    public DbSet<AiSession> AiSessions => Set<AiSession>();
+    public DbSet<AiMessage> AiMessages => Set<AiMessage>();
+    public DbSet<AiPrompt> AiPrompts => Set<AiPrompt>();
+    public DbSet<AiAuditLog> AiAuditLogs => Set<AiAuditLog>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+        builder.HasPostgresExtension("vector");
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
         // Thêm các thực thể Outbox của MassTransit

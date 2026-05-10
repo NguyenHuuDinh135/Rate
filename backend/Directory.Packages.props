@@ -27,6 +27,7 @@
     <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="18.4.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.5" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.AI.Ollama" Version="9.7.0-preview.1.25356.2" />
     <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="10.0.5" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.5" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
@@ -61,6 +62,11 @@
     <PackageVersion Include="Hangfire.AspNetCore" Version="1.8.23" />
     <PackageVersion Include="Hangfire.PostgreSql" Version="1.21.1" />
     <PackageVersion Include="MassTransit.RabbitMQ" Version="8.3.2" />
-    <!-- <PackageVersion Include="MassTransit.RabbitMQ" Version="9.0.0" /> -->
+    <!-- AI & Semantic Kernel -->
+    <PackageVersion Include="Microsoft.SemanticKernel" Version="1.40.0" />
+    <PackageVersion Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.40.0" />
+    <PackageVersion Include="Microsoft.SemanticKernel.Connectors.Google" Version="1.40.0-alpha" />
+    <PackageVersion Include="Pgvector" Version="0.3.0" />
+    <PackageVersion Include="Pgvector.EntityFrameworkCore" Version="0.2.1" />
   </ItemGroup>
 </Project>

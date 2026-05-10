@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="vi">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Rate App - AI Agent Integration</title>
+
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reset.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/dracula.css">
+        <style>
+            .reveal h2 { color: #61dafb; }
+            .reveal h3 { color: #f3f3f3; font-size: 1.2em; text-transform: none; }
+            .reveal p, .reveal li { font-size: 0.8em; line-height: 1.5; }
+            .highlight { color: #e44c65; font-weight: bold; }
+        </style>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				
+                <!-- Title Slide -->
+				<section>
+					<h2>Rate App</h2>
+					<h3>Tích hợp AI Agent</h3>
+					<p>Tương lai của trải nghiệm quản lý và đặt vé phim</p>
+                    <p><small>Nhấn phím Mũi tên (Right/Left) để chuyển slide</small></p>
+				</section>
+				
+                <!-- USER SECTION -->
+				<section>
+					<section>
+						<h2>🧑‍💻 Dành cho Người Dùng (Users)</h2>
+						<p>Nâng tầm trải nghiệm cá nhân hóa</p>
+					</section>
+					<section>
+						<h3>1. Trợ lý Đặt vé qua Chat</h3>
+						<p class="highlight">"Tìm cho tôi phim viễn tưởng có suất chiếu tối nay."</p>
+						<ul>
+							<li>Tư vấn phim theo sở thích bằng ngôn ngữ tự nhiên.</li>
+							<li>Hỗ trợ chọn ghế và thanh toán trực tiếp qua đoạn chat.</li>
+                            <li>Giải đáp thắc mắc về nội dung, độ tuổi, rating phim.</li>
+						</ul>
+					</section>
+					<section>
+						<h3>2. Tóm tắt Đánh giá (Review Summarizer)</h3>
+						<ul>
+							<li>AI tự động đọc hàng ngàn review của một bộ phim.</li>
+							<li>Cung cấp tóm tắt nhanh: <br/><span class="highlight">"Đa số khen kỹ xảo, nhưng chê kịch bản hơi dài".</span></li>
+                            <li>Tiết kiệm thời gian quyết định xem phim.</li>
+						</ul>
+					</section>
+					<section>
+						<h3>3. Gợi ý Chủ động</h3>
+						<ul>
+							<li>Phân tích thói quen và lịch sử đặt vé.</li>
+							<li>Thông báo cá nhân hóa: <br/><span class="highlight">"Đạo diễn bạn yêu thích vừa ra phim mới, đặt vé ngay?"</span></li>
+                            <li>Gợi ý đổi lịch chiếu nếu thời tiết xấu.</li>
+						</ul>
+					</section>
+				</section>
+
+                <!-- ADMIN SECTION -->
+				<section>
+					<section>
+						<h2>👨‍💼 Dành cho Quản trị viên (Admins)</h2>
+						<p>Tối ưu hóa vận hành & Tối đa hóa Doanh thu</p>
+					</section>
+					<section>
+						<h3>1. Phân tích Dữ liệu qua Chat</h3>
+						<p class="highlight">"Doanh thu rạp A tháng này so với tháng trước ra sao?"</p>
+						<ul>
+							<li>Chuyển câu hỏi ngôn ngữ tự nhiên thành truy vấn SQL.</li>
+							<li>Tự động trả về số liệu và vẽ biểu đồ.</li>
+                            <li>Chỉ ra các insight bất thường kịp thời.</li>
+						</ul>
+					</section>
+					<section>
+						<h3>2. Tối ưu Lịch chiếu (Smart Scheduling)</h3>
+						<ul>
+							<li>Phân tích dữ liệu lịch sử để gợi ý khung giờ lấp đầy tốt nhất.</li>
+							<li>Ví dụ: <span class="highlight">Tăng suất chiếu phim hoạt hình vào sáng thứ 7.</span></li>
+                            <li>Giảm thiểu tình trạng phòng chiếu rỗng.</li>
+						</ul>
+					</section>
+					<section>
+						<h3>3. Tự động hóa Nội dung</h3>
+						<ul>
+							<li>Tạo nội dung chuẩn SEO cho phim chỉ từ 1 đoạn trailer link.</li>
+							<li>Tự động gắn tag thể loại, đánh giá độ tuổi.</li>
+                            <li>Phát hiện hành vi book vé ảo (Fraud Detection) hoặc spam review.</li>
+						</ul>
+					</section>
+				</section>
+
+                <!-- TECH STACK -->
+				<section>
+					<h2>🛠 Lộ trình Kỹ thuật</h2>
+					<ol>
+						<li>Tích hợp <strong>Semantic Kernel (.NET)</strong> để giao tiếp với AI.</li>
+						<li>Sử dụng <strong>pgvector (PostgreSQL)</strong> để lưu trữ vector embeddings cho tìm kiếm.</li>
+						<li>Xây dựng UI Chat trên <strong>Next.js</strong> với Vercel AI SDK.</li>
+					</ol>
+				</section>
+
+			</div>
+		</div>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.js"></script>
+		<script>
+			Reveal.initialize({
+				hash: true,
+				transition: 'slide' // none/fade/slide/convex/concave/zoom
+			});
+		</script>
+	</body>
+</html>

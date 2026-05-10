@@ -32,8 +32,8 @@ public class ShowEndpoints : IEndpointGroup
         return result is null ? TypedResults.NotFound() : TypedResults.Ok(result);
     }
 
-    public static Task<IReadOnlyList<ShowBriefDto>> GetFiltered(ISender sender, DateTime? date)
-        => sender.Send(new GetFilteredShowsQuery(date));
+    public static Task<IReadOnlyList<ShowDetailDto>> GetFiltered(ISender sender, DateTime? date, int? movieId)
+        => sender.Send(new GetFilteredShowsQuery(date, movieId));
 
     public static async Task<Results<Ok<Result<int>>, BadRequest<Result<int>>>> Create(
         ISender sender, CreateShowCommand request)

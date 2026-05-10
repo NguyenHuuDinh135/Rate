@@ -1,0 +1,92 @@
+[
+  {
+    "Id": "daeffa56-9a2f-46e6-93fb-b63b50e00302",
+    "UserKey": "user1Id",
+    "Email": "proladinh144@gmail.com",
+    "Password": "Admin@123",
+    "Address": "Karachi",
+    "Contact": "+923009999999",
+    "Role": "Admin"
+  },
+  {
+    "Id": "2b6dfb56-8a4d-4df7-8b9f-b2d0a18bb58e",
+    "UserKey": "user2Id",
+    "Email": "dinhknd3@gmail.com",
+    "Password": "User@123",
+    "Address": "Karachi",
+    "Contact": "+923009999999",
+    "Role": "ApiUser"
+  },
+  {
+    "Id": "72c94147-cb3a-4f80-b015-9acb882bc5c0",
+    "UserKey": "user3Id",
+    "Email": "qvinhkl10@gmail.com",
+    "Password": "User@123",
+    "Address": "Karachi",
+    "Contact": "+923009999999",
+    "Role": "Admin"
+  },
+  {
+    "Id": "ce129c6e-1990-4db8-97e2-e4daec6c8d10",
+    "UserKey": "user4Id",
+    "Email": "qvinhkl01@gmail.com",
+    "Password": "User@123",
+    "Address": "Karachi",
+    "Contact": "+923009999999",
+    "Role": "ApiUser"
+  },
+  {
+    "Id": "0f3a28a2-0d76-47d2-aee7-f607d83ec707",
+    "UserKey": "user5Id",
+    "Email": "user3@gmail.com",
+    "Password": "User@123",
+    "Address": "Karachi",
+    "Contact": "+923009999999",
+    "Role": "ApiUser"
+  },
+  {
+    "Id": "b1220e65-7095-4d5a-b76d-8411f42a3bb7",
+    "UserKey": "user6Id",
+    "Email": "deleteme@eztickets.com",
+    "Password": "User@123",
+    "Address": "Re",
+    "Contact": "+923009268622",
+    "Role": "ApiUser"
+  },
+  {
+    "Id": "d1562b8b-92ad-4c92-b6c0-e4974acb942e",
+    "UserKey": "user7Id",
+    "Email": "user4@gmail.com",
+    "Password": "User@123",
+    "Address": "Lahore",
+    "Contact": "+923001234567",
+    "Role": "ApiUser"
+  },
+  {
+    "Id": "2950b631-f5fd-4680-b911-657f8727f7b8",
+    "UserKey": "user8Id",
+    "Email": "user5@gmail.com",
+    "Password": "User@123",
+    "Address": "Islamabad",
+    "Contact": "+923008765432",
+    "Role": "ApiUser"
+  },
+  {
+    "Id": "6c4dc5b6-8b89-4c35-a19e-5b08c680a3dc",
+    "UserKey": "user9Id",
+    "Email": "user6@gmail.com",
+    "Password": "User@123",
+    "Address": "Peshawar",
+    "Contact": "+923007654321",
+    "Role": "ApiUser"
+  },
+  {
+    "Id": "abf85a44-d167-46f7-8d38-b5b3c52f9611",
+    "UserKey": "user10Id",
+    "Email": "user7@gmail.com",
+    "Password": "User@123",
+    "Address": "Quetta",
+    "Contact": "+923006543210",
+    "Role": "ApiUser"
+  }
+]
