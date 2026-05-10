@@ -6,6 +6,7 @@ using backend.Domain.Constants;
 using backend.Infrastructure.Caching;
 using backend.Infrastructure.Data;
 using backend.Infrastructure.Data.Interceptors;
+using backend.Infrastructure.Email;
 using backend.Infrastructure.Identity;
 using backend.Infrastructure.Jwt;
 using backend.Shared;
@@ -24,6 +25,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
+using backend.Infrastructure.Persistence.Dapper;
+
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -37,11 +40,14 @@ public static class DependencyInjection
         builder.Services
             .AddDatabase(configuration)
             .AddRedis(configuration)
+            .AddEmail(configuration)
             .AddHangfire(configuration)
-            .AddMessaging(configuration) // optional
+
             .AddIdentity()
             .AddJwt(configuration)
             .AddApplicationServices();
+
+        builder.Services.AddScoped<MovieDapperRepository>();
 
         return builder.Services;
     }
@@ -49,16 +55,19 @@ public static class DependencyInjection
     private static IServiceCollection AddDatabase(
         this IServiceCollection services, IConfiguration config)
     {
-        var connectionString = config.GetConnectionString(Services.Database);
-        Guard.Against.Null(connectionString, $"Connection string '{Services.Database}' not found.");
+        var connectionString = config.GetConnectionString("MovieDb")
+            ?? throw new InvalidOperationException("Connection string 'MovieDb' not found.");
 
         services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
 
         services.AddDbContext<ApplicationDbContext>((sp, options) =>
         {
-            options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
+            var interceptors = sp.GetServices<ISaveChangesInterceptor>();
+
             options.UseNpgsql(connectionString);
+            options.AddInterceptors(interceptors);
+
             options.ConfigureWarnings(w =>
                 w.Ignore(RelationalEventId.PendingModelChangesWarning));
         });
@@ -68,10 +77,24 @@ public static class DependencyInjection
 
         services.AddScoped<ApplicationDbContextInitialiser>();
 
+        Console.WriteLine($"Postgres connected via Aspire");
         Console.WriteLine(
-            $"DB: {config.GetConnectionString(Services.Database)}"
+            $"DB: {connectionString}"
         );
 
+        return services;
+    }
+
+    private static IServiceCollection AddEmail(
+        this IServiceCollection services, IConfiguration config)
+    {
+        services
+            .AddOptions<SmtpOptions>()
+            .Bind(config.GetSection(SmtpOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddScoped<IEmailSender, SmtpEmailSender>();
         return services;
     }
 
@@ -86,9 +109,8 @@ public static class DependencyInjection
 
         services.AddSingleton<IConnectionMultiplexer>(sp =>
         {
-            var redisConnectionString =
-                config.GetConnectionString(Services.Redis) ??
-                config[$"{RedisOptions.SectionName}:ConnectionString"];
+            var redisConnectionString = config.GetConnectionString(Services.Redis)
+                ?? config[$"{RedisOptions.SectionName}:ConnectionString"];
 
             Guard.Against.NullOrWhiteSpace(redisConnectionString, "Redis not configured.");
 
@@ -103,6 +125,10 @@ public static class DependencyInjection
 
         services.AddSingleton<ICacheService, RedisCacheService>();
         services.AddSingleton<ILockService, RedisLockService>();
+        services.AddSingleton<IRateLimitService, RedisRateLimitService>();
+        services.AddSingleton<IIdempotencyService, RedisIdempotencyService>();
+        services.AddSingleton<IRevokeTokenService, RedisTokenRevocationService>();
+        services.AddSingleton<IOneTimeTokenService, RedisOneTimeTokenService>();
 
         return services;
     }
@@ -131,34 +157,43 @@ public static class DependencyInjection
         return services;
     }
 
-    private static IServiceCollection AddMessaging(
-        this IServiceCollection services, IConfiguration config)
-    {
-        var rabbitConnectionString = config.GetConnectionString("rabbitmq");
+    // private static IServiceCollection AddMessaging(
+    //     this IServiceCollection services, IConfiguration config)
+    // {
+    //     var rabbitConnectionString = config.GetConnectionString("rabbitmq");
 
-        if (string.IsNullOrWhiteSpace(rabbitConnectionString))
-            return services;
+    //     if (string.IsNullOrWhiteSpace(rabbitConnectionString))
+    //         return services;
 
-        services.AddMassTransit(x =>
-        {
-            x.SetKebabCaseEndpointNameFormatter();
+    //     services.AddMassTransit(x =>
+    //     {
+    //         x.SetKebabCaseEndpointNameFormatter();
 
-            x.UsingRabbitMq((context, cfg) =>
-            {
-                cfg.Host(rabbitConnectionString);
-                cfg.ConfigureEndpoints(context);
-            });
-        });
+    //         x.UsingRabbitMq((context, cfg) =>
+    //         {
+    //             cfg.Host(rabbitConnectionString);
+    //             cfg.ConfigureEndpoints(context);
+    //         });
+    //     });
 
-        return services;
-    }
+    //     return services;
+    // }
 
     private static IServiceCollection AddIdentity(
         this IServiceCollection services)
     {
         services.AddAuthorizationBuilder();
         services
-            .AddIdentityCore<ApplicationUser>()
+            .AddIdentityCore<ApplicationUser>(
+                options =>{
+                    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                    options.Password.RequireUppercase = true;
+                    options.Password.RequireLowercase = true;
+                    options.Password.RequireDigit = true;
+                    options.Password.RequireNonAlphanumeric = true;
+                    options.Password.RequiredLength = 6;
+                }
+            )
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>();
         services.AddAuthorization(options =>
@@ -173,6 +208,8 @@ public static class DependencyInjection
     {
         services.AddSingleton(TimeProvider.System);
         services.AddTransient<IIdentityService, IdentityService>();
+        services.AddTransient<IAuthenticationService, AuthenticationService>();
+        services.AddSingleton<IRefreshTokenStore, RedisRefreshTokenStore>();
 
         return services;
     }
@@ -208,7 +245,28 @@ public static class DependencyInjection
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
                 };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        var jti = context.Principal?.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+                        if (string.IsNullOrWhiteSpace(jti))
+                        {
+                            context.Fail("Token is missing jti.");
+                            return;
+                        }
+
+                        var tokenRevocationService = context.HttpContext.RequestServices.GetRequiredService<IRevokeTokenService>();
+                        if (await tokenRevocationService.IsRevokedAsync(jti, context.HttpContext.RequestAborted))
+                        {
+                            context.Fail("Token has been revoked.");
+                        }
+                    }
+                };
             });
+
+        services.AddScoped<IJwtService, JwtService>();
             
         return services;
     }

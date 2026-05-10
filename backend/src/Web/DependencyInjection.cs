@@ -3,6 +3,7 @@ using backend.Application.Common.Interfaces;
 using backend.Infrastructure.Data;
 using backend.Web.Services;
 using Microsoft.AspNetCore.Mvc;
+using Elastic.Clients.Elasticsearch;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
