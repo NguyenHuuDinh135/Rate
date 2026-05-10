@@ -10,9 +10,9 @@ var postgresPassword = builder.AddParameter("postgresadmin", "postgres", secret:
 // Pin Postgres 16: PG 18+ changed data paths; WithDataVolume() targets the classic layout.
 var postgres = builder.AddPostgres(
         name: Services.DatabaseServer,
-        password: postgresPassword,
-        port: 5432)
-    .WithImage("postgres:16")
+        password: postgresPassword)
+    .WithImage("pgvector/pgvector")
+    .WithImageTag("pg16")
     .WithDataVolume("rate-postgres-data");
 
 var database = postgres.AddDatabase(Services.Database);

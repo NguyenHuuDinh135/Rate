@@ -1,10 +1,16 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Application.FunctionalTests;
 
 [SetUpFixture]
 public class FunctionalTestSetup
 {
+    static FunctionalTestSetup()
+    {
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+    }
+
     internal static IServiceScopeFactory ScopeFactory { get; private set; } = null!;
     internal static DatabaseResetter? DbResetter { get; private set; }
 
@@ -38,11 +44,19 @@ public class FunctionalTestSetup
         await _app.ResourceNotifications.WaitForResourceHealthyAsync(
             Services.Database, cancellationToken);
 
-        var connectionString = (await _app.GetConnectionStringAsync(Services.Database))!;
+        var dbConnectionString = (await _app.GetConnectionStringAsync(Services.Database))!;
 
-        _factory = new WebApiFactory(connectionString);
+        _factory = new WebApiFactory(dbConnectionString, "");
+        
+        // Ensure database is created and migrations are applied
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<backend.Infrastructure.Data.ApplicationDbContext>();
+            await context.Database.MigrateAsync(cancellationToken);
+        }
+
         ScopeFactory = _factory.Services.GetRequiredService<IServiceScopeFactory>();
-        DbResetter = await DatabaseResetter.CreateAsync(connectionString);
+        DbResetter = await DatabaseResetter.CreateAsync(dbConnectionString);
     }
 
     [OneTimeTearDown]

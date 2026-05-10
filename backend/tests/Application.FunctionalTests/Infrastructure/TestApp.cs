@@ -37,12 +37,12 @@ public static class TestApp
 
     public static async Task<string> RunAsDefaultUserAsync()
     {
-        return await RunAsUserAsync("test@local", "Testing1234!", []);
+        return await RunAsUserAsync("testuser", "Testing1234!", []);
     }
 
     public static async Task<string> RunAsAdministratorAsync()
     {
-        return await RunAsUserAsync("administrator@local", "Administrator1234!", [Roles.Administrator]);
+        return await RunAsUserAsync("adminuser", "Administrator1234!", [Roles.Administrator]);
     }
 
     public static async Task<string> RunAsUserAsync(string userName, string password, string[] roles)
