@@ -7,6 +7,7 @@ public interface IApplicationDbContext
 {
     DbSet<Movie> Movies { get; }
     DbSet<Genre> Genres { get; }
+    DbSet<Review> Reviews { get; }
     DbSet<MovieGenre> MovieGenres { get; }
     DbSet<MoviePerson> MoviePersons { get; }
     DbSet<Person> Persons { get; }
@@ -17,6 +18,11 @@ public interface IApplicationDbContext
 
     DbSet<Booking> Bookings { get; }
     DbSet<Payment> Payments { get; }
+
+    DbSet<AiSession> AiSessions { get; }
+    DbSet<AiMessage> AiMessages { get; }
+    DbSet<AiPrompt> AiPrompts { get; }
+    DbSet<AiAuditLog> AiAuditLogs { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

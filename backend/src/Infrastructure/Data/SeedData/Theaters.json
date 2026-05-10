@@ -1,0 +1,32 @@
+[
+  {
+    "Name": "A",
+    "NumOfRows": 10,
+    "SeatsPerRow": 20,
+    "Type": "Normal"
+  },
+  {
+    "Name": "B",
+    "NumOfRows": 5,
+    "SeatsPerRow": 5,
+    "Type": "Royal"
+  },
+  {
+    "Name": "C",
+    "NumOfRows": 10,
+    "SeatsPerRow": 10,
+    "Type": "Normal"
+  },
+  {
+    "Name": "D",
+    "NumOfRows": 12,
+    "SeatsPerRow": 15,
+    "Type": "Royal"
+  },
+  {
+    "Name": "E",
+    "NumOfRows": 8,
+    "SeatsPerRow": 13,
+    "Type": "Normal"
+  }
+]

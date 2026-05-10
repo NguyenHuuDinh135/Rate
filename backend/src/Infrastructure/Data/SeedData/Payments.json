@@ -1,0 +1,121 @@
+[
+  {
+    "Amount": 68000.0,
+    "PaymentDateTime": "2021-06-06 03:33:47",
+    "Method": "Card",
+    "UserKey": "user2Id",
+    "ShowId": 7
+  },
+  {
+    "Amount": 16800.0,
+    "PaymentDateTime": "2021-06-06 03:36:43",
+    "Method": "Card",
+    "UserKey": "user2Id",
+    "ShowId": 13
+  },
+  {
+    "Amount": 13600.0,
+    "PaymentDateTime": "2021-06-06 03:42:26",
+    "Method": "Card",
+    "UserKey": "user2Id",
+    "ShowId": 15
+  },
+  {
+    "Amount": 2400.0,
+    "PaymentDateTime": "2021-06-06 21:24:38",
+    "Method": "Card",
+    "UserKey": "user2Id",
+    "ShowId": 7
+  },
+  {
+    "Amount": 4800.0,
+    "PaymentDateTime": "2021-06-06 22:43:28",
+    "Method": "Card",
+    "UserKey": "user2Id",
+    "ShowId": 17
+  },
+  {
+    "Amount": 4800.0,
+    "PaymentDateTime": "2021-06-10 19:00:53",
+    "Method": "Card",
+    "UserKey": "user3Id",
+    "ShowId": 19
+  },
+  {
+    "Amount": 3200.0,
+    "PaymentDateTime": "2021-06-28 18:00:06",
+    "Method": "Card",
+    "UserKey": "user2Id",
+    "ShowId": 21
+  },
+  {
+    "Amount": 4800.0,
+    "PaymentDateTime": "2021-07-16 00:44:55",
+    "Method": "Card",
+    "UserKey": "user2Id",
+    "ShowId": 8
+  },
+  {
+    "Amount": 800.0,
+    "PaymentDateTime": "2021-08-08 03:35:43",
+    "Method": "Card",
+    "UserKey": "user2Id",
+    "ShowId": 8
+  },
+  {
+    "Amount": 800.0,
+    "PaymentDateTime": "2021-08-17 19:47:21",
+    "Method": "Card",
+    "UserKey": "user2Id",
+    "ShowId": 23
+  },
+  {
+    "Amount": 1600.0,
+    "PaymentDateTime": "2021-08-18 10:47:04",
+    "Method": "Card",
+    "UserKey": "user2Id",
+    "ShowId": 23
+  },
+  {
+    "Amount": 2400.0,
+    "PaymentDateTime": "2021-09-14 00:24:47",
+    "Method": "Card",
+    "UserKey": "user2Id",
+    "ShowId": 25
+  },
+  {
+    "Amount": 24800.0,
+    "PaymentDateTime": "2021-09-17 00:44:47",
+    "Method": "Card",
+    "UserKey": "user2Id",
+    "ShowId": 2
+  },
+  {
+    "Amount": 2400.0,
+    "PaymentDateTime": "2021-09-23 16:01:34",
+    "Method": "Card",
+    "UserKey": "user2Id",
+    "ShowId": 23
+  },
+  {
+    "Amount": 3200.0,
+    "PaymentDateTime": "2021-10-14 16:08:56",
+    "Method": "Card",
+    "UserKey": "user2Id",
+    "ShowId": 8
+  },
+  {
+    "Amount": 3200.0,
+    "PaymentDateTime": "2021-11-20 02:31:38",
+    "Method": "Card",
+    "UserKey": "user2Id",
+    "ShowId": 23
+  },
+  {
+    "Amount": 3200.0,
+    "PaymentDateTime": "2022-01-14 19:05:21",
+    "Method": "Card",
+    "UserKey": "user2Id",
+    "ShowId": 7
+  }
+]

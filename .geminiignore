@@ -1,0 +1,25 @@
+# .NET
+**/bin/
+**/obj/
+**/artifacts/
+**/.vs/
+**/.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Node.js
+**/node_modules/
+**/.next/
+**/dist/
+**/build/
+.env*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Gemini
+.gemini/

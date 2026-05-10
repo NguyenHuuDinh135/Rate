@@ -35,6 +35,10 @@ public class MovieConfiguration : IEntityTypeConfiguration<Movie>
         builder.Property(x => x.MovieType)
             .IsRequired();
 
+        builder.HasIndex(x => x.Embedding)
+            .HasMethod("hnsw")
+            .HasOperators("vector_cosine_ops");
+
         // ===== Relationships =====
 
         // Movie -> Show (1 - many)
