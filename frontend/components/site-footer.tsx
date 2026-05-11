@@ -8,21 +8,21 @@ export function SiteFooter() {
           <div className="text-muted-foreground w-full px-1 text-center text-xs leading-loose sm:text-sm">
             Built by{" "}
             <a
-              href={siteConfig.links.twitter}
+              href={siteConfig.links.github}
               target="_blank"
               rel="noreferrer"
               className="font-medium underline underline-offset-4"
             >
-              shadcn
+              Gọi Tên Em Đi
             </a>{" "}
             at{" "}
             <a
-              href="https://vercel.com/new?utm_source=shadcn_site&utm_medium=web&utm_campaign=docs_cta_deploy_now_callout"
+              href="https://ute.udn.vn/default.aspx"
               target="_blank"
               rel="noreferrer"
               className="font-medium underline underline-offset-4"
             >
-              Vercel
+              UTE
             </a>
             . The source code is available on{" "}
             <a

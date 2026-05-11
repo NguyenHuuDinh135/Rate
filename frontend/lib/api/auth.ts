@@ -88,6 +88,25 @@ export async function refreshAuth(): Promise<AuthResponse | null> {
 }
 
 /**
+ * Verify OTP
+ */
+export async function verifyOtpApi(
+  email: string,
+  otpCode: string
+): Promise<AuthResponse> {
+  const response = await api.post<ApiResponse<AuthResponse>>(
+    AUTH_CONFIG.ENDPOINTS.VERIFY_OTP,
+    { email, otpCode },
+    { skipAuth: true }
+  )
+
+  // Store access token in memory
+  tokenStorage.setAccessToken(response.data.tokens.accessToken)
+
+  return response.data
+}
+
+/**
  * Request password reset
  */
 export async function forgotPasswordApi(email: string): Promise<void> {

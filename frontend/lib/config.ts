@@ -1,37 +1,33 @@
 export const siteConfig = {
-  name: "shadcn/ui",
-  url: "https://ui.shadcn.com",
+  name: "Movie",
+  url: "https://localhost:62111/",
   ogImage: "https://ui.shadcn.com/og.jpg",
-  description:
-    "A set of beautifully designed components that you can customize, extend, and build on. Start here then make it your own. Open Source. Open Code.",
+  description: "An open source Movie Ticket platform.",
   links: {
-    twitter: "https://twitter.com/shadcn",
-    github: "https://github.com/NguyenHuuDinh135/Rate",
+    github: "https://github.com/NguyenHuuDinh135/MovieReservation",
+    githubRepo: "https://github.com/sadmann7/skateshop",
+    githubAccount: "https://github.com/sadmann7",
   },
   navItems: [
     {
-      href: "/docs/installation",
-      label: "Docs",
+      href: "/",
+      label: "Home",
     },
     {
-      href: "/docs/components",
-      label: "Components",
+      href: "/about",
+      label: "About",
     },
     {
-      href: "/blocks",
-      label: "Blocks",
+      href: "/movies",
+      label: "Movies",
     },
     {
-      href: "/charts/area",
-      label: "Charts",
+      href: "/my-tickets",
+      label: "My Tickets",
     },
     {
-      href: "/docs/directory",
-      label: "Directory",
-    },
-    {
-      href: "/create",
-      label: "Create",
+      href: "/theaters",
+      label: "Theaters",
     },
   ],
 }

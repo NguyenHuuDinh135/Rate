@@ -1,4 +1,4 @@
-import { FileIcon } from "lucide-react"
+import { FileIcon, FilmIcon } from "lucide-react"
 
 type IconProps = React.HTMLAttributes<SVGElement>
 
@@ -30,6 +30,7 @@ export const Icons = {
       />
     </svg>
   ),
+  film: (props: IconProps) => <FilmIcon {...props} />,
   twitter: (props: IconProps) => (
     <svg
       {...props}

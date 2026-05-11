@@ -79,4 +79,31 @@ public class IdentityService : IIdentityService
 
         return result.ToApplicationResult();
     }
+
+    public async Task<IReadOnlyList<UserDto>> GetUsersAsync()
+    {
+        var users = await _userManager.Users.ToListAsync();
+        var userDtos = new List<UserDto>();
+
+        foreach (var user in users)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            userDtos.Add(new UserDto(user.Id, user.FullName ?? user.UserName ?? "", user.Email ?? "", roles.FirstOrDefault()));
+        }
+
+        return userDtos;
+    }
+
+    public async Task<Result> UpdateUserAsync(string userId, string fullName, string email)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return Result.Failure(["User not found."]);
+
+        user.FullName = fullName;
+        user.Email = email;
+        user.UserName = email.Split('@')[0];
+
+        var result = await _userManager.UpdateAsync(user);
+        return result.ToApplicationResult();
+    }
 }

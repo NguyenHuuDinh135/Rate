@@ -13,4 +13,10 @@ public interface IIdentityService
     Task<(Result Result, string UserId)> CreateUserAsync(string userName, string email, string password);
 
     Task<Result> DeleteUserAsync(string userId);
+
+    Task<IReadOnlyList<UserDto>> GetUsersAsync();
+
+    Task<Result> UpdateUserAsync(string userId, string fullName, string email);
 }
+
+public record UserDto(string Id, string Name, string Email, string? Role = null);

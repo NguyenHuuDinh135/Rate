@@ -4,6 +4,7 @@ import Link from "next/link"
 import { LogInIcon } from "lucide-react"
 
 import { siteConfig } from "@/lib/config"
+import { CommandMenu } from "@/components/command-menu"
 import { GitHubLink } from "@/components/github-link"
 import { Icons } from "@/components/icons"
 import { MainNav } from "@/components/main-nav"
@@ -14,9 +15,10 @@ import { SiteConfig } from "@/components/site-config"
 import { Button } from "@/registry/new-york-v4/ui/button"
 import { Separator } from "@/registry/new-york-v4/ui/separator"
 import { Skeleton } from "@/registry/new-york-v4/ui/skeleton"
+import { useAuth } from "@/hooks/use-auth"
 
 export function SiteHeader() {
-  // const { isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, isLoading } = useAuth()
 
   return (
     <header className="bg-background sticky top-0 z-50 w-full">
@@ -33,14 +35,14 @@ export function SiteHeader() {
             className="hidden size-8 lg:flex"
           >
             <Link href="/">
-              <Icons.logo className="size-5" />
+              <Icons.film className="size-5" />
               <span className="sr-only">{siteConfig.name}</span>
             </Link>
           </Button>
           <MainNav items={siteConfig.navItems} className="hidden lg:flex" />
           <div className="ml-auto flex items-center gap-2 md:flex-1 md:justify-end">
             <div className="hidden w-full flex-1 md:flex md:w-auto md:flex-none">
-              {/* <CommandMenu navItems={siteConfig.navItems} /> */}
+              <CommandMenu />
             </div>
             <Separator
               orientation="vertical"
@@ -54,11 +56,11 @@ export function SiteHeader() {
             <Separator orientation="vertical" className="mr-2" />
             
             {/* Auth Section */}
-            {/* {isLoading ? (
+            {isLoading ? (
               <Skeleton className="h-9 w-9 rounded-full" />
             ) : isAuthenticated ? (
               <NavUser variant="header" />
-            ) : ( */}
+            ) : (
               <>
                 <Button
                   asChild
@@ -76,7 +78,7 @@ export function SiteHeader() {
                   </Link>
                 </Button>
               </>
-            {/* )} */}
+            )}
           </div>
         </div>
       </div>

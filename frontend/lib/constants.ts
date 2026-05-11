@@ -19,6 +19,7 @@ export const AUTH_CONFIG = {
     REGISTER: "/auth/register",
     REFRESH: "/auth/refresh",
     ME: "/auth/me",
+    VERIFY_OTP: "/auth/verify-otp",
     FORGOT_PASSWORD: "/auth/forgot-password",
     RESET_PASSWORD: "/auth/reset-password",
   },
@@ -27,13 +28,14 @@ export const AUTH_CONFIG = {
   ROUTES: {
     LOGIN: "/login",
     SIGNUP: "/signup",
+    OTP: "/otp",
     DASHBOARD: "/dashboard",
     HOME: "/",
   },
 
   // Protected route prefixes
   PROTECTED_ROUTES: ["/dashboard", "/settings", "/profile"],
-  PUBLIC_ROUTES: ["/login", "/signup", "/forgot-password"],
+  PUBLIC_ROUTES: ["/login", "/signup", "/otp", "/forgot-password"],
 } as const
 
 export const API_CONFIG = {

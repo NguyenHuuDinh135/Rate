@@ -1,10 +1,7 @@
 using backend.Application.Bookings.Commands.CreateBooking;
 using backend.Application.Bookings.Commands.DeleteBooking;
 using backend.Application.Bookings.Commands.UpdateBooking;
-using backend.Application.Bookings.Queries.GetBookingById;
-using backend.Application.Bookings.Queries.GetBookings;
-using backend.Application.Bookings.Queries.GetBookingsByShow;
-using backend.Application.Bookings.Queries.GetBookingsByUser;
+using backend.Application.Bookings.Queries.GetBookingLayout;
 using backend.Application.Common.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -20,9 +17,16 @@ public class BookingEndpoints : IEndpointGroup
         group.MapGet("/id/{id:int}", GetById).RequireAuthorization();
         group.MapGet("/users/{userId}", GetByUser).RequireAuthorization();
         group.MapGet("/shows/{showId:int}", GetByShow).RequireAuthorization();
+        group.MapGet("/layout/{showId:int}", GetLayout).AllowAnonymous();
         group.MapPost("/create", Create).RequireAuthorization();
         group.MapPut("/update", Update).RequireAuthorization();
         group.MapDelete("/delete/{id:int}", Delete).RequireAuthorization();
+    }
+
+    public static async Task<Results<Ok<BookingLayoutDto>, NotFound>> GetLayout(ISender sender, int showId)
+    {
+        var result = await sender.Send(new GetBookingLayoutQuery(showId));
+        return result is null ? TypedResults.NotFound() : TypedResults.Ok(result);
     }
 
     public static Task<IReadOnlyList<BookingBriefDto>> GetAll(ISender sender)

@@ -82,22 +82,24 @@ export function NavUser({ user: propUser, variant = "sidebar" }: NavUserProps) {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
+            {(user as any).role === "admin" && (
+              <DropdownMenuItem asChild>
+                <Link href="/admin/dashboard" className="text-primary font-bold">
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Admin Panel
+                </Link>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem asChild>
-              <Link href="/dashboard">
+              <Link href="/profile">
                 <BadgeCheck className="mr-2 h-4 w-4" />
-                Dashboard
+                Profile
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/billing">
+              <Link href="/my-tickets">
                 <CreditCard className="mr-2 h-4 w-4" />
-                Billing
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/notifications">
-                <Bell className="mr-2 h-4 w-4" />
-                Notifications
+                My Tickets
               </Link>
             </DropdownMenuItem>
           </DropdownMenuGroup>

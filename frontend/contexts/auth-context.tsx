@@ -19,6 +19,7 @@ import {
   logoutApi,
   refreshAuth,
   registerApi,
+  verifyOtpApi,
 } from "@/lib/api/auth"
 import { tokenStorage } from "@/lib/api/api-client"
 import type {
@@ -94,6 +95,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       try {
         const authData = await loginApi(credentials)
 
+        // If your backend returns tokens immediately, you're logged in.
+        // If it requires OTP, you'll likely get a different response or 
+        // we handle the redirection in the component.
+        
+        // For now, let's assume it returns authData as before but we return it
+        // so the component can decide what to do (e.g., redirect to OTP).
+        
         setState({
           user: authData.user,
           isAuthenticated: true,
@@ -107,6 +115,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         // Redirect to home page
         router.push(AUTH_CONFIG.ROUTES.HOME)
+        return authData
       } catch (err) {
         const apiError = err as ApiError
         setState((prev) => ({
@@ -147,6 +156,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         })
 
         router.push(AUTH_CONFIG.ROUTES.HOME)
+        return authData
       } catch (err) {
         const apiError = err as ApiError
         setState((prev) => ({
@@ -156,6 +166,46 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }))
 
         toast.error("Registration failed", {
+          description: apiError.message,
+        })
+
+        throw err
+      }
+    },
+    [router]
+  )
+
+  // ============================================
+  // Verify OTP
+  // ============================================
+  const verifyOtp = useCallback(
+    async (email: string, otpCode: string) => {
+      setState((prev) => ({ ...prev, isLoading: true, error: null }))
+
+      try {
+        const authData = await verifyOtpApi(email, otpCode)
+
+        setState({
+          user: authData.user,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+        })
+
+        toast.success("OTP Verified!", {
+          description: "Login successful.",
+        })
+
+        router.push(AUTH_CONFIG.ROUTES.HOME)
+      } catch (err) {
+        const apiError = err as ApiError
+        setState((prev) => ({
+          ...prev,
+          isLoading: false,
+          error: apiError.message || "OTP verification failed",
+        }))
+
+        toast.error("Verification failed", {
           description: apiError.message,
         })
 
@@ -232,10 +282,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       login,
       logout,
       register,
+      verifyOtp,
       refreshAuth: refreshAuthState,
       clearError,
     }),
-    [state, login, logout, register, refreshAuthState, clearError]
+    [state, login, logout, register, verifyOtp, refreshAuthState, clearError]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
@@ -277,6 +328,37 @@ export function AuthGuard({ children, fallback }: AuthGuardProps) {
   }
 
   if (!isAuthenticated) {
+    return null
+  }
+
+  return <>{children}</>
+}
+
+// ============================================
+// Admin Guard Component
+// ============================================
+export function AdminGuard({ children, fallback }: AuthGuardProps) {
+  const { user, isAuthenticated, isLoading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (!isAuthenticated) {
+        router.push(AUTH_CONFIG.ROUTES.LOGIN)
+      } else if (user?.role !== "admin") {
+        toast.error("Access Denied", {
+          description: "You do not have permission to access this page.",
+        })
+        router.push(AUTH_CONFIG.ROUTES.HOME)
+      }
+    }
+  }, [isAuthenticated, isLoading, user, router])
+
+  if (isLoading) {
+    return fallback || <AuthLoadingSkeleton />
+  }
+
+  if (!isAuthenticated || user?.role !== "admin") {
     return null
   }
 

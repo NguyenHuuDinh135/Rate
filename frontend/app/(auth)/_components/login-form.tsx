@@ -2,8 +2,10 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
+import { AUTH_CONFIG } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import { z } from "zod"
 import { loginSchema, type LoginFormData } from "@/lib/validations/auth"
@@ -33,6 +35,7 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const router = useRouter()
   const { login, isLoading } = useAuth()
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
@@ -72,7 +75,10 @@ export function LoginForm({
     }
 
     try {
-      await login(result.data)
+      const data = await login(result.data)
+      // If we are here, it means login was successful or needs OTP.
+      // Based on moviereservation.client logic, we redirect to OTP.
+      router.push(`${AUTH_CONFIG.ROUTES.OTP}?email=${encodeURIComponent(formData.email)}`)
     } catch (err) {
       const apiError = err as ApiError
       if (apiError.errors) {
