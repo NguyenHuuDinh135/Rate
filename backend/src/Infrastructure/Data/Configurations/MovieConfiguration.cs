@@ -35,8 +35,9 @@ public class MovieConfiguration : IEntityTypeConfiguration<Movie>
         builder.Property(x => x.MovieType)
             .IsRequired();
 
-        builder.Property(x => x.Embedding)
-            .HasColumnType("vector(1024)");
+        builder.Property(m => m.Embedding)
+            .HasColumnType("vector(768)");
+
 
         builder.HasIndex(x => x.Embedding)
             .HasMethod("hnsw")

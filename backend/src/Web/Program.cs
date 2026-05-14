@@ -31,9 +31,9 @@ builder.AddWebServices();
 // ===============================
 builder.Services.AddSingleton(sp =>
 {
-    var uri = builder.Configuration.GetConnectionString("elasticsearch");
+    var uri = builder.Configuration.GetConnectionString("elasticsearch") ?? "http://localhost:9200";
 
-    var settings = new ElasticsearchClientSettings(new Uri(uri!))
+    var settings = new ElasticsearchClientSettings(new Uri(uri))
         .DefaultIndex("movies");
 
     return new ElasticsearchClient(settings);
@@ -61,7 +61,8 @@ builder.Services.AddMassTransit(x =>
     // cấu hình RabbitMQ từ Aspire
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host(builder.Configuration.GetConnectionString("messaging"));
+        var connectionString = builder.Configuration.GetConnectionString("messaging") ?? "localhost";
+        cfg.Host(connectionString);
 
         cfg.ConfigureEndpoints(context);
 
@@ -80,10 +81,10 @@ if (app.Environment.IsDevelopment())
 else
 {
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    // app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseCors(static builder => 
     builder.AllowAnyMethod()
         .AllowAnyHeader()

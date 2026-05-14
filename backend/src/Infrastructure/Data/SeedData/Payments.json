@@ -1,121 +1,121 @@
 [
   {
-    "Amount": 68000.0,
-    "PaymentDateTime": "2021-06-06 03:33:47",
+    "Amount": 68000,
+    "PaymentDateTime": "2021-06-06T03:33:47",
     "Method": "Card",
-    "UserKey": "user2Id",
-    "ShowId": 7
+    "ShowId": 7,
+    "UserId": "2b6dfb56-8a4d-4df7-8b9f-b2d0a18bb58e"
   },
   {
-    "Amount": 16800.0,
-    "PaymentDateTime": "2021-06-06 03:36:43",
+    "Amount": 16800,
+    "PaymentDateTime": "2021-06-06T03:36:43",
     "Method": "Card",
-    "UserKey": "user2Id",
-    "ShowId": 13
+    "ShowId": 13,
+    "UserId": "2b6dfb56-8a4d-4df7-8b9f-b2d0a18bb58e"
   },
   {
-    "Amount": 13600.0,
-    "PaymentDateTime": "2021-06-06 03:42:26",
+    "Amount": 13600,
+    "PaymentDateTime": "2021-06-06T03:42:26",
     "Method": "Card",
-    "UserKey": "user2Id",
-    "ShowId": 15
+    "ShowId": 15,
+    "UserId": "2b6dfb56-8a4d-4df7-8b9f-b2d0a18bb58e"
   },
   {
-    "Amount": 2400.0,
-    "PaymentDateTime": "2021-06-06 21:24:38",
+    "Amount": 2400,
+    "PaymentDateTime": "2021-06-06T21:24:38",
     "Method": "Card",
-    "UserKey": "user2Id",
-    "ShowId": 7
+    "ShowId": 7,
+    "UserId": "2b6dfb56-8a4d-4df7-8b9f-b2d0a18bb58e"
   },
   {
-    "Amount": 4800.0,
-    "PaymentDateTime": "2021-06-06 22:43:28",
+    "Amount": 4800,
+    "PaymentDateTime": "2021-06-06T22:43:28",
     "Method": "Card",
-    "UserKey": "user2Id",
-    "ShowId": 17
+    "ShowId": 17,
+    "UserId": "2b6dfb56-8a4d-4df7-8b9f-b2d0a18bb58e"
   },
   {
-    "Amount": 4800.0,
-    "PaymentDateTime": "2021-06-10 19:00:53",
+    "Amount": 4800,
+    "PaymentDateTime": "2021-06-10T19:00:53",
     "Method": "Card",
-    "UserKey": "user3Id",
-    "ShowId": 19
+    "ShowId": 19,
+    "UserId": "72c94147-cb3a-4f80-b015-9acb882bc5c0"
   },
   {
-    "Amount": 3200.0,
-    "PaymentDateTime": "2021-06-28 18:00:06",
+    "Amount": 3200,
+    "PaymentDateTime": "2021-06-28T18:00:06",
     "Method": "Card",
-    "UserKey": "user2Id",
-    "ShowId": 21
+    "ShowId": 21,
+    "UserId": "2b6dfb56-8a4d-4df7-8b9f-b2d0a18bb58e"
   },
   {
-    "Amount": 4800.0,
-    "PaymentDateTime": "2021-07-16 00:44:55",
+    "Amount": 4800,
+    "PaymentDateTime": "2021-07-16T00:44:55",
     "Method": "Card",
-    "UserKey": "user2Id",
-    "ShowId": 8
+    "ShowId": 8,
+    "UserId": "2b6dfb56-8a4d-4df7-8b9f-b2d0a18bb58e"
   },
   {
-    "Amount": 800.0,
-    "PaymentDateTime": "2021-08-08 03:35:43",
+    "Amount": 800,
+    "PaymentDateTime": "2021-08-08T03:35:43",
     "Method": "Card",
-    "UserKey": "user2Id",
-    "ShowId": 8
+    "ShowId": 8,
+    "UserId": "2b6dfb56-8a4d-4df7-8b9f-b2d0a18bb58e"
   },
   {
-    "Amount": 800.0,
-    "PaymentDateTime": "2021-08-17 19:47:21",
+    "Amount": 800,
+    "PaymentDateTime": "2021-08-17T19:47:21",
     "Method": "Card",
-    "UserKey": "user2Id",
-    "ShowId": 23
+    "ShowId": 23,
+    "UserId": "2b6dfb56-8a4d-4df7-8b9f-b2d0a18bb58e"
   },
   {
-    "Amount": 1600.0,
-    "PaymentDateTime": "2021-08-18 10:47:04",
+    "Amount": 1600,
+    "PaymentDateTime": "2021-08-18T10:47:04",
     "Method": "Card",
-    "UserKey": "user2Id",
-    "ShowId": 23
+    "ShowId": 23,
+    "UserId": "2b6dfb56-8a4d-4df7-8b9f-b2d0a18bb58e"
   },
   {
-    "Amount": 2400.0,
-    "PaymentDateTime": "2021-09-14 00:24:47",
+    "Amount": 2400,
+    "PaymentDateTime": "2021-09-14T00:24:47",
     "Method": "Card",
-    "UserKey": "user2Id",
-    "ShowId": 25
+    "ShowId": 25,
+    "UserId": "2b6dfb56-8a4d-4df7-8b9f-b2d0a18bb58e"
   },
   {
-    "Amount": 24800.0,
-    "PaymentDateTime": "2021-09-17 00:44:47",
+    "Amount": 24800,
+    "PaymentDateTime": "2021-09-17T00:44:47",
     "Method": "Card",
-    "UserKey": "user2Id",
-    "ShowId": 2
+    "ShowId": 2,
+    "UserId": "2b6dfb56-8a4d-4df7-8b9f-b2d0a18bb58e"
   },
   {
-    "Amount": 2400.0,
-    "PaymentDateTime": "2021-09-23 16:01:34",
+    "Amount": 2400,
+    "PaymentDateTime": "2021-09-23T16:01:34",
     "Method": "Card",
-    "UserKey": "user2Id",
-    "ShowId": 23
+    "ShowId": 23,
+    "UserId": "2b6dfb56-8a4d-4df7-8b9f-b2d0a18bb58e"
   },
   {
-    "Amount": 3200.0,
-    "PaymentDateTime": "2021-10-14 16:08:56",
+    "Amount": 3200,
+    "PaymentDateTime": "2021-10-14T16:08:56",
     "Method": "Card",
-    "UserKey": "user2Id",
-    "ShowId": 8
+    "ShowId": 8,
+    "UserId": "2b6dfb56-8a4d-4df7-8b9f-b2d0a18bb58e"
   },
   {
-    "Amount": 3200.0,
-    "PaymentDateTime": "2021-11-20 02:31:38",
+    "Amount": 3200,
+    "PaymentDateTime": "2021-11-20T02:31:38",
     "Method": "Card",
-    "UserKey": "user2Id",
-    "ShowId": 23
+    "ShowId": 23,
+    "UserId": "2b6dfb56-8a4d-4df7-8b9f-b2d0a18bb58e"
   },
   {
-    "Amount": 3200.0,
-    "PaymentDateTime": "2022-01-14 19:05:21",
+    "Amount": 3200,
+    "PaymentDateTime": "2021-06-06T19:05:21",
     "Method": "Card",
-    "UserKey": "user2Id",
-    "ShowId": 7
+    "ShowId": 7,
+    "UserId": "2b6dfb56-8a4d-4df7-8b9f-b2d0a18bb58e"
   }
 ]

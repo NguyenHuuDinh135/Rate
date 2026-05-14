@@ -10,7 +10,8 @@ var postgresPassword = builder.AddParameter("postgresadmin", "postgres", secret:
 // Pin Postgres 16: PG 18+ changed data paths; WithDataVolume() targets the classic layout.
 var postgres = builder.AddPostgres(
         name: Services.DatabaseServer,
-        password: postgresPassword)
+        password: postgresPassword,
+        port: 54322)
     .WithImage("pgvector/pgvector")
     .WithImageTag("pg16")
     .WithDataVolume("rate-postgres-data");
@@ -36,6 +37,7 @@ var web = builder.AddProject<Projects.Web>(Services.WebApi)
     .WaitFor(redis)
     .WaitFor(rabbitmq)
     .WaitFor(elasticsearch)
+    .WithEnvironment("GEMINI_API_KEY", builder.Configuration["GEMINI_API_KEY"] ?? string.Empty)
     .WithUrlForEndpoint("http", url =>
     {
         url.DisplayText = "Scalar API Reference";

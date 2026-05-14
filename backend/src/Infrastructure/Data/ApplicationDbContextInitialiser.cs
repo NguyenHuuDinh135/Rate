@@ -87,6 +87,7 @@ namespace backend.Infrastructure.Data
             try
             {
                 _logger.LogInformation("Bắt đầu khởi tạo Database...");
+                _logger.LogInformation($"DB Connection: {_context.Database.GetDbConnection().ConnectionString}");
                 if (resetOnStartup)
                 {
                     _logger.LogWarning("Database reset is enabled. Dropping and recreating schema.");
@@ -245,6 +246,42 @@ namespace backend.Infrastructure.Data
             {
                 var theaterSeats = await LoadSeedDataAsync<TheaterSeat>("TheaterSeats.json");
                 _context.TheaterSeats.AddRange(theaterSeats);
+                await _context.SaveChangesAsync();
+            }
+
+            // Seed Shows
+            if (!_context.Shows.Any())
+            {
+                var today = DateTime.UtcNow.Date;
+                var theaterIds = new int[] { 1, 2, 3, 4, 5 };
+                var movieIds = Enumerable.Range(2, 20).ToArray(); // MovieId từ 2 đến 21
+                var startTimes = new string[] { "10:00:00", "13:30:00", "16:30:00", "19:30:00", "22:00:00" };
+                var statuses = new ShowStatus[] { ShowStatus.Free, ShowStatus.AlmostFull, ShowStatus.Full };
+                var types = new ShowType[] { ShowType.TwoD, ShowType.ThreeD };
+
+                var shows = new List<Show>();
+
+                int movieIndex = 0;
+                foreach (var theaterId in theaterIds)
+                {
+                    foreach (var startTime in startTimes)
+                    {
+                        var movieId = movieIds[movieIndex % movieIds.Length];
+                        shows.Add(new Show
+                        {
+                            TheaterId = theaterId,
+                            MovieId = movieId,
+                            Date = today,
+                            StartTime = TimeSpan.Parse(startTime),
+                            EndTime = TimeSpan.Parse(TimeSpan.Parse(startTime).Add(TimeSpan.FromHours(2).Add(TimeSpan.FromMinutes(15))).ToString()),
+                            Status = statuses[movieIndex % statuses.Length],
+                            Type = types[movieIndex % types.Length]
+                        });
+                        movieIndex++;
+                    }
+                }
+
+                _context.Shows.AddRange(shows);
                 await _context.SaveChangesAsync();
             }
 
