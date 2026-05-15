@@ -82,8 +82,13 @@ namespace backend.Web.Endpoints
             return TypedResults.Ok(result);
         }
 
-        public static async Task<Results<Ok<AuthTokenResult>, UnauthorizedHttpResult>> Refresh(ISender sender, RefreshTokenCommand request)
+        public static async Task<Results<Ok<AuthTokenResult>, UnauthorizedHttpResult>> Refresh(ISender sender, RefreshTokenCommand? request)
         {
+            if (request is null || string.IsNullOrWhiteSpace(request.RefreshToken))
+            {
+                return TypedResults.Unauthorized();
+            }
+
             var result = await sender.Send(request);
             if (result is null)
             {

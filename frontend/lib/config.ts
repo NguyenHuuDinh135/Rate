@@ -1,6 +1,6 @@
 export const siteConfig = {
   name: "Movie",
-  url: "https://localhost:62111/",
+  url: "http://localhost:3000",
   ogImage: "https://ui.shadcn.com/og.jpg",
   description: "An open source Movie Ticket platform.",
   links: {

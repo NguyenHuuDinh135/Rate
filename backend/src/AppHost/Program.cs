@@ -11,8 +11,9 @@ var postgresPassword = builder.AddParameter("postgresadmin", "postgres", secret:
 var postgres = builder.AddPostgres(
         name: Services.DatabaseServer,
         password: postgresPassword,
-        port: 5432)
-    .WithImage("postgres:16")
+        port: 54322)
+    .WithImage("pgvector/pgvector")
+    .WithImageTag("pg16")
     .WithDataVolume("rate-postgres-data");
 
 var database = postgres.AddDatabase(Services.Database);
@@ -36,6 +37,7 @@ var web = builder.AddProject<Projects.Web>(Services.WebApi)
     .WaitFor(redis)
     .WaitFor(rabbitmq)
     .WaitFor(elasticsearch)
+    .WithEnvironment("GEMINI_API_KEY", builder.Configuration["GEMINI_API_KEY"] ?? string.Empty)
     .WithUrlForEndpoint("http", url =>
     {
         url.DisplayText = "Scalar API Reference";

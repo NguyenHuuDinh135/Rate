@@ -1,5 +1,4 @@
 using backend.Application.Common.Interfaces;
-using backend.Application.Users.Queries.GetMyUserInfo;
 
 namespace backend.Application.Users.Queries.GetUserById;
 

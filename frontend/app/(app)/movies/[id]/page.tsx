@@ -396,12 +396,12 @@ export default function MovieDetailPage() {
                 <div className="flex items-center gap-2 w-full lg:w-auto">
                     <Button variant="ghost" size="icon" onClick={handlePrevWeek} className="shrink-0 rounded-full h-10 w-10"><ChevronLeft className="h-5 w-5" /></Button>
                     <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2 lg:pb-0 px-2">
-                        {dateList.map((day, idx) => {
+                        {dateList.map((day) => {
                             const dateStr = format(day, "yyyy-MM-dd")
                             const isActive = isSameDay(day, selectedDate)
                             const hasShow = datesWithShows.includes(dateStr)
                             return (
-                                <button key={idx} onClick={() => { setSelectedDate(day); setSelectedShow(null); }} disabled={!hasShow} className={`flex flex-col items-center justify-center min-w-[3.5rem] h-14 rounded-2xl transition-all duration-300 border ${isActive ? "bg-primary border-primary text-primary-foreground shadow-md scale-105" : hasShow ? "bg-card border-border text-foreground hover:bg-accent" : "bg-muted/30 border-transparent text-muted-foreground/30 cursor-not-allowed"}`}>
+                                <button key={dateStr} onClick={() => { setSelectedDate(day); setSelectedShow(null); }} disabled={!hasShow} className={`flex flex-col items-center justify-center min-w-[3.5rem] h-14 rounded-2xl transition-all duration-300 border ${isActive ? "bg-primary border-primary text-primary-foreground shadow-md scale-105" : hasShow ? "bg-card border-border text-foreground hover:bg-accent" : "bg-muted/30 border-transparent text-muted-foreground/30 cursor-not-allowed"}`}>
                                     <span className="text-[10px] font-bold uppercase tracking-wider opacity-70">{format(day, "EEE")}</span>
                                     <span className="text-lg font-bold">{format(day, "dd")}</span>
                                 </button>

@@ -14,7 +14,10 @@ public sealed class GetFilteredMoviesQueryHandler(IApplicationDbContext db)
         var query = db.Movies.AsNoTracking().AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(request.Title))
-            query = query.Where(x => x.Title.Contains(request.Title));
+        {
+            var searchTitle = request.Title.ToLower();
+            query = query.Where(x => x.Title.ToLower().Contains(searchTitle));
+        }
         if (request.Type.HasValue)
             query = query.Where(x => x.MovieType == request.Type.Value);
         if (request.Year.HasValue)

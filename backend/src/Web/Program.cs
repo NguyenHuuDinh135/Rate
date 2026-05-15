@@ -5,6 +5,8 @@ using Elastic.Clients.Elasticsearch;
 using MassTransit;
 using backend.Infrastructure.Consumers;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Diagnostics;
+using backend.Application.Common.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -81,13 +83,13 @@ else
 {
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
-
-app.UseHttpsRedirection();
 app.UseCors(static builder => 
-    builder.AllowAnyMethod()
+    builder.WithOrigins("http://localhost:3000")
+        .AllowAnyMethod()
         .AllowAnyHeader()
-        .AllowAnyOrigin());
+        .AllowCredentials());
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -96,7 +98,20 @@ app.MapOpenApi();
 app.MapScalarApiReference();
 
 
-app.UseExceptionHandler(options => { });
+app.UseExceptionHandler(exceptionApp =>
+{
+    exceptionApp.Run(async context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/json";
+
+        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+        var exception = exceptionHandlerPathFeature?.Error;
+
+        var result = backend.Application.Common.Models.Result.Failure(new[] { exception?.Message ?? "An unexpected error occurred." });
+        await context.Response.WriteAsJsonAsync(result);
+    });
+});
 
 app.Map("/", () => Results.Redirect("/scalar"));
 app.UseHangfireDashboard("/hangfire");

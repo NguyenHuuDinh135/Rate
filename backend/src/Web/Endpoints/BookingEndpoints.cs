@@ -1,7 +1,11 @@
 using backend.Application.Bookings.Commands.CreateBooking;
 using backend.Application.Bookings.Commands.DeleteBooking;
 using backend.Application.Bookings.Commands.UpdateBooking;
+using backend.Application.Bookings.Queries.GetBookingById;
 using backend.Application.Bookings.Queries.GetBookingLayout;
+using backend.Application.Bookings.Queries.GetBookings;
+using backend.Application.Bookings.Queries.GetBookingsByShow;
+using backend.Application.Bookings.Queries.GetBookingsByUser;
 using backend.Application.Common.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 

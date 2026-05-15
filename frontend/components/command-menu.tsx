@@ -1,9 +1,18 @@
 "use client"
 
 import * as React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { Search, Film, User, Calendar, Star, Loader2 } from "lucide-react"
 
-import { Command, CommandEmpty, CommandInput, CommandList } from "@/registry/new-york-v4/ui/command"
+import { 
+  Command, 
+  CommandEmpty, 
+  CommandGroup, 
+  CommandInput, 
+  CommandItem, 
+  CommandList 
+} from "@/registry/new-york-v4/ui/command"
 import {
   Dialog,
   DialogContent,
@@ -14,9 +23,15 @@ import {
 } from "@/registry/new-york-v4/ui/dialog"
 import { Button } from "@/registry/new-york-v4/ui/button"
 import { cn } from "@/lib/utils"
+import movieClient, { type MovieDto } from "@/lib/api"
+import { Badge } from "@/registry/new-york-v4/ui/badge"
 
 export function CommandMenu() {
+  const router = useRouter()
   const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState("")
+  const [results, setResults] = useState<MovieDto[]>([])
+  const [isLoading, setIsLoading] = useState(false)
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -39,6 +54,35 @@ export function CommandMenu() {
     return () => document.removeEventListener("keydown", down)
   }, [])
 
+  useEffect(() => {
+    if (!query) {
+      setResults([])
+      return
+    }
+
+    const searchMovies = async () => {
+      setIsLoading(true)
+      try {
+        // Use the search API which uses Elasticsearch on the backend
+        const res = await movieClient.movies.search(query)
+        setResults(res || [])
+      } catch (error) {
+        console.error("Search failed:", error)
+        setResults([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    const timer = setTimeout(searchMovies, 300)
+    return () => clearTimeout(timer)
+  }, [query])
+
+  const onSelect = (id: number) => {
+    setOpen(false)
+    router.push(`/movies/${id}`)
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -49,7 +93,8 @@ export function CommandMenu() {
           )}
           onClick={() => setOpen(true)}
         >
-          <span className="hidden lg:inline-flex">Search for a movie, person,...</span>
+          <Search className="mr-2 h-4 w-4 text-muted-foreground" />
+          <span className="hidden lg:inline-flex">Search for a movie...</span>
           <span className="inline-flex lg:hidden">Search...</span>
           <div className="absolute top-1.5 right-1.5 hidden gap-1 sm:flex">
             <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
@@ -61,27 +106,69 @@ export function CommandMenu() {
 
       <DialogContent
         showCloseButton={false}
-        className="rounded-xl border-none bg-clip-padding p-2 pb-11 shadow-2xl ring-4 ring-neutral-200/80 dark:bg-neutral-900 dark:ring-neutral-800"
+        className="max-w-2xl overflow-hidden p-0 shadow-2xl"
       >
         <DialogHeader className="sr-only">
-          <DialogTitle>Search documentation...</DialogTitle>
-          <DialogDescription>Search for a movie or person...</DialogDescription>
+          <DialogTitle>Search</DialogTitle>
+          <DialogDescription>Search for movies...</DialogDescription>
         </DialogHeader>
-        <Command
-          className="**:data-[slot=command-input-wrapper]:bg-input/50 **:data-[slot=command-input-wrapper]:border-input rounded-none bg-transparent **:data-[slot=command-input]:!h-9 **:data-[slot=command-input]:py-0 **:data-[slot=command-input-wrapper]:mb-0 **:data-[slot=command-input-wrapper]:!h-9 **:data-[slot=command-input-wrapper]:rounded-md **:data-[slot=command-input-wrapper]:border"
-          filter={(value, search, keywords) => {
-            const extendValue = value + " " + (keywords?.join(" ") || "")
-            if (extendValue.toLowerCase().includes(search.toLowerCase())) {
-              return 1
-            }
-            return 0
-          }}
-        >
-          <CommandInput placeholder="Search movies, persons..." />
-          <CommandList className="no-scrollbar min-h-80 scroll-pt-2 scroll-pb-1.5">
-            <CommandEmpty className="text-muted-foreground py-12 text-center text-sm">
-              No results found.
-            </CommandEmpty>
+        <Command className="rounded-none border-none">
+          <CommandInput 
+            placeholder="Type movie title..." 
+            value={query}
+            onValueChange={setQuery}
+          />
+          <CommandList className="max-h-[400px]">
+            {isLoading && (
+              <div className="flex items-center justify-center py-6">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            )}
+            
+            {!isLoading && results.length === 0 && query.length >= 1 && (
+              <CommandEmpty>No movies found for "{query}".</CommandEmpty>
+            )}
+
+            {!isLoading && results.length > 0 && (
+              <CommandGroup heading="Movies">
+                {results.map((movie) => (
+                  <CommandItem
+                    key={movie.id}
+                    value={movie.title}
+                    onSelect={() => onSelect(movie.id)}
+                    className="flex items-center gap-3 p-2 cursor-pointer"
+                  >
+                    <div className="h-12 w-8 shrink-0 overflow-hidden rounded bg-muted">
+                      {movie.posterUrl && (
+                        <img 
+                          src={movie.posterUrl} 
+                          alt={movie.title} 
+                          className="h-full w-full object-cover"
+                        />
+                      )}
+                    </div>
+                    <div className="flex flex-1 flex-col gap-0.5">
+                      <span className="font-bold text-sm">{movie.title}</span>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {movie.year}
+                        </span>
+                        {movie.rating && (
+                          <span className="flex items-center gap-1 text-yellow-500">
+                            <Star className="h-3 w-3 fill-current" />
+                            {movie.rating.toFixed(1)}
+                          </span>
+                        )}
+                        <Badge variant="secondary" className="text-[10px] h-4 px-1 leading-none uppercase">
+                          {movie.movieType}
+                        </Badge>
+                      </div>
+                    </div>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
           </CommandList>
         </Command>
       </DialogContent>

@@ -20,18 +20,25 @@ public sealed class AuthenticationService(
 
     public async Task<AuthTokenResult?> LoginAsync(string email, string password, CancellationToken cancellationToken = default)
     {
+        Console.WriteLine($"[Login] Attempting login for email: {email}");
         var user = await userManager.FindByEmailAsync(email);
         if (user is null)
         {
+            Console.WriteLine($"[Login] User not found for email: {email}");
             return null;
         }
 
         var ok = await userManager.CheckPasswordAsync(user, password);
         if (!ok)
         {
+            Console.WriteLine($"[Login] Password check failed for user: {email}");
+            // Check if user is locked out or email not confirmed if those are required
+            var isLocked = await userManager.IsLockedOutAsync(user);
+            if (isLocked) Console.WriteLine($"[Login] User {email} is locked out.");
             return null;
         }
 
+        Console.WriteLine($"[Login] Login successful for user: {email}");
         var roles = await userManager.GetRolesAsync(user);
         var accessToken = jwtService.GenerateAccessToken(
             user.Id,

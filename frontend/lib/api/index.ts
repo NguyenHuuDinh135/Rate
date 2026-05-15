@@ -10,11 +10,14 @@ export const moviesApi = {
       headers: { 'movieType': movieType } // The backend seems to expect filters in query or header? 
       // Actually, looking at backend, it takes it from query.
     }),
-  getFilteredWithParams: (params: { movieType?: string; title?: string; year?: number }) =>
-    api.get<Types.MovieDto[]>('/movies/filtered', { 
-       // In frontend api-client, we might need to support query params.
-       // The current api-client doesn't seem to have a 'params' option in RequestOptions.
-    }),
+  getFilteredWithParams: (params: { movieType?: string; title?: string; year?: number }) => {
+    const query = new URLSearchParams()
+    if (params.movieType) query.append('type', params.movieType)
+    if (params.title) query.append('title', params.title)
+    if (params.year) query.append('year', params.year.toString())
+    return api.get<Types.MovieDto[]>(`/movies/filtered?${query.toString()}`)
+  },
+  search: (q: string) => api.get<Types.MovieDto[]>(`/movies/search?q=${encodeURIComponent(q)}`),
   getPersons: (id: number) => api.get<Types.PersonsForMovieDto>(`/movies/id/${id}/persons`),
 }
 

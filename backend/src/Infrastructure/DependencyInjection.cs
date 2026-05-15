@@ -115,9 +115,21 @@ public static class DependencyInjection
             var redisConnectionString = config.GetConnectionString(Services.Redis)
                 ?? config[$"{RedisOptions.SectionName}:ConnectionString"];
 
-            Guard.Against.NullOrWhiteSpace(redisConnectionString, "Redis not configured.");
+            if (string.IsNullOrWhiteSpace(redisConnectionString))
+            {
+                throw new InvalidOperationException("Redis connection string not found. Ensure Aspire is running or ConnectionStrings:redis is set.");
+            }
 
-            return ConnectionMultiplexer.Connect(redisConnectionString);
+            // Force SSL false for local development to avoid handshake errors
+            var options = ConfigurationOptions.Parse(redisConnectionString);
+            options.Ssl = false;
+            options.AbortOnConnectFail = false;
+            options.ConnectRetry = 5;
+            options.ConnectTimeout = 10000;
+            
+            Console.WriteLine($"Connecting to Redis: {options.EndPoints.FirstOrDefault()} (Ssl=False Forced)");
+
+            return ConnectionMultiplexer.Connect(options);
         });
 
         services.AddSingleton<IDistributedLockProvider>(sp =>

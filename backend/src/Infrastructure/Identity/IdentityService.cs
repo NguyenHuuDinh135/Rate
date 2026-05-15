@@ -34,7 +34,7 @@ public class IdentityService : IIdentityService
         var user = new ApplicationUser
         {
             FullName = FullName,
-            UserName = email.Split('@')[0],
+            UserName = email,
             Email = email,
         };
 
@@ -101,7 +101,7 @@ public class IdentityService : IIdentityService
 
         user.FullName = fullName;
         user.Email = email;
-        user.UserName = email.Split('@')[0];
+        user.UserName = email;
 
         var result = await _userManager.UpdateAsync(user);
         return result.ToApplicationResult();

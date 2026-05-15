@@ -32,7 +32,7 @@ namespace backend.Application.Auth.Commands.Register
 
             if (!result.Result.Succeeded)
             {
-                throw new Exception(string.Join(Environment.NewLine, result.Result.Errors));
+                return result.Result;
             }
 
             return Result.Success();

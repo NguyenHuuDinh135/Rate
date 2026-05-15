@@ -1,0 +1,31 @@
+[33mb344e7c[m[33m ([m[1;36mHEAD -> [m[1;32msetup_frontend[m[33m)[m HEAD@{0}: pull --tags origin backend-testing-stabilization: Merge made by the 'recursive' strategy.
+[33mfb2ce91[m[33m ([m[1;31morigin/setup_frontend[m[33m)[m HEAD@{1}: commit: setup frontend
+[33m4fa9255[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{2}: checkout: moving from main to setup_frontend
+[33m4fa9255[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{3}: checkout: moving from setup_frontend to main
+[33m4fa9255[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{4}: checkout: moving from main to setup_frontend
+[33m4fa9255[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{5}: pull origin: Fast-forward
+[33m95ee704[m HEAD@{6}: checkout: moving from feature_setupDapper to main
+[33m6bf599e[m[33m ([m[1;32mfeature_setupDapper[m[33m)[m HEAD@{7}: commit: fix version
+[33m4754524[m HEAD@{8}: commit: errol version
+[33m73df754[m[33m ([m[1;32mfeature/jwt-api[m[33m)[m HEAD@{9}: checkout: moving from feature/jwt-api to feature_setupDapper
+[33m73df754[m[33m ([m[1;32mfeature/jwt-api[m[33m)[m HEAD@{10}: checkout: moving from main to feature/jwt-api
+[33m95ee704[m HEAD@{11}: checkout: moving from feature/jwt-api to main
+[33m73df754[m[33m ([m[1;32mfeature/jwt-api[m[33m)[m HEAD@{12}: pull origin feature/jwt-api: Fast-forward
+[33m95ee704[m HEAD@{13}: checkout: moving from main to feature/jwt-api
+[33m95ee704[m HEAD@{14}: checkout: moving from feature/jwt-api to main
+[33m73df754[m[33m ([m[1;32mfeature/jwt-api[m[33m)[m HEAD@{15}: pull origin feature/jwt-api: Fast-forward
+[33m95ee704[m HEAD@{16}: checkout: moving from setup_Dapper to feature/jwt-api
+[33m3381dab[m[33m ([m[1;32msetup_Dapper[m[33m)[m HEAD@{17}: commit: add to checkout
+[33m95ee704[m HEAD@{18}: checkout: moving from feature/jwt-api to setup_Dapper
+[33m95ee704[m HEAD@{19}: checkout: moving from main to feature/jwt-api
+[33m95ee704[m HEAD@{20}: checkout: moving from setup_Dapper to main
+[33m95ee704[m HEAD@{21}: checkout: moving from main to setup_Dapper
+[33m95ee704[m HEAD@{22}: pull origin: Fast-forward
+[33mfd712d2[m HEAD@{23}: checkout: moving from feature/4_setup-entitie to main
+[33m3d3cce7[m[33m ([m[1;32mfeature/4_setup-entitie[m[33m)[m HEAD@{24}: commit: switch app host
+[33m4a9833f[m HEAD@{25}: commit: add Data
+[33m90c522a[m HEAD@{26}: reset: moving to origin/feature/4_setup-entitie
+[33m90c522a[m HEAD@{27}: commit: setup entities
+[33mfd712d2[m HEAD@{28}: checkout: moving from main to feature/4_setup-entitie
+[33mfd712d2[m HEAD@{29}: pull origin: Fast-forward
+[33m085112d[m HEAD@{30}: checkout: moving from feature/2_SetupIdentity to main

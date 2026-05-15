@@ -41,7 +41,7 @@ public partial class MovieDapperRepository // Bắt buộc phải có partial
         const string sql = """
             SELECT "Id", "Title", "Year", "Rating"
             FROM "Movies"
-            ORDER BY "Rating" DESC
+            ORDER BY "Rating" DESC NULLS LAST
             LIMIT 10
             """;
 

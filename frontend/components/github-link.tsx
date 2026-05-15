@@ -1,3 +1,5 @@
+"use client"
+
 import * as React from "react"
 import Link from "next/link"
 
@@ -19,20 +21,29 @@ export function GitHubLink() {
   )
 }
 
-export async function StarsCount() {
-  const data = await fetch("https://api.github.com/repos/NguyenHuuDinh135/Rate", {
-    next: { revalidate: 86400 },
-  })
-  const json = await data.json()
+export function StarsCount() {
+  const [stars, setStars] = React.useState<string | null>(null)
 
-  const formattedCount =
-    json.stargazers_count >= 1000
-      ? `${Math.round(json.stargazers_count / 1000)}k`
-      : json.stargazers_count.toLocaleString()
+  React.useEffect(() => {
+    fetch("https://api.github.com/repos/NguyenHuuDinh135/Rate")
+      .then((res) => res.json())
+      .then((json) => {
+        const formattedCount =
+          json.stargazers_count >= 1000
+            ? `${Math.round(json.stargazers_count / 1000)}k`
+            : json.stargazers_count?.toLocaleString() || "0"
+        setStars(formattedCount)
+      })
+      .catch(() => setStars("0"))
+  }, [])
+
+  if (stars === null) {
+    return <Skeleton className="h-4 w-[42px]" />
+  }
 
   return (
     <span className="text-muted-foreground w-fit text-xs tabular-nums">
-      {formattedCount}
+      {stars}
     </span>
   )
 }
