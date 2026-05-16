@@ -1,0 +1,25 @@
+﻿<Project Sdk="Aspire.AppHost.Sdk/13.1.2">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>backend.AppHost</RootNamespace>
+    <AssemblyName>backend.AppHost</AssemblyName>
+    <UserSecretsId>57971a77-df93-40c0-804a-eff1a2bceef9</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.Elasticsearch" />
+    <PackageReference Include="Aspire.Hosting.JavaScript" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+    <PackageReference Include="Aspire.Hosting.Redis" />
+    <PackageReference Include="Aspire.Hosting.RabbitMQ" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\Shared.csproj" IsAspireProjectResource="false" />
+    <ProjectReference Include="..\Web\Web.csproj" />
+    <ProjectReference Include="..\WebFrontend\WebFrontend\WebFrontend.csproj" />
+  </ItemGroup>
+
+</Project>

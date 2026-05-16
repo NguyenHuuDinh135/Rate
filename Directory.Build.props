@@ -1,0 +1,14 @@
+﻿<!-- See https://aka.ms/dotnet/msbuild/customize for more details on customizing your build -->
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AllowMissingPrunePackageData>true</AllowMissingPrunePackageData>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Suppress NU1608 until Npgsql.EntityFrameworkCore.PostgreSQL 10.0.0 is released -->
+    <!-- Suppress vulnerability warnings as they are blocking development in .NET 10 -->
+    <WarningsNotAsErrors>NU1608;NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
+    <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts</ArtifactsPath>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+</Project>

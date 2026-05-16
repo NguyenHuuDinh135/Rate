@@ -1,0 +1,17 @@
+{
+  "skill_name": "dotnet-clean-architecture-jasontaylor",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Add a 'Review' entity to the Domain project. It should have Title, Content, Rating (int), MovieId, and UserId. Then create a command in the Application project to create a new review. Use the project's existing patterns like Result<T> and primary constructors.",
+      "expected_output": "A new Review entity in Domain/Entities/Review.cs, and a CreateReviewCommand in Application/Reviews/Commands/CreateReview/CreateReviewCommand.cs following the project's patterns.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Create a query named 'GetReviewsForMovieQuery' that takes a MovieId and returns a list of ReviewDto (Title, Content, Rating, UserName). Use the 'ca-usecase' CLI template to scaffold the query in the 'Reviews' feature.",
+      "expected_output": "The 'ca-usecase' command was executed, and a GetReviewsForMovieQuery was created in Application/Reviews/Queries/GetReviewsForMovie/GetReviewsForMovieQuery.cs.",
+      "files": []
+    }
+  ]
+}

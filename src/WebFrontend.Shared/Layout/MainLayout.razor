@@ -1,0 +1,27 @@
+@inherits LayoutComponentBase
+
+<FluentLayout>
+    <FluentHeader>
+        Rate Monorepo
+        <FluentSpacer />
+        <FluentNavLink href="/" Match="NavLinkMatch.All">Home</FluentNavLink>
+        <FluentNavLink href="counter">Counter</FluentNavLink>
+        <FluentNavLink href="weather">Weather</FluentNavLink>
+    </FluentHeader>
+    
+    <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Stretch" Style="height: calc(100vh - 40px);">
+        <FluentBodyContent Style="padding: 20px; overflow-y: auto;">
+            <div class="max-w-4xl mx-auto">
+                @Body
+            </div>
+        </FluentBodyContent>
+    </FluentStack>
+</FluentLayout>
+
+<FluentToastProvider />
+<FluentDialogProvider />
+<FluentTooltipProvider />
+<FluentMessageBarProvider />
+
+@code {
+}

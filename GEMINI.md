@@ -1,50 +1,45 @@
-# Project: Rate (Full-stack) - Gemini CLI Context
+# Project: Rate (Monorepo) - Gemini CLI Context
 
 ## 🏗 Architecture Overview
-Dự án là một ứng dụng Full-stack hiện đại, được xây dựng theo kiến trúc phân lớp và microservices-ready.
+Dự án là một ứng dụng Monorepo .NET hiện đại, sử dụng .NET Aspire để quản lý orchestration.
 
-### Backend (.NET 10 & Aspire)
+### Backend (.NET 10)
 - **Kiến trúc**: Clean Architecture (Domain, Application, Infrastructure, Web).
 - **Pattern**: CQRS với MediatR. Command và Handler thường được gộp chung trong một file.
-- **API**: Minimal APIs với cơ chế tự động đăng ký endpoint (`IEndpointGroup`).
-- **Persistence**: EF Core với PostgreSQL (Npgsql). Sử dụng Auditable entities và Domain Events.
-- **Orchestration**: .NET Aspire (`AppHost`) quản lý Postgres, Redis, RabbitMQ, và Elasticsearch.
-- **Messaging**: MassTransit + RabbitMQ + EF Outbox.
-- **Jobs**: Hangfire (Postgres storage).
+- **API**: Minimal APIs trong project `Web`.
+- **Orchestration**: .NET Aspire (`AppHost`) quản lý toàn bộ hệ sinh thái (Postgres, Redis, RabbitMQ, Elasticsearch, API, Frontend).
 
-### Frontend (Next.js & Tailwind v4)
-- **Framework**: Next.js App Router (với Route Groups `(app)` và `(auth)`).
-- **Styling**: Tailwind CSS v4 (sử dụng `@theme` block và CSS variables).
-- **UI System**: Custom shadcn/ui registry (`registry/new-york-v4`).
-- **State Management**: TanStack Query (Server state) và React Context (Auth state).
-- **Form/Validation**: React Hook Form + Zod.
-- **API Client**: Fetch-based `apiClient` với cơ chế tự động refresh token (interceptors).
+### Frontend (Blazor Web App - Interactive Auto)
+- **Framework**: Blazor Web App (.NET 10).
+- **Render Mode**: **Interactive Auto** (kết hợp SSR cho lần đầu và WebAssembly cho các lần sau).
+- **Projects**: `WebFrontend` (Server side) và `WebFrontend.Client` (Client side/WASM).
+- **Communication**: Sử dụng `IHttpClientFactory` với Service Discovery của Aspire để gọi API (`http://webapi`).
 
 ---
 
 ## 🛠 Coding Conventions
 
-### Backend (.NET)
-- **CQRS**: Các tính năng mới nên được thêm vào `Application/[Feature]/Commands` hoặc `Application/[Feature]/Queries`. 
-- **Surgical Changes**: Khi sửa logic, hãy tập trung vào Handler. Khi sửa API, hãy kiểm tra `Web/Endpoints`.
-- **Naming**: Sử dụng PascalCase cho class/method, camelCase cho biến cục bộ. 
+### .NET (General)
+- **Naming**: PascalCase cho class/method, camelCase cho biến cục bộ. 
 - **Dependencies**: Sử dụng primary constructors cho Dependency Injection.
 
-### Frontend (Next.js)
-- **Components**: Ưu tiên Server Components. Chỉ sử dụng `'use client'` khi cần interactivity hoặc hooks.
-- **Styles**: Sử dụng utility classes của Tailwind CSS v4. Tránh viết CSS thuần trừ khi thực sự cần thiết.
-- **API**: Luôn sử dụng `apiClient` từ `lib/api/api-client.ts` để đảm bảo auth/refresh logic.
-- **Validation**: Định nghĩa Zod schema trong `lib/validations`.
+### Backend
+- **CQRS**: Các tính năng mới thêm vào `src/Application/[Feature]/Commands` hoặc `Queries`. 
+- **Endpoints**: Thêm Endpoint vào `src/Web/Endpoints`.
+
+### Blazor Frontend
+- **Components**: Đặt trong `WebFrontend/Components` (SSR/Server) hoặc `WebFrontend.Client/Pages` (WASM).
+- **Interactivity**: Mặc định sử dụng `@rendermode InteractiveAuto`.
 
 ---
 
 ## 🧪 Testing Guidelines
-- **Backend**: Sử dụng NUnit và Shouldly. Functional tests nằm trong `tests/Application.FunctionalTests`, sử dụng Aspire `DistributedApplicationTestingBuilder`.
-- **Frontend**: Hiện chưa thấy framework test rõ rệt, tuân thủ cấu trúc component hiện tại.
+- **Unit/Integration Tests**: Nằm trong thư mục `tests/`.
+- **Functional Tests**: Sử dụng `DistributedApplicationTestingBuilder` trong `tests/Application.FunctionalTests`.
 
 ---
 
 ## 🚀 Workflows cho Gemini
-1. **Thêm Handler mới**: Tham khảo `backend/src/Application/Movies/Commands/CreateMovie/CreateMovieCommand.cs`.
-2. **Thêm UI Component**: Tham khảo `frontend/registry/new-york-v4/ui/`.
-3. **Thêm Endpoint**: Tạo class implement `IEndpointGroup` trong `backend/src/Web/Endpoints`.
+1. **Thêm Handler mới**: Tham khảo `src/Application/Movies/Commands/CreateMovie/CreateMovieCommand.cs`.
+2. **Thêm Endpoint**: Tham khảo `src/Web/Endpoints/MovieEndpoints.cs`.
+3. **Thêm Blazor Page**: Tạo `.razor` file trong `src/WebFrontend.Client/Pages`.
