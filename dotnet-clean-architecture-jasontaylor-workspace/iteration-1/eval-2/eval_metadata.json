@@ -1,0 +1,12 @@
+{
+  "eval_id": 2,
+  "eval_name": "get-reviews-query",
+  "prompt": "Create a query named 'GetReviewsForMovieQuery' that takes a MovieId and returns a list of ReviewDto (Title, Content, Rating, UserName). The handler should use IApplicationDbContext to fetch data. Use the project's existing patterns like Result<T> and primary constructors.",
+  "assertions": [
+    {"name": "query-exists", "type": "file_exists", "path": "GetReviewsForMovieQuery.cs"},
+    {"name": "dto-exists", "type": "file_exists", "path": "ReviewDto.cs"},
+    {"name": "uses-primary-constructor", "type": "contains", "path": "GetReviewsForMovieQuery.cs", "pattern": "class GetReviewsForMovieQueryHandler\\("},
+    {"name": "uses-result-pattern", "type": "contains", "path": "GetReviewsForMovieQuery.cs", "pattern": "Result<"},
+    {"name": "filters-by-movieid", "type": "contains", "path": "GetReviewsForMovieQuery.cs", "pattern": "Where\\("}
+  ]
+}

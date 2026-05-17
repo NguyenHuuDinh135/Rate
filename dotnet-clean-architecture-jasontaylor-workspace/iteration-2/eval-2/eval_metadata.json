@@ -1,0 +1,10 @@
+{
+  "eval_id": 2,
+  "eval_name": "get-reviews-query-cli",
+  "prompt": "Create a query named 'GetReviewsForMovieQuery' that takes a MovieId and returns a list of ReviewDto (Title, Content, Rating, UserName). Use the 'ca-usecase' CLI template to scaffold the query in the 'Reviews' feature.",
+  "assertions": [
+    {"name": "query-exists", "type": "file_exists", "path": "GetReviewsForMovieQuery.cs"},
+    {"name": "uses-ca-usecase", "type": "contains", "path": "GetReviewsForMovieQuery.cs", "pattern": "namespace backend.Application.Reviews.Queries.GetReviewsForMovie"},
+    {"name": "filters-by-movieid", "type": "contains", "path": "GetReviewsForMovieQuery.cs", "pattern": "Where\\("}
+  ]
+}

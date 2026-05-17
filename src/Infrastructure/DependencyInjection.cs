@@ -54,11 +54,20 @@ public static class DependencyInjection
         return builder.Services;
     }
 
+    private static string GetDbConnectionString(IConfiguration config)
+    {
+        var connectionString = config.GetConnectionString("MovieDb");
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            return "Host=localhost;Database=RateDb;Username=postgres;Password=postgres";
+        }
+        return connectionString;
+    }
+
     private static IServiceCollection AddDatabase(
         this IServiceCollection services, IConfiguration config)
     {
-        var connectionString = config.GetConnectionString("MovieDb")
-            ?? throw new InvalidOperationException("Connection string 'MovieDb' not found.");
+        var connectionString = GetDbConnectionString(config);
 
         services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
@@ -80,10 +89,7 @@ public static class DependencyInjection
         services.AddScoped<ApplicationDbContextInitialiser>();
         services.AddScoped<backend.Application.Common.BackgroundJobs.IEmbeddingSyncJob, backend.Infrastructure.AI.BackgroundJobs.EmbeddingSyncJob>();
 
-        Console.WriteLine($"Postgres connected via Aspire");
-        Console.WriteLine(
-            $"DB: {connectionString}"
-        );
+        Console.WriteLine($"Postgres connected via Aspire. DB: {connectionString}");
 
         return services;
     }
@@ -139,14 +145,14 @@ public static class DependencyInjection
     private static IServiceCollection AddHangfire(
         this IServiceCollection services, IConfiguration config)
     {
-        var connectionString = config.GetConnectionString(Services.Database);
+        var connectionString = GetDbConnectionString(config);
 
         services.AddHangfire(cfg => cfg
             .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
             .UseSimpleAssemblyNameTypeSerializer()
             .UseRecommendedSerializerSettings()
             .UsePostgreSqlStorage(
-                options => options.UseNpgsqlConnection(connectionString!),
+                options => options.UseNpgsqlConnection(connectionString),
                 new PostgreSqlStorageOptions
                 {
                     QueuePollInterval = TimeSpan.FromSeconds(15),
@@ -159,28 +165,6 @@ public static class DependencyInjection
 
         return services;
     }
-
-    // private static IServiceCollection AddMessaging(
-    //     this IServiceCollection services, IConfiguration config)
-    // {
-    //     var rabbitConnectionString = config.GetConnectionString("rabbitmq");
-
-    //     if (string.IsNullOrWhiteSpace(rabbitConnectionString))
-    //         return services;
-
-    //     services.AddMassTransit(x =>
-    //     {
-    //         x.SetKebabCaseEndpointNameFormatter();
-
-    //         x.UsingRabbitMq((context, cfg) =>
-    //         {
-    //             cfg.Host(rabbitConnectionString);
-    //             cfg.ConfigureEndpoints(context);
-    //         });
-    //     });
-
-    //     return services;
-    // }
 
     private static IServiceCollection AddIdentity(
         this IServiceCollection services)

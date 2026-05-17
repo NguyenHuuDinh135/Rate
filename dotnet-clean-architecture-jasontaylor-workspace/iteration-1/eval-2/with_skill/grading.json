@@ -1,0 +1,29 @@
+{
+  "expectations": [
+    {
+      "text": "query-exists",
+      "passed": true,
+      "evidence": "File GetReviewsForMovieQuery.cs exists"
+    },
+    {
+      "text": "dto-exists",
+      "passed": true,
+      "evidence": "File ReviewDto.cs exists"
+    },
+    {
+      "text": "uses-primary-constructor",
+      "passed": true,
+      "evidence": "Found pattern 'class GetReviewsForMovieQueryHandler\\(' in GetReviewsForMovieQuery.cs"
+    },
+    {
+      "text": "uses-result-pattern",
+      "passed": true,
+      "evidence": "Found pattern 'Result<' in GetReviewsForMovieQuery.cs"
+    },
+    {
+      "text": "filters-by-movieid",
+      "passed": true,
+      "evidence": "Found pattern 'Where\\(' in GetReviewsForMovieQuery.cs"
+    }
+  ]
+}

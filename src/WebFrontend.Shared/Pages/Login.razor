@@ -1,0 +1,91 @@
+@page "/auth/login"
+@using Fluxor
+@using WebFrontend.Shared.Store.Auth
+@using Microsoft.FluentUI.AspNetCore.Components
+@inject IState<AuthState> AuthState
+@inject IDispatcher Dispatcher
+@inject NavigationManager NavigationManager
+
+<div class="flex flex-col items-center justify-center min-h-[80vh] px-4">
+    <FluentCard class="w-full max-w-md p-8 shadow-lg">
+        <EditForm Model="this" OnValidSubmit="HandleLogin" FormName="login-form">
+            <div class="flex flex-col gap-6">
+                <div class="text-center">
+                    <h1 class="text-3xl font-bold tracking-tight text-slate-900">Chào mừng trở lại</h1>
+                    <p class="text-muted-foreground mt-2">Đăng nhập vào tài khoản của bạn để tiếp tục</p>
+                </div>
+
+                @if (!string.IsNullOrEmpty(AuthState.Value.Error))
+                {
+                    <FluentMessageBar Title="Lỗi đăng nhập" Intent="@MessageIntent.Error" AllowDismiss="true">
+                        @AuthState.Value.Error
+                    </FluentMessageBar>
+                }
+
+                <div class="flex flex-col gap-4">
+                    <FluentTextField @bind-Value="email" 
+                                     Name="email"
+                                     Placeholder="email@example.com" 
+                                     Label="Email" 
+                                     Required="true" 
+                                     class="w-full" />
+
+                    <FluentTextField @bind-Value="password" 
+                                     Name="password"
+                                     TextFieldType="TextFieldType.Password" 
+                                     Label="Mật khẩu" 
+                                     Required="true" 
+                                     class="w-full" />
+                    
+                    <div class="flex items-center justify-between mt-2">
+                        <FluentCheckbox Label="Ghi nhớ tôi" />
+                        <FluentAnchor Appearance="Appearance.Hypertext" Href="/auth/forgot-password">Quên mật khẩu?</FluentAnchor>
+                    </div>
+
+                    <FluentButton Type="ButtonType.Submit"
+                                  Appearance="Appearance.Accent" 
+                                  class="w-full mt-4" 
+                                  Loading="@AuthState.Value.IsLoading">
+                        Đăng nhập
+                    </FluentButton>
+                </div>
+
+                <div class="text-center mt-4">
+                    <span class="text-sm text-muted-foreground">Chưa có tài khoản?</span>
+                    <FluentAnchor Appearance="Appearance.Hypertext" Href="/auth/register" class="ml-1">Đăng ký ngay</FluentAnchor>
+                </div>
+            </div>
+        </EditForm>
+    </FluentCard>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private string email { get; set; } = "";
+    
+    [SupplyParameterFromForm]
+    private string password { get; set; } = "";
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        if (AuthState.Value.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+
+        AuthState.StateChanged += (sender, state) =>
+        {
+            if (AuthState.Value.IsAuthenticated)
+            {
+                NavigationManager.NavigateTo("/");
+            }
+        };
+    }
+
+    private void HandleLogin()
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password)) return;
+        Dispatcher.Dispatch(new LoginAction(email, password));
+    }
+}

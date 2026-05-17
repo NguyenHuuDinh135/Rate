@@ -4,6 +4,9 @@ using Microsoft.FluentUI.AspNetCore.Components;
 using Refit;
 using Fluxor;
 using WebFrontend.Shared.Services.Api;
+using WebFrontend.Shared.Services.Storage;
+using WebFrontend.Shared.Layout;
+using Blazored.LocalStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,12 +18,24 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddFluentUIComponents();
+builder.Services.AddBlazoredLocalStorage();
+
+builder.Services.AddScoped<ITokenStorage, WebTokenStorage>();
 
 builder.Services.AddFluxor(options => 
-    options.ScanAssemblies(typeof(WebFrontend.Shared._Imports).Assembly));
+    options.ScanAssemblies(typeof(MainLayout).Assembly));
 
-builder.Services.AddRefitClient<IWeatherApi>()
-    .ConfigureHttpClient(c => c.BaseAddress = new Uri("http://webapi"));
+// Register API Clients
+var apiBaseUrl = "http://webapi";
+builder.Services.AddRefitClient<IAuthApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
+builder.Services.AddRefitClient<IMovieApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
+builder.Services.AddRefitClient<IGenreApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
+builder.Services.AddRefitClient<IShowApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
+builder.Services.AddRefitClient<ITheaterApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
+builder.Services.AddRefitClient<IBookingApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
+builder.Services.AddRefitClient<IPaymentApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
+builder.Services.AddRefitClient<IPersonApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
+builder.Services.AddRefitClient<IPermissionApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
 
 var app = builder.Build();
 
@@ -36,13 +51,12 @@ else
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
 }
 
-app.MapStaticAssets();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()
-    .AddAdditionalAssemblies(typeof(WebFrontend.Shared._Imports).Assembly);
+    .AddAdditionalAssemblies(typeof(MainLayout).Assembly);
 
 app.Run();

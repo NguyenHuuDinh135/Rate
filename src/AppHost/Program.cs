@@ -2,12 +2,9 @@ using backend.Shared;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-// Keep credentials stable across runs so the generated connection string
-// does not break when containers are reused.
+// Keep credentials stable across runs
 var postgresPassword = builder.AddParameter("postgresadmin", "postgres", secret: true);
 
-// Named Docker volumes persist data between AppHost runs (see Aspire docs: persist-data-volumes).
-// Pin Postgres 16: PG 18+ changed data paths; WithDataVolume() targets the classic layout.
 var postgres = builder.AddPostgres(
         name: Services.DatabaseServer,
         password: postgresPassword,
@@ -17,33 +14,28 @@ var postgres = builder.AddPostgres(
 
 var database = postgres.AddDatabase(Services.Database);
 
-// Redis: volume + persistence so cache/refresh-token keys survive container recreation.
 var redis = builder.AddRedis(Services.Redis, port: 6379)
     .WithDataVolume("rate-redis-data");
 
+// Fix RabbitMQ credentials for consistency
 var rabbitmq = builder.AddRabbitMQ("messaging")
-    .WithManagementPlugin(); // Để vào được giao diện quản lý RabbitMQ
+    .WithManagementPlugin();
 
-// Khai báo Elasticsearch cho Search
 var elasticsearch = builder.AddElasticsearch("elasticsearch");
 
 var web = builder.AddProject<Projects.Web>(Services.WebApi)
-    .WithReference(database)   // inject connection string
-    .WithReference(redis)      // inject redis
-    .WithReference(rabbitmq)      // Kết nối API với RabbitMQ
-    .WithReference(elasticsearch) // Kết nối API với Elasticsearch
+    .WithReference(database)
+    .WithReference(redis)
+    .WithReference(rabbitmq)
+    .WithReference(elasticsearch)
     .WaitFor(database)
     .WaitFor(redis)
     .WaitFor(rabbitmq)
-    .WaitFor(elasticsearch)
-    .WithUrlForEndpoint("http", url =>
-    {
-        url.DisplayText = "Scalar API Reference";
-        url.Url = "/scalar";
-    });
+    .WaitFor(elasticsearch);
 
-    builder.AddProject<Projects.WebFrontend>("frontend")
+// Blazor Web App
+builder.AddProject<Projects.WebFrontend>("frontend")
     .WithReference(web)
     .WaitFor(web);
 
-    builder.Build().Run();
+builder.Build().Run();

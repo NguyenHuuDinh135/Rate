@@ -1,0 +1,12 @@
+{
+  "eval_id": 1,
+  "eval_name": "add-review-entity-and-command",
+  "prompt": "Add a 'Review' entity to the Domain project. It should have Title, Content, Rating (int), MovieId, and UserId. Then create a command in the Application project to create a new review. Use the project's existing patterns like Result<int> and primary constructors.",
+  "assertions": [
+    {"name": "review-entity-exists", "type": "file_exists", "path": "Review.cs"},
+    {"name": "command-exists", "type": "file_exists", "path": "CreateReviewCommand.cs"},
+    {"name": "uses-primary-constructor", "type": "contains", "path": "CreateReviewCommand.cs", "pattern": "class CreateReviewCommandHandler\\("},
+    {"name": "uses-result-pattern", "type": "contains", "path": "CreateReviewCommand.cs", "pattern": "Result<int>"},
+    {"name": "entity-has-properties", "type": "contains", "path": "Review.cs", "pattern": "string Title"}
+  ]
+}

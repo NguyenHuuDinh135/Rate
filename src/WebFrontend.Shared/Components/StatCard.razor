@@ -1,0 +1,30 @@
+@using Microsoft.FluentUI.AspNetCore.Components
+
+<FluentCard class="p-6 rounded-[1.5rem] shadow-sm border-none bg-white relative overflow-hidden group">
+    <div class="absolute -right-4 -top-4 w-24 h-24 @Color opacity-5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
+    
+    <div class="flex flex-col gap-4 relative z-10">
+        <div class="flex items-center justify-between">
+            <div class="w-12 h-12 @Color text-white rounded-2xl flex items-center justify-center shadow-lg shadow-black/5">
+                <FluentIcon Value="@Icon" />
+            </div>
+            @if (!string.IsNullOrEmpty(Delta) && Delta != "0")
+            {
+                <span class="text-[10px] font-black px-2 py-1 rounded-full bg-emerald-50 text-emerald-600">@Delta</span>
+            }
+        </div>
+        
+        <div>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">@Title</p>
+            <h4 class="text-2xl font-black text-slate-900">@Value</h4>
+        </div>
+    </div>
+</FluentCard>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = "";
+    [Parameter, EditorRequired] public string Value { get; set; } = "";
+    [Parameter] public string Delta { get; set; } = "";
+    [Parameter, EditorRequired] public Icon Icon { get; set; } = default!;
+    [Parameter] public string Color { get; set; } = "bg-accent";
+}

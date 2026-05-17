@@ -1,0 +1,57 @@
+@using Microsoft.FluentUI.AspNetCore.Components
+@using System.Globalization
+
+<div class="flex flex-col gap-4">
+    <div class="flex items-center justify-between">
+        <span class="text-xs text-muted-foreground font-black uppercase tracking-widest">Chọn ngày chiếu</span>
+        <div class="flex gap-1">
+            <FluentButton Appearance="Appearance.Stealth" IconStart="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size16.ChevronLeft())" OnClick="() => ShiftWeek(-7)" />
+            <FluentButton Appearance="Appearance.Stealth" IconStart="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size16.ChevronRight())" OnClick="() => ShiftWeek(7)" />
+        </div>
+    </div>
+
+    <div class="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-2 px-1">
+        @foreach (var day in GetVisibleDates())
+        {
+            var dateStr = day.ToString("yyyy-MM-dd");
+            var isActive = day.Date == SelectedDate.Date;
+            var hasShow = DatesWithShows.Contains(dateStr);
+            
+            <button @onclick="() => OnDateSelected.InvokeAsync(day)" 
+                    disabled="@(!hasShow)"
+                    class="@GetDateClass(isActive, hasShow) flex flex-col items-center justify-center min-w-[4rem] h-16 rounded-2xl transition-all duration-300 border">
+                <span class="text-[9px] font-black uppercase tracking-tighter opacity-60">@day.ToString("ddd", new CultureInfo("vi-VN"))</span>
+                <span class="text-xl font-black">@day.Day</span>
+            </button>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public DateTime SelectedDate { get; set; } = DateTime.Now;
+    [Parameter] public List<string> DatesWithShows { get; set; } = new();
+    [Parameter] public EventCallback<DateTime> OnDateSelected { get; set; }
+
+    private DateTime viewStartDate = DateTime.Now;
+
+    private IEnumerable<DateTime> GetVisibleDates()
+    {
+        return Enumerable.Range(0, 7).Select(i => viewStartDate.AddDays(i));
+    }
+
+    private void ShiftWeek(int days)
+    {
+        viewStartDate = viewStartDate.AddDays(days);
+    }
+
+    private string GetDateClass(bool isActive, bool hasShow)
+    {
+        if (isActive)
+            return "bg-accent border-accent text-white shadow-lg shadow-accent/20 scale-105 z-10";
+        
+        if (hasShow)
+            return "bg-white border-border text-foreground hover:bg-slate-50 hover:border-accent/30 cursor-pointer shadow-sm";
+            
+        return "bg-slate-50 border-transparent text-slate-300 cursor-not-allowed opacity-50";
+    }
+}
