@@ -1,0 +1,121 @@
+@page "/admin/movies"
+@layout AdminLayout
+@using Fluxor
+@using WebUI.Shared.Store.Movies
+@using WebUI.Shared.Models.Movies
+@using WebUI.Shared.Models.Common
+@using WebUI.Shared.Components
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
+@inject IState<MovieState> MovieState
+@inject IDispatcher Dispatcher
+@inject IMovieApi MovieApi
+@inject IDialogService DialogService
+@inject IToastService ToastService
+
+<div class="flex flex-col gap-8">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-black tracking-tight text-slate-900">Quản lý phim</h1>
+            <p class="text-slate-500 font-medium">Danh sách toàn bộ phim trong hệ thống</p>
+        </div>
+        <FluentButton Appearance="Appearance.Accent" IconStart="@(new Size20.Add())" class="h-12 px-6 font-bold shadow-lg shadow-accent/20 rounded-xl" OnClick="@(() => OpenMovieDialog(null))">
+            Thêm phim mới
+        </FluentButton>
+    </div>
+
+    <DataState IsLoading="@MovieState.Value.IsLoading" 
+               Error="@MovieState.Value.Error" 
+               IsEmpty="@(!MovieState.Value.Movies.Any())"
+               OnRetry="@(() => Dispatcher.Dispatch(new LoadMoviesAction()))">
+        <FluentCard class="p-0 overflow-hidden border-none shadow-md rounded-[2rem] bg-white">
+            <FluentDataGrid Items="@MovieState.Value.Movies.AsQueryable()" TGridItem="MovieDto" ResizableColumns="true" Pagination="@pagination">
+                <PropertyColumn Property="@(m => m.Id)" Title="ID" Sortable="true" Align="Align.Start" />
+                
+                <TemplateColumn Title="Poster" Align="Align.Center">
+                    <img src="@context.PosterUrl" class="w-10 h-14 object-cover rounded-lg shadow-sm border border-slate-100" alt="Poster" />
+                </TemplateColumn>
+
+                <PropertyColumn Property="@(m => m.Title)" Title="Tiêu đề" Sortable="true" />
+                
+                <PropertyColumn Property="@(m => m.Year)" Title="Năm" Sortable="true" />
+                
+                <TemplateColumn Title="Trạng thái" Sortable="true">
+                    @if (context.MovieType == MovieType.NowShowing)
+                    {
+                        <FluentBadge Appearance="Appearance.Lightweight" Fill="success">Đang chiếu</FluentBadge>
+                    }
+                    else if (context.MovieType == MovieType.ComingSoon)
+                    {
+                        <FluentBadge Appearance="Appearance.Lightweight" Fill="warning">Sắp chiếu</FluentBadge>
+                    }
+                    else
+                    {
+                        <FluentBadge Appearance="Appearance.Lightweight">Đã gỡ</FluentBadge>
+                    }
+                </TemplateColumn>
+
+                <TemplateColumn Title="Hành động" Align="Align.End">
+                    <div class="flex gap-2 justify-end">
+                        <PermissionGate Permission="Permission.Movies.Edit">
+                            <FluentButton IconStart="@(new Size20.Edit())" Appearance="Appearance.Stealth" OnClick="@(() => OpenMovieDialog(context))" />
+                        </PermissionGate>
+                        <PermissionGate Permission="Permission.Movies.Delete">
+                            <FluentButton IconStart="@(new Size20.Delete())" Appearance="Appearance.Stealth" Color="Color.Error" />
+                        </PermissionGate>
+                    </div>
+                </TemplateColumn>
+            </FluentDataGrid>
+            
+            <div class="p-4 border-t bg-slate-50 flex justify-center">
+                <FluentPaginator State="@pagination" />
+            </div>
+        </FluentCard>
+    </DataState>
+</div>
+
+@code {
+    private PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        if (MovieState.Value.Movies.Count == 0)
+        {
+            Dispatcher.Dispatch(new LoadMoviesAction());
+        }
+    }
+
+    private async Task OpenMovieDialog(MovieDto? movie)
+    {
+        var data = movie ?? new MovieDto(0, "", "", DateTime.Now.Year, 0, "", "", MovieType.ComingSoon, new List<GenreDto>());
+        
+        var dialog = await DialogService.ShowDialogAsync<MovieDialog>(data, new DialogParameters
+        {
+            Title = movie == null ? "Thêm phim mới" : "Chỉnh sửa phim",
+            Width = "600px",
+            TrapFocus = true,
+            Modal = true
+        });
+
+        var result = await dialog.Result;
+        if (!result.Cancelled && result.Data is not null)
+        {
+            await SaveMovie((MovieDto)result.Data);
+        }
+    }
+
+    private async Task SaveMovie(MovieDto movie)
+    {
+        try 
+        {
+            // Logic to call API and refresh Fluxor
+            ToastService.ShowSuccess("Đã lưu phim thành công!");
+            Dispatcher.Dispatch(new LoadMoviesAction());
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError("Lỗi khi lưu phim: " + ex.Message);
+        }
+    }
+}

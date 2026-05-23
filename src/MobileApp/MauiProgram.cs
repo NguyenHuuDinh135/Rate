@@ -2,9 +2,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.FluentUI.AspNetCore.Components;
 using Fluxor;
 using Refit;
-using WebFrontend.Shared.Layout;
-using WebFrontend.Shared.Services.Api;
-using WebFrontend.Shared.Services.Storage;
+using WebUI.Shared.Layout;
+using WebUI.Shared.Services.Api;
+using WebUI.Shared.Services.Storage;
 using MobileApp.Services;
 
 namespace MobileApp;

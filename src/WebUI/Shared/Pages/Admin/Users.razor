@@ -1,0 +1,55 @@
+@page "/admin/users"
+@layout AdminLayout
+@using WebUI.Shared.Models.Auth
+@using WebUI.Shared.Services.Api
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
+@inject IAuthApi AuthApi
+@inject IToastService ToastService
+
+<div class="flex flex-col gap-8">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-black tracking-tight text-slate-900">Quản lý người dùng</h1>
+            <p class="text-slate-500 font-medium">Danh sách tài khoản và phân quyền hệ thống</p>
+        </div>
+    </div>
+
+    <FluentCard class="p-0 overflow-hidden border-none shadow-md rounded-[2rem] bg-white">
+        <FluentDataGrid Items="@users.AsQueryable()" TGridItem="UserProfileDto" Pagination="@pagination">
+            <PropertyColumn Property="@(u => u.Id)" Title="ID" Sortable="true" />
+            <PropertyColumn Property="@(u => u.UserName)" Title="Username" Sortable="true" Filterable="true" />
+            <PropertyColumn Property="@(u => u.Email)" Title="Email" Sortable="true" Filterable="true" />
+            
+            <TemplateColumn Title="Vai trò">
+                <FluentBadge Appearance="Appearance.Lightweight">User</FluentBadge>
+            </TemplateColumn>
+
+            <TemplateColumn Title="Hành động" Align="Align.End">
+                <div class="flex gap-2 justify-end">
+                    <FluentButton IconStart="@(new Size20.LockOpen())" Appearance="Appearance.Stealth" Title="Reset mật khẩu" />
+                    <FluentButton IconStart="@(new Size20.Delete())" Appearance="Appearance.Stealth" Color="Color.Error" />
+                </div>
+            </TemplateColumn>
+        </FluentDataGrid>
+        
+        <div class="p-4 border-t bg-slate-50 flex justify-center">
+            <FluentPaginator State="@pagination" />
+        </div>
+    </FluentCard>
+</div>
+
+@code {
+    private List<UserProfileDto> users = new();
+    private PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+
+    protected override void OnInitialized()
+    {
+        // Mock data for now since we don't have a GetUsersAsync in IAuthApi yet
+        users = new List<UserProfileDto> {
+            new UserProfileDto("1", "admin", "admin@rate.com", new List<string> { "Permission.ManagePermissions" }),
+            new UserProfileDto("2", "dinhnh", "dinh@rate.com", new List<string>()),
+            new UserProfileDto("3", "test_user", "test@gmail.com", new List<string>())
+        };
+    }
+}

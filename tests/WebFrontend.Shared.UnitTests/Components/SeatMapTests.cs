@@ -1,14 +1,14 @@
 using Microsoft.AspNetCore.Components;
 using Xunit;
-using WebFrontend.Shared.Components;
+using WebUI.Shared.Components;
 using Microsoft.FluentUI.AspNetCore.Components;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
-using WebFrontend.Shared.Models.Theaters;
-using WebFrontend.Shared.Models.Bookings;
+using WebUI.Shared.Models.Theaters;
+using WebUI.Shared.Models.Bookings;
 
-namespace WebFrontend.Shared.UnitTests.Components;
+namespace WebUI.Shared.UnitTests.Components;
 
 public class SeatMapTests : BunitContext
 {

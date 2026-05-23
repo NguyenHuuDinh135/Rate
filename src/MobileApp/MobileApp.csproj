@@ -20,7 +20,7 @@
     <PackageReference Include="Refit.HttpClientFactory" />
     <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
-    <ProjectReference Include="..\WebUI\WebFrontend.Shared\WebFrontend.Shared.csproj" />
+    <ProjectReference Include="..\WebUI\Shared\WebUI.Shared.csproj" />
   </ItemGroup>
 
 </Project>

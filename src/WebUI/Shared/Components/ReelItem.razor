@@ -1,0 +1,87 @@
+@using WebUI.Shared.Models.Movies
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
+
+<div class="relative w-full h-full snap-start shrink-0 bg-black overflow-hidden flex items-center justify-center">
+    @* Video Layer *@
+    <div class="absolute inset-0 z-0">
+        @if (!string.IsNullOrEmpty(YouTubeId) && IsActive)
+        {
+            <iframe class="w-full h-full object-cover opacity-0 animate-in fade-in duration-1000 fill-mode-forwards"
+                    src="https://www.youtube.com/embed/@(YouTubeId)?autoplay=1&mute=@(IsMuted ? 1 : 0)&controls=0&loop=1&playlist=@(YouTubeId)&modestbranding=1&rel=0&iv_load_policy=3&playsinline=1"
+                    allow="autoplay; encrypted-media"
+                    title="@Movie.Title">
+            </iframe>
+        }
+
+        @* Fallback/Overlay Layer *@
+        <div class="absolute inset-0 flex items-center justify-center transition-opacity duration-500 @(IsActive ? "opacity-0" : "opacity-100")">
+            <img src="@Movie.PosterUrl" class="absolute inset-0 w-full h-full object-cover blur-3xl scale-110 opacity-30" alt="" />
+            <img src="@Movie.PosterUrl" class="relative z-10 max-w-[80%] max-h-[70%] object-contain rounded-3xl shadow-2xl" alt="@Movie.Title" />
+        </div>
+
+        <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80 pointer-events-none"></div>
+    </div>
+
+    @* Info Overlay *@
+    <div class="absolute bottom-0 left-0 right-0 p-8 pb-24 z-20">
+        <div class="max-w-4xl mx-auto flex flex-col gap-6">
+            <div class="flex flex-wrap gap-2">
+                @foreach (var genre in Movie.Genres.Take(3))
+                {
+                    <span class="px-3 py-1 bg-white/10 backdrop-blur-md text-white text-[10px] font-black rounded-full uppercase tracking-widest border border-white/10">@genre.Name</span>
+                }
+                @if (Movie.Rating.HasValue)
+                {
+                    <span class="px-3 py-1 bg-yellow-500 text-black text-[10px] font-black rounded-full uppercase tracking-widest">IMDb @Movie.Rating</span>
+                }
+            </div>
+
+            <h2 class="text-5xl md:text-7xl font-black text-white leading-none tracking-tighter drop-shadow-2xl">@Movie.Title</h2>
+            
+            <p class="text-white/70 text-lg md:text-xl line-clamp-3 max-w-2xl font-medium drop-shadow-lg">@Movie.Summary</p>
+
+            <div class="flex gap-4 mt-4">
+                <FluentAnchor Href="@($"/movies/{Movie.Id}")" Appearance="Appearance.Accent" class="h-16 px-8 rounded-full font-black text-lg shadow-2xl flex items-center gap-3">
+                    <FluentIcon Value="@(new Size24.Play())" Color="Color.Fill" />
+                    ĐẶT VÉ NGAY
+                </FluentAnchor>
+                <FluentButton Appearance="Appearance.Outline" class="h-16 px-8 rounded-full bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20 font-black text-lg">
+                    CHI TIẾT
+                </FluentButton>
+            </div>
+        </div>
+    </div>
+
+    @* Controls *@
+    <div class="absolute top-8 right-8 z-30">
+        <FluentButton Appearance="Appearance.Stealth" 
+                      class="h-14 w-14 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 text-white shadow-2xl"
+                      OnClick="@(() => OnToggleMute.InvokeAsync())">
+            @if (IsMuted)
+            {
+                <FluentIcon Value="@(new Size24.SpeakerMute())" />
+            }
+            else
+            {
+                <FluentIcon Value="@(new Size24.Speaker2())" />
+            }
+        </FluentButton>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public MovieDto Movie { get; set; } = default!;
+    [Parameter] public bool IsActive { get; set; }
+    [Parameter] public bool IsMuted { get; set; }
+    [Parameter] public EventCallback OnToggleMute { get; set; }
+
+    private string? YouTubeId => GetYouTubeId(Movie.TrailerUrl);
+
+    private string? GetYouTubeId(string url)
+    {
+        if (string.IsNullOrEmpty(url)) return null;
+        var match = System.Text.RegularExpressions.Regex.Match(url, @"(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})");
+        return match.Success ? match.Groups[1].Value : null;
+    }
+}

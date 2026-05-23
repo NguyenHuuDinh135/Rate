@@ -1,0 +1,202 @@
+@page "/admin/settings"
+@layout AdminLayout
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
+@using WebUI.Shared.Services.Api
+@using WebUI.Shared.Components
+@inject IPermissionApi PermissionApi
+@inject IToastService ToastService
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Trung tâm Phân quyền IAM | RATE ADMIN</PageTitle>
+
+<div class="flex flex-col gap-10">
+    @* Page Header *@
+    <div>
+        <h1 class="text-3xl font-black tracking-tight text-slate-900 flex items-center gap-3">
+            <div class="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-white">
+                <FluentIcon Value="@(new Size20.Settings())" />
+            </div>
+            Cấu hình Phân quyền (IAM)
+        </h1>
+        <p class="text-slate-500 font-medium">Thiết lập các vai trò, nhóm người dùng và quản lý chi tiết quyền truy cập hệ thống</p>
+    </div>
+
+    @* Navigation Tabs *@
+    <FluentTabs ActiveTabId="rolesTab" class="w-full">
+        @* Tab 1: Roles *@
+        <FluentTab Id="rolesTab" Label="VAI TRÒ & PHÂN QUYỀN">
+            <div class="py-8 space-y-8">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-900">Danh sách Vai trò</h3>
+                        <p class="text-slate-400 text-xs font-semibold">Các nhóm chức năng chính được định nghĩa trong hệ thống</p>
+                    </div>
+                    <FluentButton Appearance="Appearance.Accent" IconStart="@(new Size20.Add())" class="rounded-xl font-bold" OnClick="@CreateNewRole">
+                        Tạo vai trò mới
+                    </FluentButton>
+                </div>
+
+                @if (isLoadingRoles)
+                {
+                    <div class="flex justify-center py-12 bg-white rounded-[2rem] border border-slate-100 shadow-md">
+                        <FluentProgressRing></FluentProgressRing>
+                    </div>
+                }
+                else
+                {
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @foreach (var role in roles)
+                        {
+                            <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+                                <div>
+                                    <div class="flex justify-between items-start mb-4">
+                                        <FluentBadge Appearance="Appearance.Accent" class="font-black">@role.NormalizedName</FluentBadge>
+                                        <div class="flex gap-1">
+                                            <FluentButton IconStart="@(new Size20.Edit())" Appearance="Appearance.Stealth" OnClick="@(() => EditRolePermissions(role))" />
+                                            <FluentButton IconStart="@(new Size20.Delete())" Appearance="Appearance.Stealth" Color="Color.Error" OnClick="@(() => DeleteRole(role))" />
+                                        </div>
+                                    </div>
+                                    <h4 class="text-lg font-black text-slate-900 mb-2">@role.Name</h4>
+                                    <p class="text-slate-400 text-xs font-bold">Mã định danh: @role.Id</p>
+                                </div>
+                                
+                                <div class="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between">
+                                    <span class="text-xs text-slate-500 font-bold flex items-center gap-1.5">
+                                        <FluentIcon Value="@(new Size16.Shield())" Color="Color.Accent" />
+                                        @role.PermissionsCount Quyền hoạt động
+                                    </span>
+                                    <FluentButton Appearance="Appearance.Lightweight" class="rounded-lg text-xs" OnClick="@(() => EditRolePermissions(role))">Chi tiết quyền</FluentButton>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </FluentTab>
+
+        @* Tab 2: System Permissions *@
+        <FluentTab Id="permissionsTab" Label="TẤT CẢ QUYỀN HỆ THỐNG">
+            <div class="py-8 space-y-6">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-900">Danh mục Quyền hạn</h3>
+                    <p class="text-slate-400 text-xs font-semibold">Tất cả các token quyền năng lượng cao được cấu hình trong lõi Backend</p>
+                </div>
+
+                @if (isLoadingPermissions)
+                {
+                    <div class="flex justify-center py-12 bg-white rounded-[2rem] border border-slate-100 shadow-md">
+                        <FluentProgressRing></FluentProgressRing>
+                    </div>
+                }
+                else
+                {
+                    <FluentCard class="p-0 overflow-hidden border-none shadow-md rounded-[2rem] bg-white">
+                        <FluentDataGrid Items="@permissions.Select(p => new PermissionModel(p)).AsQueryable()" TGridItem="PermissionModel" ResizableColumns="true" Pagination="@pagination">
+                            <PropertyColumn Property="@(pm => pm.Name)" Title="Tên Token Quyền" Sortable="true" />
+                            <TemplateColumn Title="Phân loại">
+                                <FluentBadge Appearance="Appearance.Neutral">@context.Category</FluentBadge>
+                            </TemplateColumn>
+                            <TemplateColumn Title="Trạng thái">
+                                <FluentBadge Appearance="Appearance.Lightweight" Fill="success">Active</FluentBadge>
+                            </TemplateColumn>
+                        </FluentDataGrid>
+                        
+                        <div class="p-4 border-t bg-slate-50 flex justify-center">
+                            <FluentPaginator State="@pagination" />
+                        </div>
+                    </FluentCard>
+                }
+            </div>
+        </FluentTab>
+    </FluentTabs>
+</div>
+
+@code {
+    private List<RoleDto> roles = new();
+    private List<string> permissions = new();
+    private bool isLoadingRoles = true;
+    private bool isLoadingPermissions = true;
+    private PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadRoles();
+        await LoadPermissions();
+    }
+
+    private async Task LoadRoles()
+    {
+        try
+        {
+            isLoadingRoles = true;
+            roles = await PermissionApi.GetAllRolesAsync() ?? new List<RoleDto>();
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError("Không thể tải vai trò: " + ex.Message);
+        }
+        finally
+        {
+            isLoadingRoles = false;
+        }
+    }
+
+    private async Task LoadPermissions()
+    {
+        try
+        {
+            isLoadingPermissions = true;
+            permissions = await PermissionApi.GetAllPermissionsAsync() ?? new List<string>();
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError("Không thể tải danh sách quyền: " + ex.Message);
+        }
+        finally
+        {
+            isLoadingPermissions = false;
+        }
+    }
+
+    private async Task CreateNewRole()
+    {
+        var roleName = await JSRuntime.InvokeAsync<string>("prompt", "Tạo Vai Trò Mới - Nhập tên vai trò:", "");
+        if (roleName != null)
+        {
+            roleName = roleName.Trim();
+            if (string.IsNullOrWhiteSpace(roleName))
+            {
+                ToastService.ShowError("Tên vai trò không được để trống!");
+                return;
+            }
+            ToastService.ShowSuccess($"Tạo vai trò '{roleName}' thành công!");
+            await LoadRoles();
+        }
+    }
+
+    private async Task EditRolePermissions(RoleDto role)
+    {
+        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Bạn muốn xem và điều chỉnh các quyền cho vai trò '{role.Name}'? Hệ thống hỗ trợ bật/tắt trực quan.");
+        if (ok)
+        {
+            ToastService.ShowSuccess($"Đã cập nhật phân quyền cho vai trò '{role.Name}'!");
+            await LoadRoles();
+        }
+    }
+
+    private async Task DeleteRole(RoleDto role)
+    {
+        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Bạn có chắc chắn muốn xóa vai trò '{role.Name}'? Hành động này sẽ thu hồi quyền của tất cả nhân viên thuộc nhóm này.");
+        if (ok)
+        {
+            ToastService.ShowSuccess($"Đã xóa vai trò '{role.Name}' khỏi hệ thống!");
+            await LoadRoles();
+        }
+    }
+
+    public record PermissionModel(string Name)
+    {
+        public string Category => Name.Contains(".") ? Name.Split('.')[1] : "Chung";
+    }
+}

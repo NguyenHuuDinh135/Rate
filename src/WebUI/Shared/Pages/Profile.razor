@@ -1,0 +1,119 @@
+@page "/profile"
+@using Fluxor
+@using WebUI.Shared.Store.Auth
+@using WebUI.Shared.Models.Payments
+@using WebUI.Shared.Services.Api
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
+@inject IState<AuthState> AuthState
+@inject IDispatcher Dispatcher
+@inject IPaymentApi PaymentApi
+@inject NavigationManager NavigationManager
+
+<div class="min-h-screen bg-slate-50 pt-24 pb-20 px-4">
+    <div class="container mx-auto max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        @* User Profile Card *@
+        <div class="lg:col-span-4 space-y-6">
+            <FluentCard class="p-0 rounded-[3rem] shadow-xl border-none bg-white overflow-hidden">
+                <div class="h-32 bg-slate-900 relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-accent/40 to-transparent opacity-50"></div>
+                </div>
+                <div class="p-10 pt-0 text-center relative">
+                    <div class="w-32 h-32 rounded-[2.5rem] bg-white border-[6px] border-white shadow-2xl mx-auto -mt-16 mb-6 flex items-center justify-center overflow-hidden">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=@(AuthState.Value.User?.Username ?? "User")" class="w-full h-full object-cover" alt="Avatar" />
+                    </div>
+                    <h2 class="text-3xl font-black text-slate-900 tracking-tight">@AuthState.Value.User?.Username</h2>
+                    <p class="text-slate-400 font-bold text-sm mt-1">@AuthState.Value.User?.Email</p>
+
+                    <div class="grid grid-cols-2 gap-4 mt-10">
+                        <div class="p-4 bg-slate-50 rounded-3xl border border-slate-100">
+                            <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Tổng chi</p>
+                            <p class="text-xl font-black text-accent">1.2M đ</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-3xl border border-slate-100">
+                            <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Số vé</p>
+                            <p class="text-xl font-black text-slate-900">@(payments.Count)</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-10 pt-10 border-t border-slate-100 flex flex-col gap-3">
+                        <FluentButton Appearance="Appearance.Stealth" IconStart="@(new Size20.Settings())" class="w-full h-12 rounded-xl font-bold">Cài đặt tài khoản</FluentButton>
+                        <FluentButton Appearance="Appearance.Neutral" IconStart="@(new Size20.SignOut())" class="w-full h-12 rounded-xl font-bold text-error" OnClick="@HandleLogout">Đăng xuất</FluentButton>
+                    </div>
+                </div>
+            </FluentCard>
+        </div>
+
+        @* History Section *@
+        <div class="lg:col-span-8 space-y-8">
+            <div class="flex items-center justify-between">
+                <h2 class="text-3xl font-black tracking-tight text-slate-900">Giao dịch gần đây</h2>
+                <FluentBadge Appearance="Appearance.Lightweight" class="h-8 px-4 font-bold">@(payments.Count) Đơn hàng</FluentBadge>
+            </div>
+
+            <div class="flex flex-col gap-6">
+                @if (isLoading)
+                {
+                    @for (int i = 0; i < 3; i++)
+                    {
+                        <FluentSkeleton class="h-40 w-full rounded-[2.5rem]" />
+                    }
+                }
+                else if (payments.Any())
+                {
+                    @foreach (var payment in payments)
+                    {
+                        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex items-center justify-between group hover:shadow-md transition-shadow cursor-pointer">
+                            <div class="flex items-center gap-6">
+                                <div class="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-300">
+                                    <FluentIcon Value="@(new Size24.MoviesAndTv())" />
+                                </div>
+                                <div>
+                                    <h4 class="font-black text-slate-900">@payment.Movie?.Title</h4>
+                                    <p class="text-xs text-slate-400 font-bold">18/12/2025 • @payment.PaymentMethod.ToUpper()</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-black text-xl text-slate-900">@payment.Amount.ToString("N0") đ</p>
+                                <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Hoàn tất</span>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="p-20 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-100">
+                        <p class="text-slate-300 font-bold">Chưa có lịch sử giao dịch.</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    private List<PaymentDto> payments = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var res = await PaymentApi.GetAllAsync();
+            payments = res.Body ?? new List<PaymentDto>();
+        }
+        catch (Exception) { }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void HandleLogout()
+    {
+        Dispatcher.Dispatch(new LogoutAction());
+        NavigationManager.NavigateTo("/");
+    }
+}

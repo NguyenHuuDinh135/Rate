@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Components;
 using Xunit;
-using WebFrontend.Shared.Components;
+using WebUI.Shared.Components;
 using Microsoft.FluentUI.AspNetCore.Components;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 
-namespace WebFrontend.Shared.UnitTests.Components;
+namespace WebUI.Shared.UnitTests.Components;
 
 public class DataStateTests : BunitContext
 {
