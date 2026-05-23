@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Pgvector;
@@ -19,7 +19,7 @@ namespace backend.Infrastructure.Data.Migrations
             migrationBuilder.AddColumn<Vector>(
                 name: "Embedding",
                 table: "Movies",
-                type: "vector",
+                type: "vector(1024)",
                 nullable: true);
 
             migrationBuilder.CreateTable(
@@ -32,7 +32,7 @@ namespace backend.Infrastructure.Data.Migrations
                     UserId = table.Column<string>(type: "text", nullable: false),
                     Content = table.Column<string>(type: "character varying(5000)", maxLength: 5000, nullable: false),
                     Rating = table.Column<int>(type: "integer", nullable: false),
-                    Embedding = table.Column<Vector>(type: "vector", nullable: true),
+                    Embedding = table.Column<Vector>(type: "vector(1024)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
