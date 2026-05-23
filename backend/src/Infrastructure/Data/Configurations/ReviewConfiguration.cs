@@ -16,6 +16,9 @@ public class ReviewConfiguration : IEntityTypeConfiguration<Review>
 
         builder.Property(x => x.UserId)
             .IsRequired();
+        
+        builder.Property(x => x.Embedding)
+            .HasColumnType("vector(768)");
 
         builder.HasIndex(x => x.Embedding)
             .HasMethod("hnsw")

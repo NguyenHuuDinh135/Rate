@@ -78,9 +78,12 @@ namespace backend.Infrastructure.Data
             _jsonOptions = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,
-                Converters = { new JsonStringEnumConverter() }
+                Converters = { 
+                    new JsonStringEnumConverter()
+                }
             };
         }
+
 
         public async Task InitialiseAsync(bool resetOnStartup = false)
         {
@@ -164,13 +167,21 @@ namespace backend.Infrastructure.Data
                         UserName = userDto.Email,
                         Email = userDto.Email,
                         EmailConfirmed = true,
-                        // Mapping other properties if needed
+                        Address = userDto.Address,
+                        Contact = userDto.Contact,
+                        CreatedAt = DateTime.UtcNow
                     };
 
                     var result = await _userManager.CreateAsync(user, userDto.Password);
                     if (result.Succeeded)
                     {
                         await _userManager.AddToRoleAsync(user, userDto.Role);
+                        _logger.LogInformation($"Đã seed user: {user.Email}");
+                    }
+                    else
+                    {
+                        var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                        _logger.LogError($"Lỗi khi seed user {userDto.Email}: {errors}");
                     }
                 }
             }
@@ -248,6 +259,42 @@ namespace backend.Infrastructure.Data
                 await _context.SaveChangesAsync();
             }
 
+            // Seed Shows
+            if (!_context.Shows.Any())
+            {
+                var today = DateTime.UtcNow.Date;
+                var theaterIds = new int[] { 1, 2, 3, 4, 5 };
+                var movieIds = Enumerable.Range(2, 20).ToArray(); // MovieId từ 2 đến 21
+                var startTimes = new string[] { "10:00:00", "13:30:00", "16:30:00", "19:30:00", "22:00:00" };
+                var statuses = new ShowStatus[] { ShowStatus.Free, ShowStatus.AlmostFull, ShowStatus.Full };
+                var types = new ShowType[] { ShowType.TwoD, ShowType.ThreeD };
+
+                var shows = new List<Show>();
+
+                int movieIndex = 0;
+                foreach (var theaterId in theaterIds)
+                {
+                    foreach (var startTime in startTimes)
+                    {
+                        var movieId = movieIds[movieIndex % movieIds.Length];
+                        shows.Add(new Show
+                        {
+                            TheaterId = theaterId,
+                            MovieId = movieId,
+                            Date = today,
+                            StartTime = TimeSpan.Parse(startTime),
+                            EndTime = TimeSpan.Parse(TimeSpan.Parse(startTime).Add(TimeSpan.FromHours(2).Add(TimeSpan.FromMinutes(15))).ToString()),
+                            Status = statuses[movieIndex % statuses.Length],
+                            Type = types[movieIndex % types.Length]
+                        });
+                        movieIndex++;
+                    }
+                }
+
+                _context.Shows.AddRange(shows);
+                await _context.SaveChangesAsync();
+            }
+
             // Seed Bookings
             if (!_context.Bookings.Any())
             {
@@ -275,6 +322,8 @@ namespace backend.Infrastructure.Data
             public string Email { get; set; } = string.Empty;
             public string Password { get; set; } = string.Empty;
             public string Role { get; set; } = string.Empty;
+            public string Address { get; set; } = string.Empty;
+            public string Contact { get; set; } = string.Empty;
         }
     }
 }

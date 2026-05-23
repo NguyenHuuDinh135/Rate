@@ -94,6 +94,15 @@ public class IdentityService : IIdentityService
         return userDtos;
     }
 
+    public async Task<UserDto?> GetUserAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return null;
+
+        var roles = await _userManager.GetRolesAsync(user);
+        return new UserDto(user.Id, user.FullName ?? user.UserName ?? "", user.Email ?? "", roles.FirstOrDefault());
+    }
+
     public async Task<Result> UpdateUserAsync(string userId, string fullName, string email)
     {
         var user = await _userManager.FindByIdAsync(userId);

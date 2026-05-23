@@ -94,5 +94,42 @@ namespace backend.Infrastructure.Jwt
                 return null;
             }
         }
+
+        public Guid? GetUserIdFromExpiredToken(string token)
+        {
+            if (string.IsNullOrEmpty(token))
+                return null;
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            try
+            {
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = _signingKey,
+                    ValidateIssuer = true,
+                    ValidIssuer = _jwtSettings.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = _jwtSettings.Audience,
+                    ValidateLifetime = false, // <--- Allow expired tokens
+                    ClockSkew = TimeSpan.Zero
+                };
+
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
+
+                var userIdClaim = principal.FindFirst(JwtRegisteredClaimNames.Sub)
+                            ?? principal.FindFirst(ClaimTypes.NameIdentifier);
+
+                if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+                    return null;
+                
+                return userId;
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 }

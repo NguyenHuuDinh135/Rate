@@ -4,6 +4,8 @@ internal static class RedisKeys
 {
     public static string RefreshToken(string userId) => $"auth:refresh:{userId}";
 
+    public static string RefreshTokenMap(string refreshToken) => $"auth:refresh_map:{refreshToken}";
+
     public static string RevokedToken(string jti) => $"auth:revoked:{jti}";
 
     public static string OneTimeToken(string purpose, string subject) => $"auth:ott:{purpose}:{subject}";

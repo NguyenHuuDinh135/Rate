@@ -16,6 +16,8 @@ public interface IIdentityService
 
     Task<IReadOnlyList<UserDto>> GetUsersAsync();
 
+    Task<UserDto?> GetUserAsync(string userId);
+
     Task<Result> UpdateUserAsync(string userId, string fullName, string email);
 }
 

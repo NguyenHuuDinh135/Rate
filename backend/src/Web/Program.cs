@@ -5,8 +5,6 @@ using Elastic.Clients.Elasticsearch;
 using MassTransit;
 using backend.Infrastructure.Consumers;
 using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Diagnostics;
-using backend.Application.Common.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -33,9 +31,9 @@ builder.AddWebServices();
 // ===============================
 builder.Services.AddSingleton(sp =>
 {
-    var uri = builder.Configuration.GetConnectionString("elasticsearch");
+    var uri = builder.Configuration.GetConnectionString("elasticsearch") ?? "http://localhost:9200";
 
-    var settings = new ElasticsearchClientSettings(new Uri(uri!))
+    var settings = new ElasticsearchClientSettings(new Uri(uri))
         .DefaultIndex("movies");
 
     return new ElasticsearchClient(settings);
@@ -63,7 +61,8 @@ builder.Services.AddMassTransit(x =>
     // cấu hình RabbitMQ từ Aspire
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host(builder.Configuration.GetConnectionString("messaging"));
+        var connectionString = builder.Configuration.GetConnectionString("messaging") ?? "localhost";
+        cfg.Host(connectionString);
 
         cfg.ConfigureEndpoints(context);
 
@@ -82,14 +81,14 @@ if (app.Environment.IsDevelopment())
 else
 {
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-    app.UseHttpsRedirection();
+    // app.UseHsts();
 }
+
+// app.UseHttpsRedirection();
 app.UseCors(static builder => 
-    builder.WithOrigins("http://localhost:3000")
-        .AllowAnyMethod()
+    builder.AllowAnyMethod()
         .AllowAnyHeader()
-        .AllowCredentials());
+        .AllowAnyOrigin());
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -98,20 +97,7 @@ app.MapOpenApi();
 app.MapScalarApiReference();
 
 
-app.UseExceptionHandler(exceptionApp =>
-{
-    exceptionApp.Run(async context =>
-    {
-        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-        context.Response.ContentType = "application/json";
-
-        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
-        var exception = exceptionHandlerPathFeature?.Error;
-
-        var result = backend.Application.Common.Models.Result.Failure(new[] { exception?.Message ?? "An unexpected error occurred." });
-        await context.Response.WriteAsJsonAsync(result);
-    });
-});
+app.UseExceptionHandler(options => { });
 
 app.Map("/", () => Results.Redirect("/scalar"));
 app.UseHangfireDashboard("/hangfire");

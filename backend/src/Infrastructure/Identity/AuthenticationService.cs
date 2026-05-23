@@ -65,7 +65,20 @@ public sealed class AuthenticationService(
 
     public async Task<AuthTokenResult?> RefreshAsync(string accessToken, string refreshToken, CancellationToken cancellationToken = default)
     {
-        var userId = jwtService.ValidateAccessToken(accessToken)?.ToString();
+        string? userId = null;
+
+        if (!string.IsNullOrWhiteSpace(accessToken))
+        {
+            userId = jwtService.ValidateAccessToken(accessToken)?.ToString() 
+                     ?? jwtService.GetUserIdFromExpiredToken(accessToken)?.ToString();
+        }
+
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            // Try to get userId from refreshToken mapping if accessToken is missing or invalid
+            userId = await refreshTokenStore.GetUserIdAsync(refreshToken, cancellationToken);
+        }
+
         if (string.IsNullOrWhiteSpace(userId))
         {
             return null;

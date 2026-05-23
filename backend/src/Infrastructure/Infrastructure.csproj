@@ -40,9 +40,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Data\SeedData\*.json">
+    <Content Include="Data\SeedData\*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
   </ItemGroup>
 
 </Project>

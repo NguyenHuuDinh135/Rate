@@ -6,6 +6,8 @@ public interface IRefreshTokenStore
 
     Task<bool> ValidateAsync(string userId, string refreshToken, CancellationToken cancellationToken = default);
 
+    Task<string?> GetUserIdAsync(string refreshToken, CancellationToken cancellationToken = default);
+
     Task RevokeAsync(string userId, CancellationToken cancellationToken = default);
 }
 
