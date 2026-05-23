@@ -320,10 +320,10 @@ else if (MovieState.Value.SelectedMovie != null)
                 selectedShow!.Id,
                 bookingIds
             );
-            await PaymentApi.CreateAsync(payCmd);
+            var payId = await PaymentApi.CreateAsync(payCmd);
 
             ToastService.ShowSuccess("Đặt vé thành công!");
-            NavigationManager.NavigateTo($"/booking/success?showId={selectedShow!.Id}&seats={string.Join(",", selectedSeats)}");
+            NavigationManager.NavigateTo($"/booking/success?Id={payId}&seats={string.Join(",", selectedSeats)}");
         }
         catch (Exception ex)
         {

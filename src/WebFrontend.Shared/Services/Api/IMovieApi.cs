@@ -19,14 +19,26 @@ public interface IMovieApi
     Task<List<PersonDto>> GetPersonsAsync(int id);
 }
 
+public record CreateGenreCommand(string Name);
+public record UpdateGenreCommand(int Id, string Name);
+
 public interface IGenreApi
 {
-    [Get("/api/genre/all")]
+    [Get("/api/genres/all")]
     Task<List<GenreDto>> GetAllAsync();
 
-    [Get("/api/genre/id/{id}")]
+    [Get("/api/genres/id/{id}")]
     Task<GenreDto> GetByIdAsync(int id);
 
-    [Get("/api/genre/movies/{movieId}")]
+    [Get("/api/genres/movies/{movieId}")]
     Task<List<GenreDto>> GetByMovieAsync(int movieId);
+
+    [Post("/api/genres/create")]
+    Task<int> CreateAsync([Body] CreateGenreCommand payload);
+
+    [Put("/api/genres/update")]
+    Task UpdateAsync([Body] UpdateGenreCommand payload);
+
+    [Delete("/api/genres/delete/{id}")]
+    Task DeleteAsync(int id);
 }

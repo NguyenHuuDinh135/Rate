@@ -1,5 +1,6 @@
 using backend.Application.Common.Interfaces;
 using backend.Application.Payments.Queries.GetPayments;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Application.Payments.Queries.GetPaymentById;
 
@@ -11,6 +12,17 @@ public sealed class GetPaymentByIdQueryHandler(IApplicationDbContext db)
     public async Task<PaymentBriefDto?> Handle(GetPaymentByIdQuery request, CancellationToken ct)
         => await db.Payments.AsNoTracking()
             .Where(x => x.Id == request.Id)
-            .Select(x => new PaymentBriefDto(x.Id, x.Amount, x.PaymentDateTime, x.Method, x.UserId, x.ShowId))
+            .Select(x => new PaymentBriefDto(
+                x.Id, 
+                x.Amount, 
+                x.PaymentDateTime, 
+                x.Method, 
+                x.UserId, 
+                x.ShowId,
+                x.Show != null && x.Show.Movie != null 
+                    ? new PaymentMovieBriefDto(x.Show.Movie.Title, x.Show.Movie.PosterUrl) 
+                    : null
+            ))
             .FirstOrDefaultAsync(ct);
 }
+

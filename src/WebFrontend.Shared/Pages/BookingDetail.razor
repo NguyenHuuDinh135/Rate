@@ -1,0 +1,195 @@
+@page "/booking/{Id:int}"
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
+@using WebFrontend.Shared.Models.Payments
+@using WebFrontend.Shared.Models.Bookings
+@using WebFrontend.Shared.Services.Api
+@inject NavigationManager NavigationManager
+@inject IPaymentApi PaymentApi
+@inject IBookingApi BookingApi
+@inject IToastService ToastService
+
+<div class="min-h-screen bg-slate-100 pt-24 pb-12 px-4 flex justify-center items-start">
+    <div class="w-full max-w-md animate-in fade-in slide-in-from-bottom-8 duration-700">
+        
+        <FluentButton Appearance="Appearance.Stealth" class="mb-6 pl-0 hover:bg-transparent" OnClick="@GoBack">
+            <FluentIcon Value="@(new Size16.ArrowLeft())" class="mr-2" /> Quay lại
+        </FluentButton>
+
+        @if (isLoading)
+        {
+            <div class="flex justify-center py-20 bg-white rounded-3xl shadow-xl border border-slate-100">
+                <FluentProgressRing></FluentProgressRing>
+            </div>
+        }
+        else if (payment == null)
+        {
+            <div class="flex flex-col items-center justify-center p-12 bg-white rounded-3xl shadow-xl border border-slate-100 gap-4 text-center">
+                <FluentIcon Value="@(new Size48.Warning())" Color="Color.Error" />
+                <h2 class="text-xl font-black text-slate-800">Không tìm thấy vé!</h2>
+                <p class="text-slate-400 text-sm">Giao dịch vé này không tồn tại hoặc đã bị hủy.</p>
+                <FluentButton Appearance="Appearance.Accent" OnClick="@(() => NavigationManager.NavigateTo("/"))">Trở lại trang chủ</FluentButton>
+            </div>
+        }
+        else
+        {
+            @* TICKET CARD *@
+            <div class="relative bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200/50">
+                @* Gradient Background *@
+                <div class="absolute inset-0 bg-accent/5 z-0" />
+                
+                @* Header Section *@
+                <div class="relative z-10 p-8 pb-10 bg-white">
+                    <div class="flex justify-between items-start mb-6">
+                        <FluentBadge Appearance="Appearance.Lightweight" Color="Color.Accent" class="uppercase tracking-widest text-[9px] font-black px-3 py-1">
+                            E-TICKET
+                        </FluentBadge>
+                        <FluentBadge Appearance="Appearance.Lightweight" Fill="success" class="shadow-sm font-bold px-3 py-1">
+                            Đã thanh toán
+                        </FluentBadge>
+                    </div>
+                    
+                    <h1 class="text-2xl font-black mb-3 text-slate-900 leading-tight">@MovieTitle</h1>
+                    <div class="flex items-center text-slate-400 text-sm gap-2 font-bold">
+                        <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-xs font-black">2D</span>
+                        <span>•</span>
+                        <span>Standard</span>
+                    </div>
+                </div>
+
+                @* Tear Line Decoration *@
+                <div class="relative flex items-center justify-between bg-white">
+                    <div class="w-6 h-12 bg-slate-100 rounded-r-full -ml-3 shadow-[inset_-2px_0_2px_rgba(0,0,0,0.03)]" />
+                    <div class="flex-1 border-t-2 border-dashed border-slate-200/80 mx-2" />
+                    <div class="w-6 h-12 bg-slate-100 rounded-l-full -mr-3 shadow-[inset_2px_0_2px_rgba(0,0,0,0.03)]" />
+                </div>
+
+                @* Detail Content *@
+                <div class="relative z-10 p-8 pt-4 space-y-8 bg-white">
+                    <div class="grid grid-cols-2 gap-y-6 gap-x-4">
+                        <div class="space-y-1">
+                            <label class="text-[10px] text-slate-400 uppercase font-black tracking-wider flex items-center gap-1.5">
+                                <FluentIcon Value="@(new Size16.Calendar())" Color="Color.Accent" /> Ngày chiếu
+                            </label>
+                            <p class="font-bold text-slate-800 text-base">@DisplayDate</p>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] text-slate-400 uppercase font-black tracking-wider flex items-center gap-1.5">
+                                <FluentIcon Value="@(new Size16.Clock())" Color="Color.Accent" /> Giờ chiếu
+                            </label>
+                            <p class="font-bold text-slate-800 text-base">@DisplayTime</p>
+                        </div>
+                        <div class="space-y-1 col-span-2">
+                            <label class="text-[10px] text-slate-400 uppercase font-black tracking-wider flex items-center gap-1.5">
+                                <FluentIcon Value="@(new Size16.Home())" Color="Color.Accent" /> Rạp & Phòng chiếu
+                            </label>
+                            <p class="font-bold text-slate-800 text-base truncate">Phòng chiếu 04 • Lotte Cinema Hà Đông</p>
+                        </div>
+                        <div class="space-y-2 col-span-2">
+                            <label class="text-[10px] text-slate-400 uppercase font-black tracking-wider flex items-center gap-1.5">
+                                <FluentIcon Value="@(new Size16.MoviesAndTv())" Color="Color.Accent" /> Ghế ngồi
+                            </label>
+                            <div class="flex flex-wrap gap-2">
+                                @if (seats.Any())
+                                {
+                                    @foreach (var seat in seats)
+                                    {
+                                        <FluentBadge Appearance="Appearance.Neutral" class="px-3 py-1 text-xs font-black bg-slate-100 text-slate-800 rounded-lg">
+                                            @seat
+                                        </FluentBadge>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-slate-400 text-sm font-medium">Đang tải ghế...</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-100 my-2" />
+
+                    @* QR Code *@
+                    <div class="flex flex-col items-center justify-center space-y-4">
+                        <div class="bg-white p-5 rounded-2xl shadow-md border border-slate-100 flex items-center justify-center">
+                            <FluentIcon Value="@(new Size24.QrCode())" class="w-24 h-24 text-slate-900" />
+                        </div>
+                        <div class="text-center space-y-1">
+                            <p class="text-[9px] text-slate-400 uppercase font-black tracking-widest">MÃ VÉ ĐIỆN TỬ</p>
+                            <p class="font-mono font-black text-lg tracking-widest text-accent">
+                                #RATE-@Id.ToString().PadLeft(6, '0')
+                            </p>
+                        </div>
+                    </div>
+
+                    @* Total Price Box *@
+                    <div class="bg-slate-50/50 rounded-2xl p-5 flex justify-between items-center border border-dashed border-slate-200">
+                        <span class="text-xs font-black text-slate-400 uppercase">TỔNG TIỀN VÉ</span>
+                        <span class="text-2xl font-black text-slate-900">
+                            @payment.Amount.ToString("N0") đ
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            @* Action Button *@
+            <div class="mt-8 text-center">
+                <FluentButton Appearance="Appearance.Accent" class="w-full py-6 h-auto rounded-2xl font-black shadow-xl shadow-accent/20 text-base" OnClick="@(() => NavigationManager.NavigateTo("/"))">
+                    QUAY LẠI TRANG CHỦ
+                </FluentButton>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private PaymentDto? payment;
+    private List<string> seats = new();
+    private bool isLoading = true;
+
+    private string MovieTitle => payment?.Movie?.Title ?? "Phim bom tấn";
+    private string DisplayDate => payment != null && DateTime.TryParse(payment.PaymentDatetime, out var dt)
+        ? dt.ToString("dd MMMM, yyyy")
+        : DateTime.Now.ToString("dd MMMM, yyyy");
+    private string DisplayTime => payment != null && DateTime.TryParse(payment.PaymentDatetime, out var dt)
+        ? dt.ToString("HH:mm")
+        : "19:30";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isLoading = true;
+            var res = await PaymentApi.GetByIdAsync(Id);
+            payment = res.Body;
+
+            if (payment != null)
+            {
+                // Fetch bookings dynamically to display seats
+                var userBookingsRes = await BookingApi.GetByUserAsync(payment.UserId ?? "");
+                if (userBookingsRes != null)
+                {
+                    seats = userBookingsRes
+                        .Where(b => b.ShowId == payment.ShowId)
+                        .Select(b => $"{b.SeatRow}{b.SeatNumber}")
+                        .ToList();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError("Không thể tải thông tin vé: " + ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/my-tickets");
+    }
+}

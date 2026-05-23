@@ -17,14 +17,20 @@
             
             <nav class="flex-1 p-4 flex flex-col gap-2">
                 <AdminNavLink Href="/admin" Icon="@(new Size20.History())" Text="Tổng quan" Match="NavLinkMatch.All" />
+                
                 <div class="text-[10px] uppercase tracking-widest text-white/40 font-bold mt-4 mb-1 px-4">Quản lý nội dung</div>
                 <AdminNavLink Href="/admin/movies" Icon="@(new Size20.MoviesAndTv())" Text="Danh sách phim" />
+                <AdminNavLink Href="/admin/genres" Icon="@(new Size20.Tag())" Text="Thể loại" />
                 <AdminNavLink Href="/admin/theaters" Icon="@(new Size20.Home())" Text="Rạp & Ghế" />
                 <AdminNavLink Href="/admin/shows" Icon="@(new Size20.Calendar())" Text="Suất chiếu" />
                 
                 <div class="text-[10px] uppercase tracking-widest text-white/40 font-bold mt-4 mb-1 px-4">Giao dịch & User</div>
-                <AdminNavLink Href="/admin/bookings" Icon="@(new Size20.MoviesAndTv())" Text="Vé đã đặt" />
+                <AdminNavLink Href="/admin/bookings" Icon="@(new Size20.Document())" Text="Vé đã đặt" />
+                <AdminNavLink Href="/admin/payments" Icon="@(new Size20.Money())" Text="Hóa đơn & Doanh thu" />
                 <AdminNavLink Href="/admin/users" Icon="@(new Size20.People())" Text="Người dùng" />
+
+                <div class="text-[10px] uppercase tracking-widest text-white/40 font-bold mt-4 mb-1 px-4">Thiết lập bảo mật</div>
+                <AdminNavLink Href="/admin/settings" Icon="@(new Size20.Settings())" Text="Cấu hình phân quyền" />
             </nav>
 
             <div class="p-4 border-t border-white/10">
