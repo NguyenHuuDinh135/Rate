@@ -1,18 +1,18 @@
 using Microsoft.AspNetCore.Components;
 using Xunit;
-using WebFrontend.Shared.Pages.Admin;
+using WebUI.Shared.Pages.Admin;
 using Microsoft.FluentUI.AspNetCore.Components;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
-using WebFrontend.Shared.Store.Auth;
-using WebFrontend.Shared.Store.Movies;
-using WebFrontend.Shared.Models.Movies;
-using WebFrontend.Shared.Services.Api;
+using WebUI.Shared.Store.Auth;
+using WebUI.Shared.Store.Movies;
+using WebUI.Shared.Models.Movies;
+using WebUI.Shared.Services.Api;
 using Moq;
 using Fluxor;
 
-namespace WebFrontend.Shared.UnitTests.Pages;
+namespace WebUI.Shared.UnitTests.Pages;
 
 public class AdminTests : BunitContext
 {

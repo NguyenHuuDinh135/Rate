@@ -1,4 +1,4 @@
-using WebFrontend.Shared.Services.Device;
+using WebUI.Shared.Services.Device;
 using Microsoft.Maui.Devices.Sensors;
 
 namespace MobileApp.Services;

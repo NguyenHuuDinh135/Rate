@@ -1,0 +1,333 @@
+@page "/movies/{Id:int}"
+@using Fluxor
+@using WebUI.Shared.Store.Movies
+@using WebUI.Shared.Store.Auth
+@using WebUI.Shared.Models.Movies
+@using WebUI.Shared.Models.Theaters
+@using WebUI.Shared.Models.Bookings
+@using WebUI.Shared.Models.Payments
+@using WebUI.Shared.Services.Api
+@using WebUI.Shared.Components
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
+@inject IState<MovieState> MovieState
+@inject IState<AuthState> AuthState
+@inject IDispatcher Dispatcher
+@inject IShowApi ShowApi
+@inject ITheaterApi TheaterApi
+@inject IBookingApi BookingApi
+@inject IPaymentApi PaymentApi
+@inject IDialogService DialogService
+@inject IToastService ToastService
+@inject NavigationManager NavigationManager
+
+@if (MovieState.Value.IsLoading && MovieState.Value.SelectedMovie == null)
+{
+    <div class="flex items-center justify-center min-h-[50vh]">
+        <FluentProgressRing />
+    </div>
+}
+else if (MovieState.Value.SelectedMovie != null)
+{
+    var movie = MovieState.Value.SelectedMovie;
+    <PageTitle>@movie.Title | RATE</PageTitle>
+
+    <div class="flex flex-col gap-16 pb-24">
+        @* Hero Section (Same as before but with sticky CTA) *@
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <div class="lg:col-span-4">
+                <div class="sticky top-24">
+                    <img src="@movie.PosterUrl" class="w-full rounded-[2.5rem] shadow-2xl border border-white/10" alt="@movie.Title" />
+                    @if (selectedShow == null)
+                    {
+                        <FluentButton Appearance="Appearance.Accent" class="w-full mt-8 py-8 h-auto text-xl font-black shadow-xl shadow-accent/30 rounded-2xl" OnClick="@ScrollToBooking">
+                            ĐẶT VÉ NGAY
+                        </FluentButton>
+                    }
+                </div>
+            </div>
+
+            <div class="lg:col-span-8 flex flex-col gap-10">
+                <div class="space-y-6">
+                    <div class="flex flex-wrap items-center gap-3">
+                        @foreach (var genre in movie.Genres)
+                        {
+                            <span class="px-4 py-1.5 bg-accent/10 text-accent text-[10px] font-black rounded-full uppercase tracking-widest border border-accent/20">@genre.Name</span>
+                        }
+                    </div>
+                    <h1 class="text-6xl font-black tracking-tighter leading-none text-slate-900">@movie.Title</h1>
+                    <div class="flex items-center gap-8 text-slate-500 font-bold">
+                        <div class="flex items-center gap-2">
+                            <FluentIcon Value="@(new Size20.Calendar())" />
+                            <span>@movie.Year</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <FluentIcon Value="@(new Size20.Star())" Color="Color.Warning" />
+                            <span class="text-slate-900 text-xl font-black">@movie.Rating</span>
+                            <span class="opacity-60">/ 10</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <FluentIcon Value="@(new Size20.Clock())" />
+                            <span>145 phút</span>
+                        </div>
+                    </div>
+                    <p class="text-xl leading-relaxed text-slate-600 font-medium">@movie.Summary</p>
+                </div>
+
+                @* Booking Section Anchor *@
+                <div id="booking-section" class="pt-8 border-t border-slate-100">
+                    <h2 class="text-3xl font-black tracking-tight mb-8">Lịch chiếu & Đặt vé</h2>
+                    
+                    <DateSelector SelectedDate="@selectedDate" 
+                                  DatesWithShows="@datesWithShows" 
+                                  OnDateSelected="@HandleDateSelected" />
+
+                    @if (currentShows.Any())
+                    {
+                        <div class="flex flex-wrap gap-3 mt-8">
+                            @foreach (var show in currentShows)
+                            {
+                                var isSelected = selectedShow?.Id == show.Id;
+                                <button @onclick="() => SelectShow(show)" 
+                                        class="@(isSelected ? "bg-slate-900 text-white border-slate-900 shadow-xl scale-105" : "bg-white text-slate-600 border-slate-200 hover:border-accent hover:text-accent shadow-sm") px-6 py-3 rounded-2xl border-2 font-black transition-all flex items-center gap-3">
+                                    <span>@show.StartTime.Substring(0, 5)</span>
+                                    <span class="px-2 py-0.5 bg-slate-100 text-slate-500 rounded text-[10px] uppercase">@show.Type</span>
+                                </button>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="mt-8 p-12 border-2 border-dashed border-slate-200 rounded-[2rem] text-center text-slate-400 font-bold">
+                            <FluentIcon Value="@(new Size32.CalendarClock())" class="mx-auto mb-4 opacity-20" />
+                            <p>Không có suất chiếu nào cho ngày này.</p>
+                        </div>
+                    }
+                </div>
+
+                @* Seat Selection (Only if show selected) *@
+                @if (selectedShow != null)
+                {
+                    <div class="mt-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                        <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+                            <div class="xl:col-span-8">
+                                <FluentCard class="rounded-[3rem] p-10 shadow-2xl border-none bg-white relative overflow-hidden">
+                                    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-2 bg-accent blur-[40px] opacity-40"></div>
+                                    <div class="flex items-center gap-3 mb-10 justify-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+                                        <FluentIcon Value="@(new Size20.Map())" Color="Color.Accent" />
+                                        <span>@selectedTheater?.Name</span>
+                                        <span class="mx-2 opacity-30">•</span>
+                                        <span>@(selectedShow.Type == ShowType.ThreeD ? "Trải nghiệm 3D" : "Chuẩn 2D")</span>
+                                    </div>
+
+                                    @if (selectedTheater != null)
+                                    {
+                                        <SeatMap Theater="@selectedTheater" 
+                                                 BookedSeats="@bookedSeats" 
+                                                 SelectedSeats="@selectedSeats" 
+                                                 OnToggleSeat="@HandleToggleSeat" />
+                                    }
+                                    else
+                                    {
+                                        <div class="h-64 flex items-center justify-center"><FluentProgressRing /></div>
+                                    }
+                                </FluentCard>
+                            </div>
+
+                            @* Order Summary *@
+                            <div class="xl:col-span-4 h-fit sticky top-24">
+                                <div class="flex flex-col gap-6">
+                                    <div class="bg-white border border-slate-100 p-8 rounded-[2.5rem] shadow-xl space-y-6">
+                                        <div>
+                                            <h3 class="text-xl font-black tracking-tight uppercase mb-1">Vé của bạn</h3>
+                                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Thông tin đơn hàng</p>
+                                        </div>
+                                        
+                                        <div class="space-y-4">
+                                            <div class="flex justify-between text-sm font-bold">
+                                                <span class="text-slate-400">Số lượng ghế</span>
+                                                <span class="text-slate-900">@selectedSeats.Count</span>
+                                            </div>
+                                            <div class="flex justify-between text-sm font-bold">
+                                                <span class="text-slate-400">Vị trí</span>
+                                                <span class="text-accent">@(selectedSeats.Any() ? string.Join(", ", selectedSeats) : "Chưa chọn")</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="pt-6 border-t border-dashed border-slate-200">
+                                            <div class="flex justify-between items-end mb-8">
+                                                <div class="flex flex-col">
+                                                    <span class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Tổng tiền</span>
+                                                    <span class="text-4xl font-black text-slate-900 tracking-tighter">@((selectedSeats.Count * 95000).ToString("N0")) đ</span>
+                                                </div>
+                                            </div>
+                                            <FluentButton Appearance="Appearance.Accent" 
+                                                          class="w-full py-8 h-auto text-lg font-black shadow-lg shadow-accent/20 rounded-2xl" 
+                                                          Disabled="@(!selectedSeats.Any())"
+                                                          OnClick="@HandleCheckout">
+                                                THANH TOÁN
+                                            </FluentButton>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private DateTime selectedDate = DateTime.Now;
+    private List<string> datesWithShows = new();
+    private List<ShowDto> allShows = new();
+    private List<ShowDto> currentShows = new();
+    
+    private ShowDto? selectedShow;
+    private TheaterDto? selectedTheater;
+    private List<BookedSeatDto> bookedSeats = new();
+    private List<string> selectedSeats = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Dispatcher.Dispatch(new LoadMovieByIdAction(Id));
+        await LoadShows();
+    }
+
+    private async Task LoadShows()
+    {
+        try 
+        {
+            allShows = await ShowApi.GetByMovieAsync(Id);
+            datesWithShows = allShows.Select(s => DateTime.Parse(s.Date).ToString("yyyy-MM-dd")).Distinct().ToList();
+            
+            if (datesWithShows.Any())
+            {
+                selectedDate = DateTime.Parse(datesWithShows.First());
+                UpdateCurrentShows();
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError("Lỗi tải lịch chiếu: " + ex.Message);
+        }
+    }
+
+    private void HandleDateSelected(DateTime date)
+    {
+        selectedDate = date;
+        selectedShow = null;
+        selectedTheater = null;
+        selectedSeats.Clear();
+        UpdateCurrentShows();
+    }
+
+    private void UpdateCurrentShows()
+    {
+        var dateKey = selectedDate.ToString("yyyy-MM-dd");
+        currentShows = allShows.Where(s => DateTime.Parse(s.Date).ToString("yyyy-MM-dd") == dateKey)
+                               .OrderBy(s => s.StartTime)
+                               .ToList();
+    }
+
+    private async Task SelectShow(ShowDto show)
+    {
+        selectedShow = show;
+        selectedSeats.Clear();
+        selectedTheater = null;
+        
+        try 
+        {
+            selectedTheater = await TheaterApi.GetByIdAsync(show.TheaterId);
+            bookedSeats = await BookingApi.GetBookedSeatsAsync(show.Id);
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError("Lỗi tải sơ đồ ghế: " + ex.Message);
+        }
+    }
+
+    private void HandleToggleSeat(string seatCode)
+    {
+        if (selectedSeats.Contains(seatCode))
+            selectedSeats.Remove(seatCode);
+        else
+            selectedSeats.Add(seatCode);
+    }
+
+    private void ScrollToBooking()
+    {
+        // Simple scroll in Blazor
+    }
+
+    private async Task HandleCheckout()
+    {
+        if (!AuthState.Value.IsAuthenticated)
+        {
+            ToastService.ShowWarning("Vui lòng đăng nhập để đặt vé.");
+            NavigationManager.NavigateTo("/auth/login");
+            return;
+        }
+
+        var dialogData = new PaymentDialogData(selectedSeats.Count * 95000, selectedSeats.Count);
+        var dialog = await DialogService.ShowDialogAsync<PaymentDialog>(dialogData, new DialogParameters
+        {
+            Title = "Thanh toán",
+            Width = "450px",
+            TrapFocus = true,
+            Modal = true
+        });
+
+        var result = await dialog.Result;
+        if (!result.Cancelled && result.Data is not null)
+        {
+            await ProcessBooking((PaymentMethod)result.Data);
+        }
+    }
+
+    private async Task ProcessBooking(PaymentMethod method)
+    {
+        try 
+        {
+            ToastService.ShowInfo("Đang xử lý đặt vé...");
+            
+            // 1. Create Bookings
+            var bookingIds = new List<int>();
+            foreach (var seat in selectedSeats)
+            {
+                var cmd = new CreateBookingCommand(
+                    AuthState.Value.User!.Username!, // Fallback for ID in this demo
+                    selectedShow!.Id,
+                    seat.Substring(0, 1),
+                    int.Parse(seat.Substring(1)),
+                    95000,
+                    1
+                );
+                var bid = await BookingApi.CreateAsync(cmd);
+                bookingIds.Add(bid);
+            }
+
+            // 2. Create Payment
+            var payCmd = new CreatePaymentCommand(
+                selectedSeats.Count * 95000,
+                DateTime.Now.ToString("O"),
+                method.ToString().ToLower(),
+                AuthState.Value.User!.Username!,
+                selectedShow!.Id,
+                bookingIds
+            );
+            var payId = await PaymentApi.CreateAsync(payCmd);
+
+            ToastService.ShowSuccess("Đặt vé thành công!");
+            NavigationManager.NavigateTo($"/booking/success?Id={payId}&seats={string.Join(",", selectedSeats)}");
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError("Lỗi thanh toán: " + ex.Message);
+        }
+    }
+}

@@ -1,0 +1,69 @@
+@using WebUI.Shared.Models.Movies
+@using WebUI.Shared.Models.Common
+@implements IDialogContentComponent<MovieDto>
+
+<FluentDialogHeader ShowDismiss="true">
+    <FluentStack VerticalAlignment="VerticalAlignment.Center">
+        <FluentIcon Value="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.MoviesAndTv())" Color="Color.Accent" />
+        <FluentLabel Typo="Typography.PaneHeader">@(IsEdit ? "Chỉnh sửa phim" : "Thêm phim mới")</FluentLabel>
+    </FluentStack>
+</FluentDialogHeader>
+
+<FluentDialogBody>
+    <div class="flex flex-col gap-6 py-4">
+        <FluentTextField @bind-Value="Content.Title" Label="Tiêu đề phim" Required="true" class="w-full" />
+        
+        <div class="grid grid-cols-2 gap-4">
+            <FluentNumberField @bind-Value="Content.Year" Label="Năm sản xuất" Required="true" class="w-full" />
+            
+            <FluentSelect Label="Trạng thái" @bind-Value="movieTypeString" TOption="string" class="w-full">
+                <FluentOption Value="NowShowing" TOption="string">Đang chiếu</FluentOption>
+                <FluentOption Value="ComingSoon" TOption="string">Sắp chiếu</FluentOption>
+                <FluentOption Value="Removed" TOption="string">Đã gỡ</FluentOption>
+            </FluentSelect>
+        </div>
+
+        <FluentTextArea @bind-Value="Content.Summary" Label="Tóm tắt phim" Rows="5" class="w-full" />
+
+        <FluentTextField @bind-Value="Content.PosterUrl" Label="Poster URL" class="w-full" />
+        <FluentTextField @bind-Value="Content.TrailerUrl" Label="Trailer URL (YouTube)" class="w-full" />
+
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-start gap-4">
+            <img src="@(string.IsNullOrEmpty(Content.PosterUrl) ? "https://via.placeholder.com/150x225" : Content.PosterUrl)" 
+                 class="w-20 h-28 object-cover rounded-lg shadow-sm border border-white" alt="Preview" />
+            <div class="flex-1 space-y-1">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Preview</p>
+                <p class="font-bold text-sm line-clamp-1">@Content.Title</p>
+                <p class="text-xs text-slate-500">@Content.Year • @Content.MovieType</p>
+            </div>
+        </div>
+    </div>
+</FluentDialogBody>
+
+<FluentDialogFooter>
+    <FluentButton Appearance="Appearance.Neutral" OnClick="@(() => Dialog.CancelAsync())">Hủy bỏ</FluentButton>
+    <FluentButton Appearance="Appearance.Accent" OnClick="@HandleSave">Lưu thay đổi</FluentButton>
+</FluentDialogFooter>
+
+@code {
+    [CascadingParameter] public FluentDialog Dialog { get; set; } = default!;
+    [Parameter] public MovieDto Content { get; set; } = default!;
+
+    private string movieTypeString 
+    {
+        get => Content.MovieType.ToString();
+        set { if (Enum.TryParse<MovieType>(value, out var result)) Content.MovieType = result; }
+    }
+
+    private bool IsEdit => Content.Id > 0;
+
+    protected override void OnInitialized()
+    {
+        if (Content.Genres == null) Content.Genres = new List<GenreDto>();
+    }
+
+    private async Task HandleSave()
+    {
+        await Dialog.CloseAsync(Content);
+    }
+}

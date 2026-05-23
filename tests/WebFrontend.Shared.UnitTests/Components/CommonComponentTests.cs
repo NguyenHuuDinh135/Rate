@@ -1,18 +1,18 @@
 using Microsoft.AspNetCore.Components;
 using Xunit;
-using WebFrontend.Shared.Components;
+using WebUI.Shared.Components;
 using Microsoft.FluentUI.AspNetCore.Components;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
-using WebFrontend.Shared.Models.Common;
-using WebFrontend.Shared.Models.Payments;
-using WebFrontend.Shared.Models.Movies;
-using WebFrontend.Shared.Store.Auth;
+using WebUI.Shared.Models.Common;
+using WebUI.Shared.Models.Payments;
+using WebUI.Shared.Models.Movies;
+using WebUI.Shared.Store.Auth;
 using Moq;
 using Fluxor;
 
-namespace WebFrontend.Shared.UnitTests.Components;
+namespace WebUI.Shared.UnitTests.Components;
 
 public class CommonComponentTests : BunitContext
 {

@@ -1,4 +1,4 @@
-using WebFrontend.Shared.Services.Storage;
+using WebUI.Shared.Services.Storage;
 
 namespace MobileApp.Services;
 

@@ -1,0 +1,17 @@
+@using Fluxor
+@using WebUI.Shared.Store.Auth
+@inject IState<AuthState> AuthState
+
+@if (IsVisible)
+{
+    @ChildContent
+}
+
+@code {
+    [Parameter, EditorRequired] public string Permission { get; set; } = "";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private bool IsVisible => AuthState.Value.IsAuthenticated && 
+                              (AuthState.Value.Permissions.Contains("Permission.ManagePermissions") || 
+                               AuthState.Value.Permissions.Contains(Permission));
+}
