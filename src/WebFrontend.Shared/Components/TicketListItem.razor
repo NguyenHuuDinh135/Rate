@@ -49,8 +49,8 @@
                 <span class="text-xl font-black text-slate-900">@Payment.Amount.ToString("N0") đ</span>
             </div>
             <div class="flex gap-2">
-                <FluentAnchor Href="@($"/booking/success?id={Payment.PaymentId}")" Appearance="Appearance.Stealth" class="h-10 px-4 rounded-xl font-bold">Chi tiết</FluentAnchor>
-                <FluentButton Appearance="Appearance.Accent" IconStart="@(new Size20.QrCode())" class="h-10 px-4 rounded-xl font-bold shadow-lg shadow-accent/10">Vé QR</FluentButton>
+                <FluentAnchor Href="@($"/booking/{Payment.PaymentId}")" Appearance="Appearance.Stealth" class="h-10 px-4 rounded-xl font-bold">Chi tiết</FluentAnchor>
+                <FluentAnchor Href="@($"/booking/{Payment.PaymentId}")" Appearance="Appearance.Accent" IconStart="@(new Size20.QrCode())" class="h-10 px-4 rounded-xl font-bold shadow-lg shadow-accent/10">Vé QR</FluentAnchor>
             </div>
         </div>
     </div>
