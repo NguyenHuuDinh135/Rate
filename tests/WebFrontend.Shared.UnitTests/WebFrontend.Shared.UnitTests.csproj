@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\WebFrontend.Shared\WebFrontend.Shared.csproj" />
+    <ProjectReference Include="..\..\src\WebUI\WebFrontend.Shared\WebFrontend.Shared.csproj" />
   </ItemGroup>
 
 </Project>
