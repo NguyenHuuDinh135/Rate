@@ -1,0 +1,161 @@
+@page "/book/seats/{MovieId:int}"
+@using Fluxor
+@using WebUI.Shared.Store.Bookings
+@using WebUI.Shared.Store.Movies
+@using WebUI.Shared.Models.Movies
+@using WebUI.Shared.Models.Theaters
+@using WebUI.Shared.Models.Bookings
+@using WebUI.Shared.Services.Api
+@using WebUI.Shared.Components
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
+@inject IState<BookingWorkflowState> BookingState
+@inject IState<MovieState> MovieState
+@inject IDispatcher Dispatcher
+@inject IShowApi ShowApi
+@inject ITheaterApi TheaterApi
+@inject IBookingApi BookingApi
+@inject NavigationManager NavigationManager
+
+<PageTitle>Chọn ghế | RATE</PageTitle>
+
+@if (isLoading)
+{
+    <div class="flex items-center justify-center min-h-[50vh]">
+        <FluentProgressRing />
+    </div>
+}
+else if (theater != null && show != null)
+{
+    <div class="flex flex-col gap-8 pb-32">
+        @* Header Mini *@
+        <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
+            <FluentButton Appearance="Appearance.Stealth" OnClick="@GoBack">
+                <FluentIcon Value="@(new Size24.ArrowLeft())" />
+            </FluentButton>
+            <div>
+                <h1 class="text-xl font-black tracking-tight">@theater.Name</h1>
+                <p class="text-sm text-slate-500 font-medium">@show.StartTime.Substring(0, 5) • @(show.Type == ShowType.ThreeD ? "3D" : "2D")</p>
+            </div>
+        </div>
+
+        @* Seat Map Box *@
+        <FluentCard class="rounded-3xl p-6 shadow-sm border border-slate-100 bg-white relative overflow-hidden flex flex-col items-center">
+            <div class="absolute top-0 w-1/2 h-2 bg-accent blur-[20px] opacity-40"></div>
+            
+            <div class="w-full overflow-x-auto">
+                <SeatMap Theater="@theater" 
+                         BookedSeats="@bookedSeats" 
+                         SelectedSeats="@GetSelectedSeatCodes()" 
+                         OnToggleSeat="@HandleToggleSeat" />
+            </div>
+        </FluentCard>
+    </div>
+
+    @* Sticky Bottom Bar *@
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-50">
+        <div class="max-w-3xl mx-auto flex items-center justify-between gap-4">
+            <div class="flex flex-col">
+                <span class="text-xs text-slate-500 font-bold uppercase">Tổng tạm tính</span>
+                <span class="text-xl font-black text-slate-900">@BookingState.Value.TotalPrice.ToString("N0") đ</span>
+            </div>
+            
+            <FluentButton Appearance="Appearance.Accent" 
+                          class="px-8 py-3 h-auto text-sm font-black shadow-lg shadow-accent/20 rounded-xl" 
+                          Disabled="@(!BookingState.Value.SelectedSeats.Any())"
+                          OnClick="@ContinueToConcessions">
+                TỚI BẮP NƯỚC
+            </FluentButton>
+        </div>
+    </div>
+}
+else
+{
+    <div class="p-8 text-center text-slate-500">
+        <p>Lỗi không tải được phòng chiếu.</p>
+        <FluentButton class="mt-4" OnClick="@GoBack">Quay lại</FluentButton>
+    </div>
+}
+
+@code {
+    [Parameter] public int MovieId { get; set; }
+
+    private bool isLoading = true;
+    private TheaterDto? theater;
+    private ShowDto? show;
+    private List<BookedSeatDto> bookedSeats = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (BookingState.Value.SelectedShowtimeId == null || BookingState.Value.SelectedTheaterId == null)
+        {
+            NavigationManager.NavigateTo($"/book/showtimes/{MovieId}");
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            
+            // Load Theater Info
+            theater = await TheaterApi.GetByIdAsync(BookingState.Value.SelectedTheaterId.Value);
+            
+            // Load Show Info
+            var shows = await ShowApi.GetByMovieAsync(MovieId);
+            show = shows.FirstOrDefault(s => s.Id == BookingState.Value.SelectedShowtimeId.Value);
+
+            // Load Booked Seats
+            bookedSeats = await BookingApi.GetBookedSeatsAsync(BookingState.Value.SelectedShowtimeId.Value);
+        }
+        catch
+        {
+            // Error handling
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private List<string> GetSelectedSeatCodes()
+    {
+        return BookingState.Value.SelectedSeats.Select(s => s.SeatId).ToList();
+    }
+
+    private void HandleToggleSeat(string seatCode)
+    {
+        var row = seatCode.Substring(0, 1);
+        var number = int.Parse(seatCode.Substring(1));
+
+        // Xác định loại ghế & giá tiền. Giả lập đơn giản:
+        var type = "Thường";
+        var price = 95000m;
+        
+        if (row == "H" || row == "I")
+        {
+            type = "VIP";
+            price = 110000m;
+        }
+
+        var seatItem = new SeatSelectionItem
+        {
+            SeatId = seatCode,
+            Row = row,
+            Number = number,
+            Type = type,
+            Price = price
+        };
+
+        Dispatcher.Dispatch(new ToggleSeatAction(seatItem));
+    }
+
+    private void ContinueToConcessions()
+    {
+        NavigationManager.NavigateTo($"/book/concessions/{MovieId}");
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo($"/book/showtimes/{MovieId}");
+    }
+}

@@ -1,0 +1,118 @@
+@page "/book/concessions/{MovieId:int}"
+@using Fluxor
+@using WebUI.Shared.Store.Bookings
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
+@inject IState<BookingWorkflowState> BookingState
+@inject IDispatcher Dispatcher
+@inject NavigationManager NavigationManager
+
+<PageTitle>Bắp nước | RATE</PageTitle>
+
+<div class="flex flex-col gap-8 pb-32">
+    @* Header Mini *@
+    <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
+        <FluentButton Appearance="Appearance.Stealth" OnClick="@GoBack">
+            <FluentIcon Value="@(new Size24.ArrowLeft())" />
+        </FluentButton>
+        <div>
+            <h1 class="text-xl font-black tracking-tight">Bắp & Nước ngọt</h1>
+            <p class="text-sm text-slate-500 font-medium">Mua kèm để có trải nghiệm tốt nhất</p>
+        </div>
+    </div>
+
+    @* Concessions List *@
+    <div class="flex flex-col gap-4">
+        @foreach (var item in mockConcessions)
+        {
+            var selectedQuantity = GetQuantity(item.Id);
+            <div class="flex bg-white rounded-2xl p-4 shadow-sm border border-slate-100 gap-4 items-center">
+                <div class="w-20 h-20 bg-slate-100 rounded-xl flex items-center justify-center text-3xl shrink-0">
+                    @item.ImageUrl
+                </div>
+                
+                <div class="flex-1 flex flex-col justify-center">
+                    <h3 class="font-bold text-slate-900 leading-tight mb-1">@item.Name</h3>
+                    <p class="text-sm font-black text-accent mb-2">@item.Price.ToString("N0") đ</p>
+                    
+                    <div class="flex items-center gap-4 mt-auto">
+                        <button @onclick="() => UpdateQuantity(item, selectedQuantity - 1)" 
+                                class="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:border-accent hover:text-accent transition-colors disabled:opacity-30 disabled:hover:border-slate-200 disabled:hover:text-slate-500"
+                                disabled="@(selectedQuantity <= 0)">
+                            <FluentIcon Value="@(new Size16.Subtract())" />
+                        </button>
+                        
+                        <span class="font-bold w-4 text-center">@selectedQuantity</span>
+                        
+                        <button @onclick="() => UpdateQuantity(item, selectedQuantity + 1)"
+                                class="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:border-accent hover:text-accent transition-colors">
+                            <FluentIcon Value="@(new Size16.Add())" />
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@* Sticky Bottom Bar *@
+<div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-50">
+    <div class="max-w-3xl mx-auto flex items-center justify-between gap-4">
+        <div class="flex flex-col">
+            <span class="text-xs text-slate-500 font-bold uppercase">Tổng tạm tính</span>
+            <span class="text-xl font-black text-slate-900">@BookingState.Value.TotalPrice.ToString("N0") đ</span>
+        </div>
+        
+        <FluentButton Appearance="Appearance.Accent" 
+                      class="px-8 py-3 h-auto text-sm font-black shadow-lg shadow-accent/20 rounded-xl" 
+                      OnClick="@ContinueToCheckout">
+            THANH TOÁN
+        </FluentButton>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int MovieId { get; set; }
+
+    // Mock data using Emojis for images to keep it simple and beautiful
+    private List<ConcessionSelectionItem> mockConcessions = new()
+    {
+        new ConcessionSelectionItem { Id = 1, Name = "Combo Solo (1 Bắp Lớn + 1 Nước Lớn)", Price = 89000, ImageUrl = "🍿🥤" },
+        new ConcessionSelectionItem { Id = 2, Name = "Combo Couple (1 Bắp Lớn + 2 Nước Lớn)", Price = 109000, ImageUrl = "🍿🥤🥤" },
+        new ConcessionSelectionItem { Id = 3, Name = "Bắp Rang Bơ (Ngọt/Mặn) - Lớn", Price = 59000, ImageUrl = "🍿" },
+        new ConcessionSelectionItem { Id = 4, Name = "Nước Ngọt (Pepsi/7Up) - Lớn", Price = 39000, ImageUrl = "🥤" },
+        new ConcessionSelectionItem { Id = 5, Name = "Snack Khoai Tây", Price = 35000, ImageUrl = "🍟" }
+    };
+
+    protected override void OnInitialized()
+    {
+        if (!BookingState.Value.SelectedSeats.Any())
+        {
+            NavigationManager.NavigateTo($"/book/seats/{MovieId}");
+        }
+    }
+
+    private int GetQuantity(int concessionId)
+    {
+        var item = BookingState.Value.SelectedConcessions.FirstOrDefault(c => c.Id == concessionId);
+        return item?.Quantity ?? 0;
+    }
+
+    private void UpdateQuantity(ConcessionSelectionItem item, int newQuantity)
+    {
+        if (newQuantity < 0) newQuantity = 0;
+        if (newQuantity > 10) newQuantity = 10;
+        
+        Dispatcher.Dispatch(new UpdateConcessionQuantityAction(item, newQuantity));
+    }
+
+    private void ContinueToCheckout()
+    {
+        NavigationManager.NavigateTo($"/book/checkout/{MovieId}");
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo($"/book/seats/{MovieId}");
+    }
+}

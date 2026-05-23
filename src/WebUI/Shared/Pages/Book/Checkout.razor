@@ -1,0 +1,249 @@
+@page "/book/checkout/{MovieId:int}"
+@using Fluxor
+@using WebUI.Shared.Store.Bookings
+@using WebUI.Shared.Store.Movies
+@using WebUI.Shared.Store.Auth
+@using WebUI.Shared.Models.Bookings
+@using WebUI.Shared.Models.Payments
+@using WebUI.Shared.Models.Theaters
+@using WebUI.Shared.Models.Movies
+@using WebUI.Shared.Services.Api
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
+@inject IState<BookingWorkflowState> BookingState
+@inject IState<MovieState> MovieState
+@inject IState<AuthState> AuthState
+@inject IDispatcher Dispatcher
+@inject IShowApi ShowApi
+@inject ITheaterApi TheaterApi
+@inject IBookingApi BookingApi
+@inject IPaymentApi PaymentApi
+@inject IToastService ToastService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Thanh toán | RATE</PageTitle>
+
+@if (isLoading)
+{
+    <div class="flex items-center justify-center min-h-[50vh]">
+        <FluentProgressRing />
+    </div>
+}
+else if (theater != null && show != null && movie != null)
+{
+    <div class="flex flex-col gap-8 pb-32">
+        @* Header Mini *@
+        <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
+            <FluentButton Appearance="Appearance.Stealth" OnClick="@GoBack">
+                <FluentIcon Value="@(new Size24.ArrowLeft())" />
+            </FluentButton>
+            <div>
+                <h1 class="text-xl font-black tracking-tight">Thanh toán</h1>
+                <p class="text-sm text-slate-500 font-medium">Hoàn tất đặt vé</p>
+            </div>
+        </div>
+
+        @* Bill Summary *@
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col gap-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full blur-[30px] -mr-10 -mt-10 pointer-events-none"></div>
+            
+            <div class="flex gap-4 items-start">
+                <img src="@movie.PosterUrl" class="w-20 h-28 object-cover rounded-xl shadow-md" alt="@movie.Title" />
+                <div>
+                    <h3 class="text-lg font-black text-slate-900 leading-tight mb-2">@movie.Title</h3>
+                    <div class="flex items-center gap-2 text-sm text-slate-500 font-medium mb-1">
+                        <FluentIcon Value="@(new Size16.Location())" Color="Color.Accent" />
+                        <span>@theater.Name</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-slate-500 font-medium">
+                        <FluentIcon Value="@(new Size16.Clock())" Color="Color.Accent" />
+                        <span>@show.StartTime.Substring(0, 5) • @(show.Type == ShowType.ThreeD ? "3D" : "2D")</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-dashed border-slate-200 pt-4 flex flex-col gap-3">
+                <div class="flex justify-between items-start text-sm">
+                    <span class="text-slate-500 font-bold">Ghế (@BookingState.Value.SelectedSeats.Count)</span>
+                    <div class="text-right">
+                        <div class="font-black text-slate-900">@string.Join(", ", BookingState.Value.SelectedSeats.Select(s => s.SeatId))</div>
+                        <div class="text-xs text-accent mt-1">@BookingState.Value.SelectedSeats.Sum(s => s.Price).ToString("N0") đ</div>
+                    </div>
+                </div>
+
+                @if (BookingState.Value.SelectedConcessions.Any())
+                {
+                    <div class="flex justify-between items-start text-sm">
+                        <span class="text-slate-500 font-bold">Bắp nước (@BookingState.Value.SelectedConcessions.Sum(c => c.Quantity))</span>
+                        <div class="text-right">
+                            <div class="font-black text-slate-900 text-xs text-right max-w-[150px]">
+                                @foreach(var c in BookingState.Value.SelectedConcessions) {
+                                    <div class="truncate">@c.Quantity x @c.Name</div>
+                                }
+                            </div>
+                            <div class="text-xs text-accent mt-1">@BookingState.Value.SelectedConcessions.Sum(c => c.Price * c.Quantity).ToString("N0") đ</div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="border-t border-dashed border-slate-200 pt-4 flex justify-between items-end">
+                <span class="text-sm text-slate-500 font-black uppercase tracking-widest">Tổng cộng</span>
+                <span class="text-3xl font-black text-accent tracking-tighter">@BookingState.Value.TotalPrice.ToString("N0") đ</span>
+            </div>
+        </div>
+
+        @* Payment Methods *@
+        <div>
+            <h3 class="text-sm font-black text-slate-400 uppercase tracking-widest mb-4">Phương thức thanh toán</h3>
+            <div class="flex flex-col gap-3">
+                @foreach (var method in Enum.GetValues<PaymentMethod>())
+                {
+                    <button @onclick="() => selectedPaymentMethod = method" 
+                            class="flex items-center justify-between p-4 rounded-2xl border-2 transition-all @(selectedPaymentMethod == method ? "border-accent bg-accent/5" : "border-slate-100 bg-white hover:border-accent/30")">
+                        <div class="flex items-center gap-4">
+                            @if (method == PaymentMethod.Momo) {
+                                <div class="w-10 h-10 rounded-xl bg-[#A50064] flex items-center justify-center text-white font-bold text-xs">MoMo</div>
+                            } else if (method == PaymentMethod.VnPay) {
+                                <div class="w-10 h-10 rounded-xl bg-[#005BAA] flex items-center justify-center text-white font-bold text-xs">VNPAY</div>
+                            } else {
+                                <div class="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white"><FluentIcon Value="@(new Size20.Payment())" /></div>
+                            }
+                            <span class="font-bold text-slate-700">@method.ToString()</span>
+                        </div>
+                        <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center @(selectedPaymentMethod == method ? "border-accent" : "border-slate-300")">
+                            @if (selectedPaymentMethod == method) {
+                                <div class="w-3 h-3 rounded-full bg-accent"></div>
+                            }
+                        </div>
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* Sticky Bottom Bar *@
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-50">
+        <div class="max-w-3xl mx-auto flex items-center gap-4">
+            <FluentButton Appearance="Appearance.Accent" 
+                          class="flex-1 py-4 h-auto text-lg font-black shadow-lg shadow-accent/20 rounded-2xl" 
+                          OnClick="@ProcessCheckout"
+                          Disabled="@isProcessing">
+                @(isProcessing ? "ĐANG XỬ LÝ..." : "XÁC NHẬN ĐẶT VÉ")
+            </FluentButton>
+        </div>
+    </div>
+}
+else
+{
+    <div class="p-8 text-center text-slate-500">
+        <p>Lỗi hiển thị hóa đơn.</p>
+        <FluentButton class="mt-4" OnClick="@GoBack">Quay lại</FluentButton>
+    </div>
+}
+
+@code {
+    [Parameter] public int MovieId { get; set; }
+
+    private bool isLoading = true;
+    private bool isProcessing = false;
+    private TheaterDto? theater;
+    private ShowDto? show;
+    private MovieDto? movie;
+    
+    private PaymentMethod selectedPaymentMethod = PaymentMethod.VnPay;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!BookingState.Value.SelectedSeats.Any() || BookingState.Value.SelectedShowtimeId == null || BookingState.Value.SelectedTheaterId == null)
+        {
+            NavigationManager.NavigateTo($"/book/showtimes/{MovieId}");
+            return;
+        }
+
+        if (!AuthState.Value.IsAuthenticated)
+        {
+            ToastService.ShowWarning("Vui lòng đăng nhập để thanh toán.");
+            NavigationManager.NavigateTo("/auth/login");
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            
+            // Load Theater & Show & Movie
+            theater = await TheaterApi.GetByIdAsync(BookingState.Value.SelectedTheaterId.Value);
+            var shows = await ShowApi.GetByMovieAsync(MovieId);
+            show = shows.FirstOrDefault(s => s.Id == BookingState.Value.SelectedShowtimeId.Value);
+            movie = MovieState.Value.SelectedMovie;
+        }
+        catch
+        {
+            ToastService.ShowError("Lỗi tải thông tin thanh toán.");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task ProcessCheckout()
+    {
+        if (isProcessing) return;
+
+        try 
+        {
+            isProcessing = true;
+            StateHasChanged();
+            
+            // 1. Create Bookings for each seat
+            var bookingIds = new List<int>();
+            foreach (var seat in BookingState.Value.SelectedSeats)
+            {
+                var cmd = new CreateBookingCommand(
+                    AuthState.Value.User!.Username!, 
+                    show!.Id,
+                    seat.Row,
+                    seat.Number,
+                    (double)seat.Price,
+                    1
+                );
+                var bid = await BookingApi.CreateAsync(cmd);
+                bookingIds.Add(bid);
+            }
+
+            // Note: In a real system, we should also create Concession orders here.
+            // For now, we merge the total price into the Payment.
+
+            // 2. Create Payment
+            var payCmd = new CreatePaymentCommand(
+                (double)BookingState.Value.TotalPrice,
+                DateTime.Now.ToString("O"),
+                selectedPaymentMethod.ToString().ToLower(),
+                AuthState.Value.User!.Username!,
+                show!.Id,
+                bookingIds
+            );
+            var payId = await PaymentApi.CreateAsync(payCmd);
+
+            // 3. Reset State & Redirect
+            Dispatcher.Dispatch(new ResetBookingWorkflowAction());
+            ToastService.ShowSuccess("Đặt vé thành công!");
+            NavigationManager.NavigateTo($"/booking/success?Id={payId}&seats={string.Join(",", BookingState.Value.SelectedSeats.Select(s => s.SeatId))}");
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError("Lỗi thanh toán: " + ex.Message);
+        }
+        finally
+        {
+            isProcessing = false;
+        }
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo($"/book/concessions/{MovieId}");
+    }
+}
