@@ -1,0 +1,85 @@
+@using Microsoft.FluentUI.AspNetCore.Components
+@using WebFrontend.Shared.Models.Common
+@implements IDialogContentComponent<PaymentDialogData>
+
+<FluentDialogHeader ShowDismiss="true">
+    <FluentStack VerticalAlignment="VerticalAlignment.Center">
+        <FluentIcon Value="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.History())" Color="Color.Accent" />
+        <FluentLabel Typo="Typography.PaneHeader">Thanh toán vé xem phim</FluentLabel>
+    </FluentStack>
+</FluentDialogHeader>
+
+<FluentDialogBody>
+    <div class="flex flex-col gap-6 py-2">
+        @* Summary Box *@
+        <div class="bg-slate-50 border border-slate-100 p-5 rounded-2xl flex justify-between items-center shadow-sm">
+            <div class="flex flex-col">
+                <span class="text-[10px] uppercase tracking-widest font-black text-muted-foreground mb-1">Tổng cộng</span>
+                <span class="text-3xl font-black text-slate-900">@Content.TotalAmount.ToString("N0") <span class="text-lg">đ</span></span>
+            </div>
+            <FluentBadge Appearance="Appearance.Lightweight" Color="Color.Accent" class="h-8 px-4 flex items-center font-bold">
+                @Content.SeatCount Ghế
+            </FluentBadge>
+        </div>
+
+        @* Payment Method Selection *@
+        <div class="flex flex-col gap-3">
+            <span class="text-xs font-black uppercase tracking-widest text-muted-foreground px-1">Phương thức thanh toán</span>
+            
+            <FluentRadioGroup @bind-Value="selectedMethod" Orientation="Orientation.Vertical" class="w-full">
+                <FluentRadio Value="@PaymentMethod.Card" class="w-full">
+                    <div class="flex items-center gap-4 p-4 border-2 border-transparent group-aria-checked:border-accent rounded-xl bg-white shadow-sm transition-all w-full">
+                        <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                            <FluentIcon Value="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.History())" />
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-sm">Thẻ Tín dụng / Ghi nợ</span>
+                            <span class="text-xs text-muted-foreground">Visa, Mastercard, JCB</span>
+                        </div>
+                    </div>
+                </FluentRadio>
+
+                <FluentRadio Value="@PaymentMethod.Cash" class="w-full mt-2">
+                    <div class="flex items-center gap-4 p-4 border-2 border-transparent group-aria-checked:border-accent rounded-xl bg-white shadow-sm transition-all w-full">
+                        <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-600">
+                            <FluentIcon Value="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.Home())" />
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-sm">Tiền mặt tại quầy</span>
+                            <span class="text-xs text-muted-foreground">Thanh toán khi nhận vé</span>
+                        </div>
+                    </div>
+                </FluentRadio>
+            </FluentRadioGroup>
+        </div>
+
+        @* Terms Disclaimer *@
+        <div class="flex gap-3 p-4 bg-amber-50 border border-amber-100 rounded-xl">
+            <FluentIcon Value="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size20.Info())" Color="Color.Warning" />
+            <p class="text-[10px] text-amber-800 leading-relaxed font-medium">
+                Bằng việc nhấn "Xác nhận", bạn đồng ý với Điều khoản sử dụng và Chính sách hoàn tiền của RATE. Vé đã đặt không thể thay đổi hoặc hủy bỏ.
+            </p>
+        </div>
+    </div>
+</FluentDialogBody>
+
+<FluentDialogFooter>
+    <FluentButton Appearance="Appearance.Neutral" OnClick="@(() => Dialog.CancelAsync())" class="h-12 px-6 font-bold">Hủy bỏ</FluentButton>
+    <FluentButton Appearance="Appearance.Accent" OnClick="@HandleConfirm" class="h-12 px-8 font-bold shadow-lg shadow-accent/20">Xác nhận thanh toán</FluentButton>
+</FluentDialogFooter>
+
+@code {
+    [CascadingParameter] public FluentDialog Dialog { get; set; } = default!;
+    [Parameter] public PaymentDialogData Content { get; set; } = default!;
+
+    private PaymentMethod selectedMethod = PaymentMethod.Card;
+
+    private async Task HandleConfirm()
+    {
+        await Dialog.CloseAsync(selectedMethod);
+    }
+}
+
+@code {
+    // Nested in the component class but accessible for the generic interface in the same file
+}

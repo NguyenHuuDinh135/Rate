@@ -26,7 +26,6 @@
     <Project Path="src/WebUI/WebFrontend.Shared/WebFrontend.Shared.csproj" />
     <Project Path="src/WebUI/WebFrontend/WebFrontend.csproj" />
     <Project Path="src/WebUI/WebFrontend.Client/WebFrontend.Client.csproj" />
-    <Project Path="src/MobileApp/MobileApp.csproj" />
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="tests/Application.FunctionalTests/Application.FunctionalTests.csproj" />

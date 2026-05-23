@@ -1,0 +1,130 @@
+@page "/theaters"
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
+@using WebFrontend.Shared.Models.Theaters
+@using WebFrontend.Shared.Services.Api
+@inject ITheaterApi TheaterApi
+@inject IToastService ToastService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Hệ thống Rạp chiếu | RATE</PageTitle>
+
+<div class="min-h-screen bg-slate-50 pt-24 pb-20">
+    <div class="container mx-auto max-w-6xl px-4 flex flex-col gap-12">
+        
+        @* Header Section *@
+        <div class="flex flex-col gap-4">
+            <h1 class="text-4xl font-black tracking-tight text-slate-900 flex items-center gap-4">
+                <div class="w-12 h-12 bg-accent rounded-2xl flex items-center justify-center text-white shadow-lg shadow-accent/20">
+                    <FluentIcon Value="@(new Size24.Home())" />
+                </div>
+                Hệ Thống Rạp Chiếu
+            </h1>
+            <p class="text-slate-500 font-bold max-w-2xl ml-16">
+                Khám phá hệ thống rạp chiếu hiện đại bậc nhất của RATE với các phòng chiếu IMAX, 3D công nghệ đỉnh cao và dịch vụ chuẩn 5 sao.
+            </p>
+        </div>
+
+        @if (isLoading)
+        {
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 py-10">
+                @for (int i = 0; i < 6; i++)
+                {
+                    <div class="flex flex-col gap-4 animate-pulse bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                        <div class="h-40 bg-slate-100 rounded-3xl w-full"></div>
+                        <div class="h-6 bg-slate-100 rounded w-3/4"></div>
+                        <div class="h-4 bg-slate-100 rounded w-1/2"></div>
+                    </div>
+                }
+            </div>
+        }
+        else if (!theaters.Any())
+        {
+            <div class="flex flex-col items-center justify-center py-24 bg-white rounded-[3rem] border border-slate-100 shadow-sm space-y-6">
+                <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-200">
+                    <FluentIcon Value="@(new Size48.Home())" />
+                </div>
+                <div class="text-center">
+                    <h3 class="text-xl font-black text-slate-900">Không tìm thấy rạp nào</h3>
+                    <p class="text-slate-400 font-medium mt-1">Dữ liệu rạp hiện tại đang trống. Vui lòng quay lại sau!</p>
+                </div>
+                <FluentAnchor Href="/" Appearance="Appearance.Accent" class="h-12 px-8 rounded-xl font-black shadow-lg shadow-accent/20">Quay lại Trang chủ</FluentAnchor>
+            </div>
+        }
+        else
+        {
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                @foreach (var theater in theaters)
+                {
+                    var totalSeats = (theater.NumOfRows * theater.SeatsPerRow) - (theater.Missing?.Count ?? 0);
+                    <div class="group relative bg-white border border-slate-100 rounded-[2.5rem] overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 p-6 flex flex-col justify-between">
+                        
+                        @* Image/Banner *@
+                        <div class="relative h-44 overflow-hidden rounded-3xl bg-slate-900 mb-6">
+                            <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2070&auto=format&fit=crop" 
+                                 class="w-full h-full object-cover opacity-60 transition-transform duration-750 group-hover:scale-105" alt="@theater.Name" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                            
+                            <div class="absolute bottom-4 left-4 right-4 text-white">
+                                <FluentBadge Appearance="Appearance.Accent" class="mb-2 font-black">@theater.Type</FluentBadge>
+                                <h3 class="text-xl font-black leading-tight">@theater.Name</h3>
+                            </div>
+                        </div>
+
+                        @* Content Details *@
+                        <div class="space-y-6 flex-1 flex flex-col justify-between">
+                            <div class="space-y-4">
+                                <div class="flex items-center gap-3 text-slate-500 font-bold text-sm">
+                                    <FluentIcon Value="@(new Size20.Map())" Color="Color.Accent" />
+                                    <span class="truncate">Tầng 5, Vincom Plaza, Hà Nội</span>
+                                </div>
+                                <div class="flex items-center gap-3 text-slate-500 font-bold text-sm">
+                                    <FluentIcon Value="@(new Size20.People())" Color="Color.Accent" />
+                                    <span>Quy mô: @theater.NumOfRows Hàng x @theater.SeatsPerRow Cột</span>
+                                </div>
+                                <div class="flex items-center gap-3 text-slate-500 font-bold text-sm">
+                                    <FluentIcon Value="@(new Size20.Calendar())" Color="Color.Accent" />
+                                    <span>Tổng số ghế: @totalSeats ghế trống</span>
+                                </div>
+                            </div>
+
+                            <div class="pt-6 border-t border-slate-100 flex items-center justify-between mt-6">
+                                <span class="text-xs text-slate-400 font-bold">Giờ mở cửa: 08:30 - 23:30</span>
+                                <FluentButton Appearance="Appearance.Outline" class="h-10 px-6 rounded-xl font-bold border-slate-200 text-slate-700 hover:bg-slate-50" OnClick="@(() => GoToMovies())">
+                                    Xem Lịch Chiếu
+                                </FluentButton>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private List<TheaterDto> theaters = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isLoading = true;
+            theaters = await TheaterApi.GetAllAsync();
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError("Lỗi khi tải danh sách rạp: " + ex.Message);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void GoToMovies()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+}

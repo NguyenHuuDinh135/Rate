@@ -1,0 +1,17 @@
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.FluentUI.AspNetCore.Components
+
+<NavLink class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-white/70 hover:text-white hover:bg-white/5 active:bg-white/10" 
+         ActiveClass="bg-accent text-white font-semibold shadow-lg shadow-accent/20" 
+         Href="@Href" 
+         Match="@Match">
+    <FluentIcon Value="@Icon" />
+    <span class="text-sm">@Text</span>
+</NavLink>
+
+@code {
+    [Parameter, EditorRequired] public string Href { get; set; } = "";
+    [Parameter, EditorRequired] public Icon Icon { get; set; } = default!;
+    [Parameter, EditorRequired] public string Text { get; set; } = "";
+    [Parameter] public NavLinkMatch Match { get; set; } = NavLinkMatch.Prefix;
+}

@@ -1,0 +1,95 @@
+@using Fluxor
+@using WebFrontend.Shared.Store.Auth
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
+@inherits LayoutComponentBase
+@inject IState<AuthState> AuthState
+@inject IDispatcher Dispatcher
+@inject NavigationManager NavigationManager
+
+<FluentLayout>
+    <FluentHeader class="shadow-sm border-b">
+        <div class="container flex items-center h-16 px-4">
+            <FluentAnchor Href="/" Appearance="Appearance.Stealth" class="flex items-center gap-2 mr-6">
+                <FluentIcon Value="@(new Size24.MoviesAndTv())" Color="Color.Accent" />
+                <span class="text-xl font-bold tracking-tight">RATE</span>
+            </FluentAnchor>
+
+            <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+                <FluentAnchor Href="/" Appearance="Appearance.Stealth">Phim đang chiếu</FluentAnchor>
+                <FluentAnchor Href="/theaters" Appearance="Appearance.Stealth">Hệ thống rạp</FluentAnchor>
+                <FluentAnchor Href="/about" Appearance="Appearance.Stealth">Giới thiệu</FluentAnchor>
+            </nav>
+
+            <div class="flex-1"></div>
+
+            <div class="flex items-center gap-4">
+                @if (AuthState.Value.IsAuthenticated)
+                {
+                    <FluentAnchor Href="/profile" Appearance="Appearance.Stealth" class="flex items-center gap-2">
+                        <FluentIcon Value="@(new Size20.Person())" />
+                        <span class="hidden sm:inline">@AuthState.Value.User?.Username</span>
+                    </FluentAnchor>
+                    <FluentButton Appearance="Appearance.Stealth" OnClick="HandleLogout">Đăng xuất</FluentButton>
+                }
+                else
+                {
+                    <FluentAnchor Href="/auth/login" Appearance="Appearance.Stealth">Đăng nhập</FluentAnchor>
+                    <FluentAnchor Href="/auth/register" Appearance="Appearance.Accent">Đăng ký</FluentAnchor>
+                }
+            </div>
+        </div>
+    </FluentHeader>
+
+    <FluentBodyContent class="pb-16 md:pb-0">
+        <main class="container py-8 px-4">
+            @Body
+        </main>
+    </FluentBodyContent>
+
+    <footer class="hidden md:block border-t py-12 bg-slate-50">
+        <div class="container px-4 text-center">
+            <p class="text-muted-foreground text-sm">
+                &copy; @DateTime.Now.Year Rate Movie Reservation System. Built with .NET 10 & Fluent UI.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="md:hidden fixed bottom-0 w-full bg-white border-t flex justify-around items-center h-16 px-2 z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+        <FluentAnchor Href="/" Appearance="Appearance.Stealth" class="flex flex-col items-center gap-1">
+            <FluentIcon Value="@(new Size24.Home())" Color="Color.Neutral" />
+            <span class="text-[10px]">Trang chủ</span>
+        </FluentAnchor>
+        <FluentAnchor Href="/movies" Appearance="Appearance.Stealth" class="flex flex-col items-center gap-1">
+            <FluentIcon Value="@(new Size24.MoviesAndTv())" Color="Color.Neutral" />
+            <span class="text-[10px]">Phim</span>
+        </FluentAnchor>
+        <FluentAnchor Href="/tickets" Appearance="Appearance.Stealth" class="flex flex-col items-center gap-1">
+            <FluentIcon Value="@(new Size24.Receipt())" Color="Color.Neutral" />
+            <span class="text-[10px]">Vé</span>
+        </FluentAnchor>
+        <FluentAnchor Href="/profile" Appearance="Appearance.Stealth" class="flex flex-col items-center gap-1">
+            <FluentIcon Value="@(new Size24.Person())" Color="Color.Neutral" />
+            <span class="text-[10px]">Hồ sơ</span>
+        </FluentAnchor>
+    </nav>
+</FluentLayout>
+
+<FluentToastProvider />
+<FluentDialogProvider />
+<FluentTooltipProvider />
+
+@code {
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Dispatcher.Dispatch(new InitializeAuthAction());
+    }
+
+    private void HandleLogout()
+    {
+        Dispatcher.Dispatch(new LogoutAction());
+        NavigationManager.NavigateTo("/");
+    }
+}

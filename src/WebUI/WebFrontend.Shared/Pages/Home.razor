@@ -1,0 +1,118 @@
+@page "/"
+@using Fluxor
+@using WebFrontend.Shared.Store.Movies
+@using WebFrontend.Shared.Models.Common
+@using Microsoft.FluentUI.AspNetCore.Components
+@inject IState<MovieState> MovieState
+@inject IDispatcher Dispatcher
+
+<PageTitle>Trình duyệt phim | RATE</PageTitle>
+
+<div class="flex flex-col gap-12">
+    @* Hero Section *@
+    <section class="relative h-[500px] rounded-3xl overflow-hidden shadow-2xl">
+        <img src="https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=2070&auto=format&fit=crop" 
+             class="absolute inset-0 w-full h-full object-cover" alt="Hero" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+        <div class="absolute bottom-12 left-12 max-w-2xl text-white">
+            <h1 class="text-5xl font-extrabold tracking-tight mb-4 leading-tight">Trải nghiệm điện ảnh đỉnh cao tại RATE</h1>
+            <p class="text-xl text-gray-200 mb-8 leading-relaxed">Đặt vé ngay hôm nay để nhận ưu đãi lên đến 50% cho các suất chiếu sớm. Khám phá những bộ phim bom tấn mới nhất.</p>
+            <div class="flex gap-4">
+                <FluentButton Appearance="Appearance.Accent" class="px-8 py-6 h-auto text-lg">Đặt vé ngay</FluentButton>
+                <FluentButton Appearance="Appearance.Outline" class="px-8 py-6 h-auto text-lg bg-white/10 backdrop-blur-md text-white border-white/20 hover:bg-white/20">Xem phim đang chiếu</FluentButton>
+            </div>
+        </div>
+    </section>
+
+    @* Movie Sections *@
+    <div class="flex flex-col gap-16">
+        @* Now Showing *@
+        <section>
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold tracking-tight">Phim đang chiếu</h2>
+                    <div class="h-1 w-20 bg-accent mt-2 rounded-full"></div>
+                </div>
+                <FluentAnchor Href="/movies?type=nowshowing" Appearance="Appearance.Hypertext">Xem tất cả</FluentAnchor>
+            </div>
+
+            @if (MovieState.Value.IsLoading)
+            {
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+                    @for (int i = 0; i < 5; i++)
+                    {
+                        <div class="flex flex-col gap-4 animate-pulse">
+                            <div class="aspect-[2/3] bg-gray-200 rounded-2xl"></div>
+                            <div class="h-6 bg-gray-200 rounded w-3/4"></div>
+                            <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+                    @foreach (var movie in MovieState.Value.Movies.Where(m => m.MovieType == MovieType.NowShowing))
+                    {
+                        <div class="group relative flex flex-col gap-4 transition-all hover:-translate-y-2">
+                            <div class="relative aspect-[2/3] overflow-hidden rounded-2xl shadow-md group-hover:shadow-xl transition-shadow">
+                                <img src="@movie.PosterUrl" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="@movie.Title" />
+                                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-4">
+                                    <FluentAnchor Href="@($"/movies/{movie.Id}")" Appearance="Appearance.Accent" class="w-full">Chi tiết</FluentAnchor>
+                                </div>
+                                @if (movie.Rating.HasValue)
+                                {
+                                    <div class="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-white px-2 py-1 rounded-lg text-sm font-bold flex items-center gap-1 border border-white/10">
+                                        <FluentIcon Value="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size16.Star())" Color="Color.Warning" />
+                                        @movie.Rating
+                                    </div>
+                                }
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg leading-snug line-clamp-1 group-hover:text-accent transition-colors">@movie.Title</h3>
+                                <p class="text-muted-foreground text-sm mt-1">@movie.Year • @string.Join(", ", movie.Genres.Select(g => g.Name))</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </section>
+
+        @* Coming Soon *@
+        <section>
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold tracking-tight text-slate-800">Sắp khởi chiếu</h2>
+                    <div class="h-1 w-20 bg-slate-300 mt-2 rounded-full"></div>
+                </div>
+                <FluentAnchor Href="/movies?type=comingsoon" Appearance="Appearance.Hypertext">Xem lịch chiếu</FluentAnchor>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+                @foreach (var movie in MovieState.Value.Movies.Where(m => m.MovieType == MovieType.ComingSoon))
+                {
+                    <div class="group relative flex flex-col gap-4 opacity-80 hover:opacity-100 transition-opacity">
+                        <div class="relative aspect-[2/3] overflow-hidden rounded-2xl grayscale hover:grayscale-0 transition-all duration-500 shadow-sm hover:shadow-lg">
+                            <img src="@movie.PosterUrl" class="w-full h-full object-cover" alt="@movie.Title" />
+                            <div class="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/90 to-transparent text-white">
+                                <p class="text-xs font-medium uppercase tracking-wider text-accent-light mb-1">Khởi chiếu @movie.Year</p>
+                                <h3 class="font-bold line-clamp-1">@movie.Title</h3>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+    </div>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        if (MovieState.Value.Movies.Count == 0)
+        {
+            Dispatcher.Dispatch(new LoadMoviesAction());
+        }
+    }
+}
