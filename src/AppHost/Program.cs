@@ -9,7 +9,7 @@ var postgres = builder.AddPostgres(
         name: Services.DatabaseServer,
         password: postgresPassword,
         port: 5432)
-    .WithImage("postgres:16")
+    .WithImage("pgvector/pgvector", "pg16")
     .WithDataVolume("rate-postgres-data");
 
 var database = postgres.AddDatabase(Services.Database);

@@ -32,6 +32,7 @@ namespace backend.Infrastructure.AI.BackgroundJobs
 
             var moviesToUpdate = await _context.Movies
                 .Where(m => m.Embedding == null)
+                .OrderBy(m => m.Id)
                 .Take(50) // Xử lý theo đợt
                 .ToListAsync(ct);
 
@@ -74,6 +75,7 @@ namespace backend.Infrastructure.AI.BackgroundJobs
 
             var reviewsToUpdate = await _context.Reviews
                 .Where(r => r.Embedding == null)
+                .OrderBy(r => r.Id)
                 .Take(100)
                 .ToListAsync(ct);
 

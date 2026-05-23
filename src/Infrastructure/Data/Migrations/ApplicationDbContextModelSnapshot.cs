@@ -567,7 +567,7 @@ namespace backend.Infrastructure.Data.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<Vector>("Embedding")
-                        .HasColumnType("vector");
+                        .HasColumnType("vector(1024)");
 
                     b.Property<int>("MovieType")
                         .HasColumnType("integer");
@@ -719,13 +719,17 @@ namespace backend.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<Vector>("Embedding")
-                        .HasColumnType("vector");
+                        .HasColumnType("vector(1024)");
 
                     b.Property<int>("MovieId")
                         .HasColumnType("integer");
 
                     b.Property<int>("Rating")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("UserId")
                         .IsRequired()
