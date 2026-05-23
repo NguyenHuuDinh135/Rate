@@ -1,0 +1,183 @@
+@page "/book/showtimes/{MovieId:int}"
+@using Fluxor
+@using WebUI.Shared.Store.Bookings
+@using WebUI.Shared.Store.Movies
+@using WebUI.Shared.Models.Movies
+@using WebUI.Shared.Models.Theaters
+@using WebUI.Shared.Services.Api
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
+@inject IState<BookingWorkflowState> BookingState
+@inject IState<MovieState> MovieState
+@inject IDispatcher Dispatcher
+@inject IShowApi ShowApi
+@inject ITheaterApi TheaterApi
+@inject NavigationManager NavigationManager
+
+<PageTitle>Chọn suất chiếu | RATE</PageTitle>
+
+@if (MovieState.Value.SelectedMovie == null || isLoadingShows)
+{
+    <div class="flex items-center justify-center min-h-[50vh]">
+        <FluentProgressRing />
+    </div>
+}
+else
+{
+    var movie = MovieState.Value.SelectedMovie;
+
+    <div class="flex flex-col gap-8 pb-24">
+        @* Header Mini *@
+        <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
+            <FluentButton Appearance="Appearance.Stealth" OnClick="@GoBack">
+                <FluentIcon Value="@(new Size24.ArrowLeft())" />
+            </FluentButton>
+            <div>
+                <h1 class="text-xl font-black tracking-tight">@movie.Title</h1>
+                <p class="text-sm text-slate-500 font-medium">Chọn ngày & suất chiếu</p>
+            </div>
+        </div>
+
+        @* Date Selector (Horizontal Scroll) *@
+        <div class="flex gap-4 overflow-x-auto pb-4 hide-scrollbar">
+            @foreach (var dateStr in datesWithShows)
+            {
+                var date = DateTime.Parse(dateStr);
+                var isSelected = date.Date == selectedDate.Date;
+                <button @onclick="() => HandleDateSelected(date)"
+                        class="flex flex-col items-center justify-center min-w-[70px] h-20 rounded-2xl border-2 transition-all @(isSelected ? "border-accent bg-accent text-white shadow-lg shadow-accent/30" : "border-slate-200 bg-white text-slate-600 hover:border-accent/50")">
+                    <span class="text-[10px] uppercase font-bold opacity-80">@date.ToString("ddd")</span>
+                    <span class="text-2xl font-black leading-none my-1">@date.Day</span>
+                    <span class="text-[10px] font-bold opacity-80">Thg @date.Month</span>
+                </button>
+            }
+            @if (!datesWithShows.Any())
+            {
+                <p class="text-slate-400 font-medium p-4">Đang tải lịch chiếu...</p>
+            }
+        </div>
+
+        @* Theaters & Showtimes *@
+        <div class="flex flex-col gap-8">
+            @if (currentShows.Any())
+            {
+                var groupedShows = currentShows.GroupBy(s => s.TheaterId);
+                
+                @foreach (var group in groupedShows)
+                {
+                    var theater = theaters.FirstOrDefault(t => t.Id == group.Key);
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                        <div class="flex items-center gap-3 mb-6">
+                            <FluentIcon Value="@(new Size24.Location())" Color="Color.Accent" />
+                            <div>
+                                <h3 class="text-lg font-black">@(theater?.Name ?? "Đang tải rạp...")</h3>
+                                <p class="text-xs text-slate-400 font-medium">@(theater?.Address ?? "")</p>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap gap-3">
+                            @foreach (var show in group.OrderBy(s => s.StartTime))
+                            {
+                                <button @onclick="() => SelectShowtime(theater!.Id, show.Id)"
+                                        class="bg-slate-50 hover:bg-accent/10 hover:text-accent border border-slate-200 hover:border-accent text-slate-700 px-6 py-3 rounded-xl font-bold transition-colors flex flex-col items-center gap-1">
+                                    <span class="text-lg">@show.StartTime.Substring(0, 5)</span>
+                                    <span class="text-[10px] uppercase text-slate-400">@show.Type</span>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="p-12 border-2 border-dashed border-slate-200 rounded-3xl text-center text-slate-400 font-bold">
+                    <FluentIcon Value="@(new Size32.CalendarClock())" class="mx-auto mb-4 opacity-20" />
+                    <p>Không có suất chiếu nào cho ngày này.</p>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int MovieId { get; set; }
+
+    private bool isLoadingShows = true;
+    private DateTime selectedDate = DateTime.Now;
+    private List<string> datesWithShows = new();
+    private List<ShowDto> allShows = new();
+    private List<ShowDto> currentShows = new();
+    private List<TheaterDto> theaters = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Tải danh sách rạp để map tên
+        try
+        {
+            theaters = await TheaterApi.GetAllAsync();
+        }
+        catch { }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (MovieState.Value.SelectedMovie == null || MovieState.Value.SelectedMovie.Id != MovieId)
+        {
+            Dispatcher.Dispatch(new LoadMovieByIdAction(MovieId));
+        }
+
+        await LoadShows();
+    }
+
+    private async Task LoadShows()
+    {
+        isLoadingShows = true;
+        try 
+        {
+            allShows = await ShowApi.GetByMovieAsync(MovieId);
+            datesWithShows = allShows.Select(s => DateTime.Parse(s.Date).ToString("yyyy-MM-dd")).Distinct().ToList();
+            
+            if (datesWithShows.Any())
+            {
+                selectedDate = DateTime.Parse(datesWithShows.First());
+            }
+            UpdateCurrentShows();
+        }
+        finally
+        {
+            isLoadingShows = false;
+        }
+    }
+
+    private void HandleDateSelected(DateTime date)
+    {
+        selectedDate = date;
+        UpdateCurrentShows();
+    }
+
+    private void UpdateCurrentShows()
+    {
+        var dateKey = selectedDate.ToString("yyyy-MM-dd");
+        currentShows = allShows.Where(s => DateTime.Parse(s.Date).ToString("yyyy-MM-dd") == dateKey).ToList();
+    }
+
+    private void SelectShowtime(int theaterId, int showtimeId)
+    {
+        Dispatcher.Dispatch(new SelectShowtimeAction(theaterId, showtimeId));
+        NavigationManager.NavigateTo($"/book/seats/{MovieId}");
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo($"/movies/{MovieId}");
+    }
+}
+<style>
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+</style>
