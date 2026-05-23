@@ -5,6 +5,8 @@ using Refit;
 using Fluxor;
 using WebFrontend.Shared.Services.Api;
 using WebFrontend.Shared.Services.Storage;
+using WebFrontend.Shared.Services.Device;
+using WebFrontend.Services.Device;
 using WebFrontend.Shared.Layout;
 using Blazored.LocalStorage;
 
@@ -21,6 +23,7 @@ builder.Services.AddFluentUIComponents();
 builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddScoped<ITokenStorage, WebTokenStorage>();
+builder.Services.AddScoped<IDeviceService, WebDeviceService>();
 
 builder.Services.AddFluxor(options => 
     options.ScanAssemblies(typeof(MainLayout).Assembly));

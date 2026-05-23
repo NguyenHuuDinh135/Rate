@@ -41,19 +41,39 @@
         </div>
     </FluentHeader>
 
-    <FluentBodyContent>
+    <FluentBodyContent class="pb-16 md:pb-0">
         <main class="container py-8 px-4">
             @Body
         </main>
     </FluentBodyContent>
 
-    <footer class="border-t py-12 bg-slate-50">
+    <footer class="hidden md:block border-t py-12 bg-slate-50">
         <div class="container px-4 text-center">
             <p class="text-muted-foreground text-sm">
                 &copy; @DateTime.Now.Year Rate Movie Reservation System. Built with .NET 10 & Fluent UI.
             </p>
         </div>
     </footer>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="md:hidden fixed bottom-0 w-full bg-white border-t flex justify-around items-center h-16 px-2 z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+        <FluentAnchor Href="/" Appearance="Appearance.Stealth" class="flex flex-col items-center gap-1">
+            <FluentIcon Value="@(new Size24.Home())" Color="Color.Neutral" />
+            <span class="text-[10px]">Trang chủ</span>
+        </FluentAnchor>
+        <FluentAnchor Href="/movies" Appearance="Appearance.Stealth" class="flex flex-col items-center gap-1">
+            <FluentIcon Value="@(new Size24.MoviesAndTv())" Color="Color.Neutral" />
+            <span class="text-[10px]">Phim</span>
+        </FluentAnchor>
+        <FluentAnchor Href="/tickets" Appearance="Appearance.Stealth" class="flex flex-col items-center gap-1">
+            <FluentIcon Value="@(new Size24.Ticket())" Color="Color.Neutral" />
+            <span class="text-[10px]">Vé</span>
+        </FluentAnchor>
+        <FluentAnchor Href="/profile" Appearance="Appearance.Stealth" class="flex flex-col items-center gap-1">
+            <FluentIcon Value="@(new Size24.Person())" Color="Color.Neutral" />
+            <span class="text-[10px]">Hồ sơ</span>
+        </FluentAnchor>
+    </nav>
 </FluentLayout>
 
 <FluentToastProvider />
