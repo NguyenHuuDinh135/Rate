@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rate Infra Deploy"
+  short_description: "Work on Aspire, Azure Bicep, and deployment configuration."
+  default_prompt: "Use this skill when changing Rate Aspire orchestration, Azure Bicep infrastructure, appsettings, or deployment configuration."

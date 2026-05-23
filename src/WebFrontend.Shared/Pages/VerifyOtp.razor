@@ -1,0 +1,66 @@
+@page "/auth/verify-otp"
+@using Microsoft.FluentUI.AspNetCore.Components
+@inject NavigationManager NavigationManager
+@inject IToastService ToastService
+
+<div class="flex flex-col items-center justify-center min-h-[80vh] px-4">
+    <FluentCard class="w-full max-w-md p-10 rounded-[3rem] shadow-2xl border-none text-center">
+        <EditForm Model="this" OnValidSubmit="Verify" FormName="otp-form">
+            <div class="space-y-8">
+                <div class="w-20 h-20 bg-accent/10 rounded-3xl flex items-center justify-center mx-auto text-accent shadow-inner">
+                    <FluentIcon Value="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size32.LockClosed())" />
+                </div>
+
+                <div>
+                    <h1 class="text-3xl font-black tracking-tight text-slate-900">Xác thực OTP</h1>
+                    <p class="text-slate-400 font-bold text-sm mt-2">Vui lòng nhập mã 6 số được gửi tới email của bạn.</p>
+                </div>
+
+                <div class="flex justify-center gap-3">
+                    @for (int i = 0; i < 6; i++)
+                    {
+                        var index = i;
+                        <input type="text" maxlength="1" 
+                               class="w-12 h-16 text-center text-2xl font-black bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-accent focus:bg-white focus:shadow-xl focus:shadow-accent/10 outline-none transition-all"
+                               @bind="otpValues[index]" 
+                               @oninput="(e) => HandleInput(index, e)" />
+                    }
+                </div>
+
+                <div class="pt-4">
+                    <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent" class="w-full py-8 h-auto text-lg font-black shadow-xl shadow-accent/20 rounded-2xl">
+                        XÁC NHẬN
+                    </FluentButton>
+                    
+                    <p class="text-xs text-slate-400 font-bold mt-8">
+                        Không nhận được mã? <FluentAnchor Appearance="Appearance.Hypertext" Href="#" class="cursor-pointer">Gửi lại sau 59s</FluentAnchor>
+                    </p>
+                </div>
+            </div>
+        </EditForm>
+    </FluentCard>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private string[] otpValues { get; set; } = new string[6] { "", "", "", "", "", "" };
+
+    private void HandleInput(int index, ChangeEventArgs e)
+    {
+        // Simple focus shifting logic
+    }
+
+    private async Task Verify()
+    {
+        var code = string.Join("", otpValues);
+        if (code.Length == 6)
+        {
+            ToastService.ShowSuccess("Xác thực thành công!");
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            ToastService.ShowError("Vui lòng nhập đủ 6 chữ số.");
+        }
+    }
+}

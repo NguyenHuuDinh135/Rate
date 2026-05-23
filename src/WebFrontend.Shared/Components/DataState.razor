@@ -1,0 +1,51 @@
+@using Microsoft.FluentUI.AspNetCore.Components
+
+@if (IsLoading)
+{
+    <div class="flex flex-col items-center justify-center py-20 gap-4 animate-in fade-in duration-500">
+        <FluentProgressRing />
+        <span class="text-xs font-black uppercase tracking-widest text-slate-400">@LoadingMessage</span>
+    </div>
+}
+else if (!string.IsNullOrEmpty(Error))
+{
+    <div class="flex flex-col items-center justify-center py-20 gap-6 text-center animate-in zoom-in duration-500">
+        <div class="w-16 h-16 bg-error/10 rounded-3xl flex items-center justify-center text-error shadow-inner">
+            <FluentIcon Value="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size32.Warning())" />
+        </div>
+        <div class="max-w-md">
+            <h3 class="text-xl font-black text-slate-900 mb-2">Đã có lỗi xảy ra</h3>
+            <p class="text-sm text-slate-500 font-medium leading-relaxed">@Error</p>
+        </div>
+        @if (OnRetry.HasDelegate)
+        {
+            <FluentButton Appearance="Appearance.Outline" OnClick="OnRetry" class="h-12 px-8 font-black rounded-xl">Thử lại</FluentButton>
+        }
+    </div>
+}
+else if (IsEmpty)
+{
+    <div class="flex flex-col items-center justify-center py-20 gap-6 text-center animate-in fade-in duration-500">
+        <div class="w-16 h-16 bg-slate-50 rounded-3xl flex items-center justify-center text-slate-200">
+            <FluentIcon Value="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size32.Info())" />
+        </div>
+        <div class="max-w-md">
+            <h3 class="text-xl font-black text-slate-900 mb-2">Không tìm thấy dữ liệu</h3>
+            <p class="text-sm text-slate-500 font-medium italic">@EmptyMessage</p>
+        </div>
+    </div>
+}
+else
+{
+    @ChildContent
+}
+
+@code {
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public string? Error { get; set; }
+    [Parameter] public bool IsEmpty { get; set; }
+    [Parameter] public string LoadingMessage { get; set; } = "Đang tải dữ liệu...";
+    [Parameter] public string EmptyMessage { get; set; } = "Hiện chưa có dữ liệu để hiển thị.";
+    [Parameter] public EventCallback OnRetry { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

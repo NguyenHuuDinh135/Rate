@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rate AI Agent"
+  short_description: "Work on AI chat, Semantic Kernel, embeddings, and vector search."
+  default_prompt: "Use this skill when changing Rate AI endpoints, plugins, providers, prompts, or vector search behavior."

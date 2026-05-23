@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rate Data Ops"
+  short_description: "Work on EF Core migrations, seed data, and local data services."
+  default_prompt: "Use this skill when changing Rate database schema, EF configurations, migrations, seed data, or local service setup."

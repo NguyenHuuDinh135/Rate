@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rate Testing Quality"
+  short_description: "Run and extend backend and frontend tests for Rate."
+  default_prompt: "Use this skill when adding tests, fixing failing tests, or validating changes in the Rate repository."

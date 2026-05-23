@@ -1,0 +1,19 @@
+{
+  "expectations": [
+    {
+      "text": "query-exists",
+      "passed": false,
+      "evidence": "File GetReviewsForMovieQuery.cs does not exist"
+    },
+    {
+      "text": "uses-ca-usecase",
+      "passed": false,
+      "evidence": "File GetReviewsForMovieQuery.cs does not exist"
+    },
+    {
+      "text": "filters-by-movieid",
+      "passed": false,
+      "evidence": "File GetReviewsForMovieQuery.cs does not exist"
+    }
+  ]
+}

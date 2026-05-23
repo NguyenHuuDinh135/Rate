@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rate Auth Security"
+  short_description: "Auth and security-sensitive flows."
+  default_prompt: "Use this skill when changing authentication, authorization, JWT, refresh tokens, password reset, or protected API behavior in Rate."

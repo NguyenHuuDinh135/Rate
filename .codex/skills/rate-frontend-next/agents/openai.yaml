@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rate Frontend Next"
+  short_description: "Work on the Rate Next.js frontend."
+  default_prompt: "Use this skill when changing frontend routes, components, hooks, styles, or API calls in Rate."

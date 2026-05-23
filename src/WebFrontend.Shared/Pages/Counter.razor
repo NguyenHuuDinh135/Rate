@@ -1,0 +1,27 @@
+@page "/counter"
+@using Fluxor
+@using WebFrontend.Client.Store
+@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+@inject IState<CounterState> CounterState
+@inject IDispatcher Dispatcher
+
+<PageTitle>Counter</PageTitle>
+
+<FluentLabel Typo="Typography.H3">Counter</FluentLabel>
+
+<div class="mt-4 p-6 bg-slate-100 rounded-lg shadow-sm">
+    <FluentLabel>
+        Current count: <span class="font-bold text-blue-600">@CounterState.Value.ClickCount</span>
+    </FluentLabel>
+
+    <div class="mt-4">
+        <FluentButton Appearance="Appearance.Accent" OnClick="IncrementCount">Click me</FluentButton>
+    </div>
+</div>
+
+@code {
+    private void IncrementCount()
+    {
+        Dispatcher.Dispatch(new IncrementCounterAction());
+    }
+}

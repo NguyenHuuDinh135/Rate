@@ -1,0 +1,29 @@
+{
+  "expectations": [
+    {
+      "text": "review-entity-exists",
+      "passed": true,
+      "evidence": "File Review.cs exists"
+    },
+    {
+      "text": "command-exists",
+      "passed": true,
+      "evidence": "File CreateReviewCommand.cs exists"
+    },
+    {
+      "text": "uses-primary-constructor",
+      "passed": true,
+      "evidence": "Found pattern 'class CreateReviewCommandHandler\\(' in CreateReviewCommand.cs"
+    },
+    {
+      "text": "uses-result-pattern",
+      "passed": true,
+      "evidence": "Found pattern 'Result<int>' in CreateReviewCommand.cs"
+    },
+    {
+      "text": "entity-has-properties",
+      "passed": true,
+      "evidence": "Found pattern 'string Title' in Review.cs"
+    }
+  ]
+}

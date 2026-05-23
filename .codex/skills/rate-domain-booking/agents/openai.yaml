@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rate Domain Booking"
+  short_description: "Movie booking domain flows."
+  default_prompt: "Use this skill when changing movie, theater, show, booking, payment, review, or related Rate domain behavior."

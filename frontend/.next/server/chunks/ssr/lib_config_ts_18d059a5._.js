@@ -1,0 +1,3 @@
+module.exports=[59341,a=>{"use strict";a.s(["META_THEME_COLORS",0,{light:"#ffffff",dark:"#09090b"},"siteConfig",0,{name:"shadcn/ui",url:"https://ui.shadcn.com",ogImage:"https://ui.shadcn.com/og.jpg",description:"A set of beautifully designed components that you can customize, extend, and build on. Start here then make it your own. Open Source. Open Code.",links:{twitter:"https://twitter.com/shadcn",github:"https://github.com/NguyenHuuDinh135/Rate"},navItems:[{href:"/docs/installation",label:"Docs"},{href:"/docs/components",label:"Components"},{href:"/blocks",label:"Blocks"},{href:"/charts/area",label:"Charts"},{href:"/docs/directory",label:"Directory"},{href:"/create",label:"Create"}]}])}];
+
+//# sourceMappingURL=lib_config_ts_18d059a5._.js.map

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rate Backend API"
+  short_description: "Work on the Rate .NET Clean Architecture backend."
+  default_prompt: "Use this skill when changing backend domain, application, infrastructure, or API endpoint code in Rate."

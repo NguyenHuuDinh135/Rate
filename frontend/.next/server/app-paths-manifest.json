@@ -1,0 +1,9 @@
+{
+  "/(app)/(root)/page": "app/(app)/(root)/page.js",
+  "/(app)/ai-chat/page": "app/(app)/ai-chat/page.js",
+  "/(auth)/login/page": "app/(auth)/login/page.js",
+  "/(auth)/signup/page": "app/(auth)/signup/page.js",
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js"
+}

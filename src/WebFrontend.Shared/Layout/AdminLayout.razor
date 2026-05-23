@@ -1,0 +1,66 @@
+@using Fluxor
+@using WebFrontend.Shared.Store.Auth
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
+@inherits LayoutComponentBase
+@inject IState<AuthState> AuthState
+@inject NavigationManager NavigationManager
+
+<FluentLayout>
+    <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Stretch" Style="height: 100vh;">
+        @* Sidebar *@
+        <div class="w-64 bg-slate-900 text-white flex flex-col shadow-xl">
+            <div class="p-6 border-b border-white/10 flex items-center gap-3">
+                <FluentIcon Value="@(new Size24.Shield())" Color="Color.Accent" />
+                <span class="text-xl font-bold tracking-tighter">RATE ADMIN</span>
+            </div>
+            
+            <nav class="flex-1 p-4 flex flex-col gap-2">
+                <AdminNavLink Href="/admin" Icon="@(new Size20.History())" Text="Tổng quan" Match="NavLinkMatch.All" />
+                <div class="text-[10px] uppercase tracking-widest text-white/40 font-bold mt-4 mb-1 px-4">Quản lý nội dung</div>
+                <AdminNavLink Href="/admin/movies" Icon="@(new Size20.MoviesAndTv())" Text="Danh sách phim" />
+                <AdminNavLink Href="/admin/theaters" Icon="@(new Size20.Home())" Text="Rạp & Ghế" />
+                <AdminNavLink Href="/admin/shows" Icon="@(new Size20.Calendar())" Text="Suất chiếu" />
+                
+                <div class="text-[10px] uppercase tracking-widest text-white/40 font-bold mt-4 mb-1 px-4">Giao dịch & User</div>
+                <AdminNavLink Href="/admin/bookings" Icon="@(new Size20.MoviesAndTv())" Text="Vé đã đặt" />
+                <AdminNavLink Href="/admin/users" Icon="@(new Size20.People())" Text="Người dùng" />
+            </nav>
+
+            <div class="p-4 border-t border-white/10">
+                <FluentAnchor Href="/" Appearance="Appearance.Stealth" class="w-full text-white/70 hover:text-white flex items-center gap-2">
+                    <FluentIcon Value="@(new Size20.ArrowLeft())" />
+                    Quay lại trang Web
+                </FluentAnchor>
+            </div>
+        </div>
+
+        @* Main Content *@
+        <div class="flex-1 flex flex-col bg-slate-50 overflow-hidden">
+            <header class="h-16 bg-white border-b flex items-center justify-between px-8 shadow-sm z-10">
+                <h2 class="text-lg font-semibold text-slate-800">Hệ thống quản trị</h2>
+                <div class="flex items-center gap-4">
+                    <FluentBadge Appearance="Appearance.Neutral">Admin</FluentBadge>
+                    <div class="h-8 w-[1px] bg-slate-200"></div>
+                    <span class="text-sm font-medium">@AuthState.Value.User?.Username</span>
+                </div>
+            </header>
+
+            <main class="flex-1 overflow-y-auto p-8">
+                @Body
+            </main>
+        </div>
+    </FluentStack>
+</FluentLayout>
+
+@code {
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        // Check if admin here (simple check for now)
+        if (!AuthState.Value.IsAuthenticated)
+        {
+            // NavigationManager.NavigateTo("/auth/login");
+        }
+    }
+}
