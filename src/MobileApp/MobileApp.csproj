@@ -19,6 +19,7 @@
     <PackageReference Include="Fluxor.Blazor.Web" />
     <PackageReference Include="Refit.HttpClientFactory" />
     <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <ProjectReference Include="..\WebFrontend.Shared\WebFrontend.Shared.csproj" />
   </ItemGroup>
 
