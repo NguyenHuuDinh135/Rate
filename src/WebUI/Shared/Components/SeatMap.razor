@@ -72,7 +72,7 @@
 
     private string GetSeatClass(bool isBlocked, bool isOccupied, bool isSelected)
     {
-        var baseClass = "group w-6 h-6 md:w-8 md:h-8 rounded-t-lg rounded-b-sm flex items-center justify-center text-[9px] font-black border ";
+        var baseClass = "seat-btn group w-6 h-6 md:w-8 md:h-8 rounded-t-lg rounded-b-sm flex items-center justify-center text-[9px] font-black border ";
         
         if (isBlocked || isOccupied)
             return baseClass + "bg-slate-200 text-slate-400 cursor-not-allowed border-transparent opacity-40";

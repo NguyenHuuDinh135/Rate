@@ -10,7 +10,7 @@ public record ApiResponse<T>(ApiHeaders Headers, T Body);
 public record ApiHeaders(int Success, string Message);
 
 public enum MovieType { ComingSoon, NowShowing, Removed }
-public enum PaymentMethod { Cash, Card, Cod }
+public enum PaymentMethod { Cash, Card, Cod, Momo, VnPay }
 public enum ShowType { ThreeD, TwoD }
 public enum BookingStatus { Reserved, Paid, Cancelled }
 

@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+:root {
+  /* Overwrite Fluent UI harsh blue accent with our premium Netflix Red globally */
+  --accent-color: #E50914 !important;
+  --accent-fill-rest: #E50914 !important;
+  --accent-fill-hover: #B20710 !important;
+  --accent-fill-active: #99050b !important;
+  --accent-fill-focus: #E50914 !important;
+  --accent-stroke-rest: #E50914 !important;
+  --accent-stroke-hover: #B20710 !important;
+  --accent-stroke-active: #99050b !important;
+  --accent-foreground-rest: #E50914 !important;
+  --accent-foreground-hover: #B20710 !important;
+  --accent-foreground-active: #99050b !important;
+  --accent-foreground-focus: #E50914 !important;
+  
+  /* Form components border-accent overrides */
+  --accent-fill-rest-rgb: 229, 9, 20 !important;
+  --accent-fill-hover-rgb: 178, 7, 16 !important;
+}
+
+@theme {
+  /* Premium Cinema Theme Colors (Netflix Red Accent) */
+  --color-accent: #E50914;
+  --color-accent-hover: #B20710;
+  --color-accent-light: rgba(229, 9, 20, 0.15);
+  
+  /* Smooth Shadows */
+  --shadow-premium: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+  --shadow-premium-hover: 0 20px 50px -10px rgba(229, 9, 20, 0.15);
+  
+  /* Soft Radius */
+  --radius-cinema: 24px;
+  --radius-cinema-lg: 32px;
+}
+
+@layer base {
+  body {
+    background-color: #090D16;
+    color: #E2E8F0;
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  }
+}
+
