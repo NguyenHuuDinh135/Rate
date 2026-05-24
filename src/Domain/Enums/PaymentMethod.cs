@@ -4,6 +4,8 @@ namespace backend.Domain.Enums
     {
         Cash,
         Card,
-        Cod
+        Cod,
+        Momo,
+        VnPay
     }
 }

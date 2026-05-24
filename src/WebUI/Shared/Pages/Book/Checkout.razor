@@ -206,7 +206,7 @@ else
                     show!.Id,
                     seat.Row,
                     seat.Number,
-                    (double)seat.Price,
+                    (decimal)seat.Price,
                     1
                 );
                 var bid = await BookingApi.CreateAsync(cmd);
@@ -218,7 +218,7 @@ else
 
             // 2. Create Payment
             var payCmd = new CreatePaymentCommand(
-                (double)BookingState.Value.TotalPrice,
+                (decimal)BookingState.Value.TotalPrice,
                 DateTime.Now.ToString("O"),
                 selectedPaymentMethod.ToString().ToLower(),
                 AuthState.Value.User!.Username!,

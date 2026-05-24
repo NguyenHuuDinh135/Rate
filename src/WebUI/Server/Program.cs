@@ -9,10 +9,12 @@ using WebUI.Shared.Services.Device;
 using WebUI.Server.Services.Device;
 using WebUI.Shared.Layout;
 using Blazored.LocalStorage;
+using Tailwind;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+builder.UseTailwindCli();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -29,7 +31,12 @@ builder.Services.AddFluxor(options =>
     options.ScanAssemblies(typeof(MainLayout).Assembly));
 
 // Register API Clients
-var apiBaseUrl = "http://webapi";
+var apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "http://localhost:15000";
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPIRE_ALLOW_UNSECURED_TRANSPORT")) || 
+    !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_DASHBOARD_OTLP_ENDPOINT_URL")))
+{
+    apiBaseUrl = "http://webapi";
+}
 builder.Services.AddRefitClient<IAuthApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
 builder.Services.AddRefitClient<IMovieApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
 builder.Services.AddRefitClient<IGenreApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));

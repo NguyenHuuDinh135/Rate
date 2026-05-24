@@ -23,8 +23,9 @@
 
 @if (MovieState.Value.IsLoading && MovieState.Value.SelectedMovie == null)
 {
-    <div class="flex items-center justify-center min-h-[50vh]">
-        <FluentProgressRing />
+    <div class="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <div class="w-12 h-12 rounded-full border-4 border-accent border-t-transparent animate-spin"></div>
+        <p class="text-xs font-black uppercase tracking-widest text-slate-500 animate-pulse">Đang tải thông tin phim...</p>
     </div>
 }
 else if (MovieState.Value.SelectedMovie != null)
@@ -32,57 +33,81 @@ else if (MovieState.Value.SelectedMovie != null)
     var movie = MovieState.Value.SelectedMovie;
     <PageTitle>@movie.Title | RATE</PageTitle>
 
-    <div class="flex flex-col gap-16 pb-24">
-        @* Hero Section (Same as before but with sticky CTA) *@
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
-            <div class="lg:col-span-4">
-                <div class="sticky top-24">
-                    <img src="@movie.PosterUrl" class="w-full rounded-[2.5rem] shadow-2xl border border-white/10" alt="@movie.Title" />
-                    @if (selectedShow == null)
-                    {
-                        <FluentButton Appearance="Appearance.Accent" class="w-full mt-8 py-8 h-auto text-xl font-black shadow-xl shadow-accent/30 rounded-2xl" OnClick="@ScrollToBooking">
-                            ĐẶT VÉ NGAY
-                        </FluentButton>
-                    }
+    <div class="flex flex-col gap-16 pb-24 animate-in fade-in duration-500">
+        @* Hero Grid Layout *@
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            
+            @* Poster Column *@
+            <div class="lg:col-span-4 sticky top-24 space-y-6">
+                <div class="relative w-full aspect-[2/3] overflow-hidden rounded-[2.5rem] border border-slate-900 bg-gradient-to-b from-slate-900 to-slate-950 shadow-2xl">
+                    
+                    @* Premium fallback placeholder *@
+                    <div class="absolute inset-0 flex flex-col items-center justify-center p-8 text-center select-none bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+                        <div class="w-16 h-16 rounded-3xl bg-accent/15 border border-accent/30 flex items-center justify-center text-accent mb-4 animate-pulse">
+                            <FluentIcon Value="@(new Size24.MoviesAndTv())" Color="Color.Accent" class="w-8 h-8" />
+                        </div>
+                        <span class="text-lg font-black text-white/95 tracking-wide uppercase line-clamp-2 px-4">@movie.Title</span>
+                        <span class="text-xs text-white/40 font-bold mt-2 uppercase tracking-widest">Không có ảnh</span>
+                    </div>
+
+                    @* Poster Image *@
+                    <img src="@movie.PosterUrl" 
+                         onerror="this.style.opacity='0';"
+                         class="absolute inset-0 z-10 w-full h-full object-cover transition-all duration-500" 
+                         alt="@movie.Title" />
                 </div>
+
+                @* Sticky Booking Button (Netflix Red styled) *@
+                <button class="w-full py-5 bg-accent hover:bg-accent-hover text-white text-sm font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-accent/25 hover:shadow-accent/45 hover:scale-[1.02] transition-all duration-300 active:scale-95 cursor-pointer flex items-center justify-center gap-2" 
+                        @onclick="@NavigateToBooking">
+                    <FluentIcon Value="@(new Size20.Play())" Color="Color.Fill" class="w-5 h-5 flex items-center justify-center text-white" />
+                    <span>ĐẶT VÉ NGAY</span>
+                </button>
             </div>
 
+            @* Details Column *@
             <div class="lg:col-span-8 flex flex-col gap-10">
                 <div class="space-y-6">
-                    <div class="flex flex-wrap items-center gap-3">
+                    <div class="flex flex-wrap items-center gap-2">
                         @foreach (var genre in movie.Genres)
                         {
                             <span class="px-4 py-1.5 bg-accent/10 text-accent text-[10px] font-black rounded-full uppercase tracking-widest border border-accent/20">@genre.Name</span>
                         }
                     </div>
-                    <h1 class="text-6xl font-black tracking-tighter leading-none text-slate-900">@movie.Title</h1>
-                    <div class="flex items-center gap-8 text-slate-500 font-bold">
+
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter leading-tight text-white">@movie.Title</h1>
+                    
+                    @* Details Meta Bar *@
+                    <div class="flex flex-wrap items-center gap-6 text-slate-400 font-bold text-xs sm:text-sm">
                         <div class="flex items-center gap-2">
-                            <FluentIcon Value="@(new Size20.Calendar())" />
+                            <FluentIcon Value="@(new Size20.Calendar())" Color="Color.Neutral" class="w-5 h-5 text-slate-400" />
                             <span>@movie.Year</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <FluentIcon Value="@(new Size20.Star())" Color="Color.Warning" />
-                            <span class="text-slate-900 text-xl font-black">@movie.Rating</span>
-                            <span class="opacity-60">/ 10</span>
+                            <FluentIcon Value="@(new Size20.Star())" Color="Color.Warning" class="w-5 h-5" />
+                            <span class="text-white text-base sm:text-lg font-black">@movie.Rating</span>
+                            <span class="opacity-50">/ 10</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <FluentIcon Value="@(new Size20.Clock())" />
+                            <FluentIcon Value="@(new Size20.Clock())" Color="Color.Neutral" class="w-5 h-5 text-slate-400" />
                             <span>145 phút</span>
                         </div>
                     </div>
-                    <p class="text-xl leading-relaxed text-slate-600 font-medium">@movie.Summary</p>
+
+                    <p class="text-base sm:text-lg leading-relaxed text-slate-300 font-medium">@movie.Summary</p>
                 </div>
 
-                @* Quick Action Section *@
-                <div class="pt-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-6">
-                    <div>
-                        <h2 class="text-3xl font-black tracking-tight mb-2">Đã sẵn sàng trải nghiệm?</h2>
-                        <p class="text-slate-500 font-medium">Đặt vé ngay bây giờ để chọn được vị trí ngồi đẹp nhất tại rạp chiếu.</p>
+                @* Quick Action Ticket Section *@
+                <div class="pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <div class="text-left">
+                        <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-white mb-2">Đã sẵn sàng trải nghiệm?</h2>
+                        <p class="text-slate-400 font-medium text-sm sm:text-base">Đặt vé ngay bây giờ để chọn được vị trí ngồi đẹp nhất tại rạp chiếu.</p>
                     </div>
-                    <FluentButton Appearance="Appearance.Accent" class="w-full sm:w-auto px-12 py-6 h-auto text-lg font-black shadow-xl shadow-accent/30 rounded-2xl" OnClick="@NavigateToBooking">
-                        MUA VÉ NGAY
-                    </FluentButton>
+                    <button class="w-full sm:w-auto px-8 py-4.5 bg-accent hover:bg-accent-hover text-white text-sm font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-accent/20 hover:scale-[1.02] transition-all duration-300 active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                            @onclick="@NavigateToBooking">
+                        <FluentIcon Value="@(new Size20.TicketDiagonal())" Color="Color.Fill" class="w-5 h-5 flex items-center justify-center text-white" />
+                        <span>MUA VÉ NGAY</span>
+                    </button>
                 </div>
             </div>
         </div>
