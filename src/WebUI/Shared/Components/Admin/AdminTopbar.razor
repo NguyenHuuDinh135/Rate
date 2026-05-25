@@ -1,0 +1,69 @@
+@inject NavigationManager NavigationManager
+@inject IAdminThemeService ThemeService
+@implements IDisposable
+
+<header class="rate-admin-topbar">
+    <div class="rate-admin-topbar__left">
+        <MudIconButton Icon="@MudBlazor.Icons.Material.Outlined.Menu"
+                       Variant="MudBlazor.Variant.Text"
+                       Color="MudBlazor.Color.Default"
+                       Size="MudBlazor.Size.Small"
+                       Class="rate-admin-menu-button"
+                       OnClick="@OnMenuClick" />
+        <div class="rate-admin-breadcrumb">
+            <span>Admin</span>
+            <MudIcon Icon="@MudBlazor.Icons.Material.Outlined.ChevronRight" Size="MudBlazor.Size.Small" />
+            <span>@CurrentTitle</span>
+        </div>
+    </div>
+    <div class="rate-admin-topbar__right">
+        <ThemeToggle Class="h-8 w-8" />
+    </div>
+</header>
+
+@code {
+    [Parameter] public EventCallback OnMenuClick { get; set; }
+
+    private string CurrentTitle => ResolveTitle(NavigationManager.ToBaseRelativePath(NavigationManager.Uri));
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += HandleLocationChanged;
+        ThemeService.ThemeChanged += HandleThemeChanged;
+    }
+
+    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleThemeChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private static string ResolveTitle(string path)
+    {
+        var cleanPath = path.Split('?', StringSplitOptions.TrimEntries)[0].Trim('/');
+
+        return cleanPath switch
+        {
+            "" or "admin" or "admin/dashboard" => "Dashboard",
+            "admin/movies" => "Quản lý phim",
+            "admin/genres" => "Thể loại",
+            "admin/cinemas" or "admin/rooms" or "admin/theaters" => "Rạp chiếu",
+            "admin/showtimes" or "admin/shows" => "Suất chiếu",
+            "admin/bookings" => "Đặt vé",
+            "admin/activity" => "Hoạt động người dùng",
+            "admin/payments" => "Thanh toán",
+            "admin/users" => "Người dùng",
+            "admin/settings" => "Cài đặt",
+            _ => "Trang quản trị"
+        };
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= HandleLocationChanged;
+        ThemeService.ThemeChanged -= HandleThemeChanged;
+    }
+}

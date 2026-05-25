@@ -1,121 +1,207 @@
 @page "/admin/movies"
 @layout AdminLayout
 @using Fluxor
+@using MudBlazor
+@using WebUI.Shared.Components.Admin
+@using WebUI.Shared.Components.UI
 @using WebUI.Shared.Store.Movies
-@using WebUI.Shared.Models.Movies
-@using WebUI.Shared.Models.Common
-@using WebUI.Shared.Components
-@using Microsoft.FluentUI.AspNetCore.Components
-@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
 @inject IState<MovieState> MovieState
 @inject IDispatcher Dispatcher
 @inject IMovieApi MovieApi
-@inject IDialogService DialogService
-@inject IToastService ToastService
+@inject MudBlazor.ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
 
-<div class="flex flex-col gap-8">
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-3xl font-black tracking-tight text-slate-900">Quản lý phim</h1>
-            <p class="text-slate-500 font-medium">Danh sách toàn bộ phim trong hệ thống</p>
-        </div>
-        <FluentButton Appearance="Appearance.Accent" IconStart="@(new Size20.Add())" class="h-12 px-6 font-bold shadow-lg shadow-accent/20 rounded-xl" OnClick="@(() => OpenMovieDialog(null))">
-            Thêm phim mới
-        </FluentButton>
-    </div>
+<PageTitle>Quản lý phim | RATE Admin</PageTitle>
 
-    <DataState IsLoading="@MovieState.Value.IsLoading" 
-               Error="@MovieState.Value.Error" 
-               IsEmpty="@(!MovieState.Value.Movies.Any())"
-               OnRetry="@(() => Dispatcher.Dispatch(new LoadMoviesAction()))">
-        <FluentCard class="p-0 overflow-hidden border-none shadow-md rounded-[2rem] bg-white">
-            <FluentDataGrid Items="@MovieState.Value.Movies.AsQueryable()" TGridItem="MovieDto" ResizableColumns="true" Pagination="@pagination">
-                <PropertyColumn Property="@(m => m.Id)" Title="ID" Sortable="true" Align="Align.Start" />
-                
-                <TemplateColumn Title="Poster" Align="Align.Center">
-                    <img src="@context.PosterUrl" class="w-10 h-14 object-cover rounded-lg shadow-sm border border-slate-100" alt="Poster" />
-                </TemplateColumn>
+<PageHeader Title="Quản lý phim"
+            Description="Quản lý danh sách phim, trạng thái phát hành và thông tin hiển thị trong hệ thống.">
+    <Actions>
+        <PrimaryButton Icon="@MudBlazor.Icons.Material.Outlined.Add" OnClick="@CreateMovie">Thêm phim</PrimaryButton>
+    </Actions>
+</PageHeader>
 
-                <PropertyColumn Property="@(m => m.Title)" Title="Tiêu đề" Sortable="true" />
-                
-                <PropertyColumn Property="@(m => m.Year)" Title="Năm" Sortable="true" />
-                
-                <TemplateColumn Title="Trạng thái" Sortable="true">
-                    @if (context.MovieType == MovieType.NowShowing)
-                    {
-                        <FluentBadge Appearance="Appearance.Lightweight" Fill="success">Đang chiếu</FluentBadge>
-                    }
-                    else if (context.MovieType == MovieType.ComingSoon)
-                    {
-                        <FluentBadge Appearance="Appearance.Lightweight" Fill="warning">Sắp chiếu</FluentBadge>
-                    }
-                    else
-                    {
-                        <FluentBadge Appearance="Appearance.Lightweight">Đã gỡ</FluentBadge>
-                    }
-                </TemplateColumn>
-
-                <TemplateColumn Title="Hành động" Align="Align.End">
-                    <div class="flex gap-2 justify-end">
-                        <PermissionGate Permission="Permission.Movies.Edit">
-                            <FluentButton IconStart="@(new Size20.Edit())" Appearance="Appearance.Stealth" OnClick="@(() => OpenMovieDialog(context))" />
-                        </PermissionGate>
-                        <PermissionGate Permission="Permission.Movies.Delete">
-                            <FluentButton IconStart="@(new Size20.Delete())" Appearance="Appearance.Stealth" Color="Color.Error" />
-                        </PermissionGate>
-                    </div>
-                </TemplateColumn>
-            </FluentDataGrid>
-            
-            <div class="p-4 border-t bg-slate-50 flex justify-center">
-                <FluentPaginator State="@pagination" />
+<DataState IsLoading="@MovieState.Value.IsLoading"
+           Error="@MovieState.Value.Error"
+           IsEmpty="@(!MovieState.Value.Movies.Any())"
+           OnRetry="@(() => Dispatcher.Dispatch(new LoadMoviesAction()))">
+    <DataCard>
+        <div class="rate-toolbar">
+            <div class="rate-toolbar__left">
+                <SearchBox @bind-Value="_searchText" Placeholder="Tìm theo tên phim..." />
+                <MudSelect T="string" @bind-Value="_typeFilter" Variant="MudBlazor.Variant.Outlined" Margin="MudBlazor.Margin.Dense" Dense="true" Class="min-w-44">
+                    <MudSelectItem T="string" Value="@("all")">Tất cả trạng thái</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("now")">Đang chiếu</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("soon")">Sắp chiếu</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("removed")">Đã gỡ</MudSelectItem>
+                </MudSelect>
             </div>
-        </FluentCard>
-    </DataState>
-</div>
+            <div class="rate-toolbar__right">
+                <Badge Tone="primary">@FilteredMovies.Count() phim</Badge>
+            </div>
+        </div>
+
+        <DataTable TItem="MovieDto" Items="@PagedMovies" EmptyMessage="Không tìm thấy phim phù hợp.">
+            <HeaderContent>
+                <MudTh>Phim</MudTh>
+                <MudTh>Năm</MudTh>
+                <MudTh>Đánh giá</MudTh>
+                <MudTh>Trạng thái</MudTh>
+                <MudTh Class="text-right">Hành động</MudTh>
+            </HeaderContent>
+            <RowTemplate Context="movie">
+                <MudTd DataLabel="Phim">
+                    <div class="flex items-center gap-3">
+                        <img src="@Poster(movie.PosterUrl)" alt="@movie.Title" class="h-12 w-9 rounded object-cover border border-slate-200" />
+                        <div>
+                            <div class="font-bold">@movie.Title</div>
+                            <div class="text-xs text-slate-500">#@movie.Id</div>
+                        </div>
+                    </div>
+                </MudTd>
+                <MudTd DataLabel="Năm">@movie.Year</MudTd>
+                <MudTd DataLabel="Đánh giá">@(movie.Rating?.ToString("0.0") ?? "-")</MudTd>
+                <MudTd DataLabel="Trạng thái"><Badge Tone="@MovieTone(movie.MovieType)">@MovieLabel(movie.MovieType)</Badge></MudTd>
+                <MudTd DataLabel="Hành động" Class="text-right">
+                    <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Visibility" Title="Xem chi tiết" OnClick="@(() => ViewMovie(movie))" />
+                    <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Edit" Title="Chỉnh sửa" Intent="primary" OnClick="@(() => EditMovie(movie))" />
+                    <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Delete" Title="Xóa" Intent="danger" OnClick="@(() => DeleteMovie(movie))" />
+                </MudTd>
+            </RowTemplate>
+        </DataTable>
+
+        <Pagination Page="@_page" PageChanged="@OnPageChanged" PageSize="@_pageSize" TotalItems="@FilteredMovies.Count()" />
+    </DataCard>
+</DataState>
 
 @code {
-    private PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    private string _searchText = "";
+    private string _typeFilter = "all";
+    private int _page = 1;
+    private const int _pageSize = 10;
+
+    private IEnumerable<MovieDto> FilteredMovies => MovieState.Value.Movies
+        .Where(movie => string.IsNullOrWhiteSpace(_searchText) || movie.Title.Contains(_searchText, StringComparison.OrdinalIgnoreCase))
+        .Where(movie => _typeFilter switch
+        {
+            "now" => movie.MovieType == MovieType.NowShowing,
+            "soon" => movie.MovieType == MovieType.ComingSoon,
+            "removed" => movie.MovieType == MovieType.Removed,
+            _ => true
+        });
+
+    private IEnumerable<MovieDto> PagedMovies => FilteredMovies
+        .Skip((_page - 1) * _pageSize)
+        .Take(_pageSize);
 
     protected override void OnInitialized()
     {
-        base.OnInitialized();
         if (MovieState.Value.Movies.Count == 0)
         {
             Dispatcher.Dispatch(new LoadMoviesAction());
         }
     }
 
-    private async Task OpenMovieDialog(MovieDto? movie)
+    private Task OnPageChanged(int page)
     {
-        var data = movie ?? new MovieDto(0, "", "", DateTime.Now.Year, 0, "", "", MovieType.ComingSoon, new List<GenreDto>());
-        
-        var dialog = await DialogService.ShowDialogAsync<MovieDialog>(data, new DialogParameters
-        {
-            Title = movie == null ? "Thêm phim mới" : "Chỉnh sửa phim",
-            Width = "600px",
-            TrapFocus = true,
-            Modal = true
-        });
-
-        var result = await dialog.Result;
-        if (!result.Cancelled && result.Data is not null)
-        {
-            await SaveMovie((MovieDto)result.Data);
-        }
+        _page = page;
+        return Task.CompletedTask;
     }
 
-    private async Task SaveMovie(MovieDto movie)
+    private async Task CreateMovie()
     {
-        try 
+        var title = await JSRuntime.InvokeAsync<string>("prompt", "Tên phim:", "");
+        if (string.IsNullOrWhiteSpace(title))
         {
-            // Logic to call API and refresh Fluxor
-            ToastService.ShowSuccess("Đã lưu phim thành công!");
+            return;
+        }
+
+        try
+        {
+            var result = await MovieApi.CreateAsync(new CreateMovieCommand(
+                title,
+                "",
+                DateTime.Now.Year,
+                null,
+                "",
+                "",
+                MovieType.ComingSoon));
+            Snackbar.Add(result.Succeeded ? "Đã tạo phim." : "Không thể tạo phim lúc này.", result.Succeeded ? MudBlazor.Severity.Success : MudBlazor.Severity.Error);
             Dispatcher.Dispatch(new LoadMoviesAction());
         }
-        catch (Exception ex)
+        catch
         {
-            ToastService.ShowError("Lỗi khi lưu phim: " + ex.Message);
+            Snackbar.Add("Không thể tạo phim lúc này.", MudBlazor.Severity.Error);
         }
     }
+
+    private void ViewMovie(MovieDto movie)
+    {
+        Snackbar.Add($"Đang xem phim: {movie.Title}", MudBlazor.Severity.Info);
+    }
+
+    private async Task EditMovie(MovieDto movie)
+    {
+        var title = await JSRuntime.InvokeAsync<string>("prompt", "Tên phim:", movie.Title);
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            return;
+        }
+
+        try
+        {
+            await MovieApi.UpdateAsync(new UpdateMovieCommand(
+                movie.Id,
+                title,
+                movie.Summary,
+                movie.Year,
+                movie.Rating,
+                movie.TrailerUrl,
+                movie.PosterUrl,
+                movie.MovieType));
+            Snackbar.Add("Đã cập nhật phim.", MudBlazor.Severity.Success);
+            Dispatcher.Dispatch(new LoadMoviesAction());
+        }
+        catch
+        {
+            Snackbar.Add("Không thể cập nhật phim lúc này.", MudBlazor.Severity.Error);
+        }
+    }
+
+    private async Task DeleteMovie(MovieDto movie)
+    {
+        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Xóa phim '{movie.Title}'?");
+        if (!ok)
+        {
+            return;
+        }
+
+        try
+        {
+            await MovieApi.DeleteAsync(movie.Id);
+            Snackbar.Add("Đã xóa phim.", MudBlazor.Severity.Success);
+            Dispatcher.Dispatch(new LoadMoviesAction());
+        }
+        catch
+        {
+            Snackbar.Add("Không thể xóa phim lúc này.", MudBlazor.Severity.Error);
+        }
+    }
+
+    private static string Poster(string? posterUrl) => string.IsNullOrWhiteSpace(posterUrl) ? "/favicon.png" : posterUrl;
+
+    private static string MovieLabel(MovieType type) => type switch
+    {
+        MovieType.NowShowing => "Đang chiếu",
+        MovieType.ComingSoon => "Sắp chiếu",
+        MovieType.Removed => "Đã gỡ",
+        _ => "Không rõ"
+    };
+
+    private static string MovieTone(MovieType type) => type switch
+    {
+        MovieType.NowShowing => "success",
+        MovieType.ComingSoon => "warning",
+        MovieType.Removed => "danger",
+        _ => "neutral"
+    };
 }

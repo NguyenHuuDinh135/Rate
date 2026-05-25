@@ -1,80 +1,91 @@
 @page "/admin/payments"
 @layout AdminLayout
-@using Microsoft.FluentUI.AspNetCore.Components
-@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
-@using WebUI.Shared.Models.Payments
-@using WebUI.Shared.Services.Api
-@using WebUI.Shared.Components
+@using MudBlazor
+@using WebUI.Shared.Components.Admin
+@using WebUI.Shared.Components.UI
 @inject IPaymentApi PaymentApi
-@inject IToastService ToastService
-@inject IDialogService DialogService
+@inject MudBlazor.ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
 
-<PageTitle>Quản lý Giao dịch & Doanh thu | RATE ADMIN</PageTitle>
+<PageTitle>Thanh toán | RATE Admin</PageTitle>
 
-<div class="flex flex-col gap-8">
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-3xl font-black tracking-tight text-slate-900">Hóa đơn & Doanh thu</h1>
-            <p class="text-slate-500 font-medium">Giám sát các giao dịch thanh toán vé xem phim trong hệ thống</p>
-        </div>
-        
-        <div class="bg-white px-6 py-3 border border-slate-100 rounded-2xl shadow-sm flex items-center gap-4">
-            <span class="text-slate-400 font-bold text-xs uppercase tracking-wider">Tổng doanh thu</span>
-            <span class="text-2xl font-black text-accent">@TotalRevenue.ToString("N0") đ</span>
-        </div>
-    </div>
+<PageHeader Title="Thanh toán"
+            Description="Giám sát giao dịch, phương thức thanh toán và doanh thu vé.">
+    <Actions>
+        <DataCard Class="px-4 py-2">
+            <span class="text-xs text-slate-500 font-bold uppercase">Tổng doanh thu</span>
+            <strong class="block text-lg text-red-600">@FormatCurrency(_payments.Sum(p => p.Amount))</strong>
+        </DataCard>
+    </Actions>
+</PageHeader>
 
-    @if (isLoading)
-    {
-        <div class="flex justify-center py-20 bg-white rounded-[2rem] border border-slate-100 shadow-md">
-            <FluentProgressRing></FluentProgressRing>
-        </div>
-    }
-    else if (!payments.Any())
-    {
-        <div class="flex flex-col items-center justify-center py-20 bg-white rounded-[2rem] border border-slate-100 shadow-md gap-4">
-            <FluentIcon Value="@(new Size24.Money())" class="text-slate-200" />
-            <p class="text-slate-400 font-bold">Chưa có giao dịch thanh toán nào.</p>
-        </div>
-    }
-    else
-    {
-        <FluentCard class="p-0 overflow-hidden border-none shadow-md rounded-[2rem] bg-white">
-            <FluentDataGrid Items="@payments.AsQueryable()" TGridItem="PaymentDto" ResizableColumns="true" Pagination="@pagination">
-                <PropertyColumn Property="@(p => p.PaymentId)" Title="Mã Hóa Đơn" Sortable="true" Align="Align.Start" />
-                <PropertyColumn Property="@(p => p.UserId)" Title="Khách hàng" Sortable="true" />
-                <TemplateColumn Title="Bộ Phim">
-                    <span class="font-bold text-slate-800">@(context.Movie?.Title ?? "Phim điện ảnh")</span>
-                </TemplateColumn>
-                <PropertyColumn Property="@(p => p.Amount)" Title="Số Tiền" Sortable="true" Format="N0" />
-                <TemplateColumn Title="Phương thức">
-                    <span class="capitalize font-medium">@context.PaymentMethod</span>
-                </TemplateColumn>
-                <TemplateColumn Title="Thời gian" Sortable="true">
-                    <span>@GetDisplayTime(context.PaymentDatetime)</span>
-                </TemplateColumn>
-
-                <TemplateColumn Title="Hành động" Align="Align.End">
-                    <div class="flex gap-2 justify-end">
-                        <PermissionGate Permission="Permission.Bookings.Delete">
-                            <FluentButton IconStart="@(new Size20.Delete())" Appearance="Appearance.Stealth" Color="Color.Error" OnClick="@(() => DeletePayment(context))">Hủy bỏ</FluentButton>
-                        </PermissionGate>
-                    </div>
-                </TemplateColumn>
-            </FluentDataGrid>
-            
-            <div class="p-4 border-t bg-slate-50 flex justify-center">
-                <FluentPaginator State="@pagination" />
+<DataState IsLoading="@_isLoading"
+           Error="@(_hasLoadIssue ? "load-failed" : null)"
+           IsEmpty="@(!_payments.Any())"
+           OnRetry="@LoadPayments">
+    <DataCard>
+        <div class="rate-toolbar">
+            <div class="rate-toolbar__left">
+                <SearchBox @bind-Value="_searchText" Placeholder="Tìm mã hóa đơn, khách hàng, phim..." />
+                <MudSelect T="string" @bind-Value="_methodFilter" Variant="MudBlazor.Variant.Outlined" Margin="MudBlazor.Margin.Dense" Dense="true" Class="min-w-40">
+                    <MudSelectItem T="string" Value="@("all")">Tất cả phương thức</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("Cash")">Cash</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("Card")">Card</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("Momo")">Momo</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("VnPay")">VnPay</MudSelectItem>
+                </MudSelect>
             </div>
-        </FluentCard>
-    }
-</div>
+            <Badge Tone="primary">@FilteredPayments.Count() giao dịch</Badge>
+        </div>
+
+        <DataTable TItem="PaymentDto" Items="@PagedPayments" EmptyMessage="Không tìm thấy giao dịch phù hợp.">
+            <HeaderContent>
+                <MudTh>Mã hóa đơn</MudTh>
+                <MudTh>Khách hàng</MudTh>
+                <MudTh>Phim</MudTh>
+                <MudTh>Số tiền</MudTh>
+                <MudTh>Phương thức</MudTh>
+                <MudTh>Thời gian</MudTh>
+                <MudTh Class="text-right">Hành động</MudTh>
+            </HeaderContent>
+            <RowTemplate Context="payment">
+                <MudTd DataLabel="Mã hóa đơn">#@payment.PaymentId</MudTd>
+                <MudTd DataLabel="Khách hàng">@DisplayText(payment.UserId)</MudTd>
+                <MudTd DataLabel="Phim">@DisplayText(payment.Movie?.Title)</MudTd>
+                <MudTd DataLabel="Số tiền"><strong>@FormatCurrency(payment.Amount)</strong></MudTd>
+                <MudTd DataLabel="Phương thức"><Badge Tone="info">@payment.PaymentMethod</Badge></MudTd>
+                <MudTd DataLabel="Thời gian">@FormatDateTime(payment.PaymentDatetime)</MudTd>
+                <MudTd DataLabel="Hành động" Class="text-right">
+                    <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Visibility" Title="Xem giao dịch" OnClick="@(() => ViewPayment(payment))" />
+                    <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Delete" Title="Hoàn/hủy" Intent="danger" OnClick="@(() => DeletePayment(payment))" />
+                </MudTd>
+            </RowTemplate>
+        </DataTable>
+
+        <Pagination Page="@_page" PageChanged="@OnPageChanged" PageSize="@_pageSize" TotalItems="@FilteredPayments.Count()" />
+    </DataCard>
+</DataState>
 
 @code {
-    private List<PaymentDto> payments = new();
-    private bool isLoading = true;
-    private PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    private decimal TotalRevenue => payments.Sum(p => p.Amount);
+    private readonly List<PaymentDto> _payments = [];
+    private bool _isLoading = true;
+    private bool _hasLoadIssue;
+    private string _searchText = "";
+    private string _methodFilter = "all";
+    private int _page = 1;
+    private const int _pageSize = 10;
+
+    private IEnumerable<PaymentDto> FilteredPayments => _payments
+        .Where(payment => string.IsNullOrWhiteSpace(_searchText)
+            || payment.PaymentId.ToString().Contains(_searchText, StringComparison.OrdinalIgnoreCase)
+            || DisplayText(payment.UserId).Contains(_searchText, StringComparison.OrdinalIgnoreCase)
+            || DisplayText(payment.Movie?.Title).Contains(_searchText, StringComparison.OrdinalIgnoreCase))
+        .Where(payment => _methodFilter == "all"
+            || string.Equals(payment.PaymentMethod, _methodFilter, StringComparison.OrdinalIgnoreCase));
+
+    private IEnumerable<PaymentDto> PagedPayments => FilteredPayments
+        .Skip((_page - 1) * _pageSize)
+        .Take(_pageSize);
 
     protected override async Task OnInitializedAsync()
     {
@@ -83,48 +94,60 @@
 
     private async Task LoadPayments()
     {
+        _isLoading = true;
+        _hasLoadIssue = false;
+
         try
         {
-            isLoading = true;
-            var res = await PaymentApi.GetAllAsync();
-            payments = res.Body ?? new List<PaymentDto>();
+            _payments.Clear();
+            _payments.AddRange(await PaymentApi.GetAllAsync() ?? []);
         }
-        catch (Exception ex)
+        catch
         {
-            ToastService.ShowError("Lỗi khi tải danh sách hóa đơn: " + ex.Message);
+            _hasLoadIssue = true;
         }
         finally
         {
-            isLoading = false;
+            _isLoading = false;
         }
     }
 
-    private string GetDisplayTime(string datetimeStr)
+    private Task OnPageChanged(int page)
     {
-        return DateTime.TryParse(datetimeStr, out var dt) 
-            ? dt.ToString("HH:mm, dd/MM/yyyy") 
-            : datetimeStr;
+        _page = page;
+        return Task.CompletedTask;
+    }
+
+    private void ViewPayment(PaymentDto payment)
+    {
+        Snackbar.Add($"Đang xem hóa đơn #{payment.PaymentId}.", MudBlazor.Severity.Info);
     }
 
     private async Task DeletePayment(PaymentDto payment)
     {
-        var confirm = await DialogService.ShowConfirmationAsync(
-            $"Bạn có muốn hủy hóa đơn #{payment.PaymentId} và hoàn lại số tiền {payment.Amount.ToString("N0")} đ?",
-            "Hoàn tiền", "Hủy bỏ", "Hoàn tiền giao dịch");
-
-        var result = await confirm.Result;
-        if (!result.Cancelled)
+        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Hoàn/hủy hóa đơn #{payment.PaymentId}?");
+        if (!ok)
         {
-            try
-            {
-                await PaymentApi.DeleteAsync(payment.PaymentId);
-                ToastService.ShowSuccess("Đã hoàn tiền và xóa hóa đơn thành công!");
-                await LoadPayments();
-            }
-            catch (Exception ex)
-            {
-                ToastService.ShowError("Hoàn tiền thất bại: " + ex.Message);
-            }
+            return;
         }
+
+        try
+        {
+            await PaymentApi.DeleteAsync(payment.PaymentId);
+            Snackbar.Add("Đã xử lý giao dịch.", MudBlazor.Severity.Success);
+            await LoadPayments();
+        }
+        catch
+        {
+            Snackbar.Add("Không thể xử lý giao dịch lúc này.", MudBlazor.Severity.Error);
+        }
+    }
+
+    private static string DisplayText(string? value) => string.IsNullOrWhiteSpace(value) ? "-" : value;
+    private static string FormatCurrency(decimal amount) => $"{amount:N0} đ";
+
+    private static string FormatDateTime(string value)
+    {
+        return DateTime.TryParse(value, out var date) ? date.ToString("HH:mm, dd/MM/yyyy") : value;
     }
 }

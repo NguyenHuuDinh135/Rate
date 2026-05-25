@@ -1,0 +1,32 @@
+@typeparam TItem
+
+<MudTable T="TItem"
+          Items="@Items"
+          Dense="true"
+          Hover="true"
+          Elevation="0"
+          Breakpoint="MudBlazor.Breakpoint.Sm"
+          Class="@TableClass">
+    <HeaderContent>
+        @HeaderContent
+    </HeaderContent>
+    <RowTemplate>
+        @if (RowTemplate is not null)
+        {
+            @RowTemplate(context)
+        }
+    </RowTemplate>
+    <NoRecordsContent>
+        <div class="rate-table-empty">@EmptyMessage</div>
+    </NoRecordsContent>
+</MudTable>
+
+@code {
+    [Parameter] public IEnumerable<TItem> Items { get; set; } = Enumerable.Empty<TItem>();
+    [Parameter] public RenderFragment? HeaderContent { get; set; }
+    [Parameter] public RenderFragment<TItem>? RowTemplate { get; set; }
+    [Parameter] public string EmptyMessage { get; set; } = "Không có dữ liệu.";
+    [Parameter] public string? Class { get; set; }
+
+    private string TableClass => $"rate-data-table {Class}".Trim();
+}

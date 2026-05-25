@@ -19,7 +19,7 @@ public interface IBookingApi
     Task<List<BookedSeatDto>> GetBookedSeatsAsync(int showId);
 
     [Post("/api/bookings/create")]
-    Task<int> CreateAsync([Body] CreateBookingCommand payload);
+    Task<OperationResultDto<int>> CreateAsync([Body] CreateBookingCommand payload);
 
     [Put("/api/bookings/update")]
     Task UpdateAsync([Body] UpdateBookingCommand payload);

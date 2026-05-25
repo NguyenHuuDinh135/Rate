@@ -1,0 +1,25 @@
+<MudChip T="string"
+         Color="@MudColor"
+         Variant="MudBlazor.Variant.Text"
+         Size="MudBlazor.Size.Small"
+         Class="@BadgeClass">
+    @ChildContent
+</MudChip>
+
+@code {
+    [Parameter] public string Tone { get; set; } = "neutral";
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private MudBlazor.Color MudColor => Tone switch
+    {
+        "success" => MudBlazor.Color.Success,
+        "warning" => MudBlazor.Color.Warning,
+        "danger" => MudBlazor.Color.Error,
+        "primary" => MudBlazor.Color.Primary,
+        "info" => MudBlazor.Color.Info,
+        _ => MudBlazor.Color.Default
+    };
+
+    private string BadgeClass => $"rate-badge rate-badge-{Tone} {Class}".Trim();
+}

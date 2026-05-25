@@ -9,6 +9,11 @@ public interface IAuthenticationService
         string password,
         CancellationToken cancellationToken = default);
 
+    Task<AuthTokenResult?> ExternalLoginAsync(
+        string email,
+        string username,
+        CancellationToken cancellationToken = default);
+
     Task<AuthTokenResult?> RefreshAsync(
         string accessToken,
         string refreshToken,

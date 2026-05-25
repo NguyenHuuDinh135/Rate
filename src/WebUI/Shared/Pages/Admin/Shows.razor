@@ -1,77 +1,252 @@
 @page "/admin/shows"
+@page "/admin/showtimes"
 @layout AdminLayout
-@using WebUI.Shared.Models.Theaters
-@using WebUI.Shared.Services.Api
-@using Microsoft.FluentUI.AspNetCore.Components
-@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
+@using MudBlazor
+@using WebUI.Shared.Components.Admin
+@using WebUI.Shared.Components.UI
 @inject IShowApi ShowApi
 @inject IMovieApi MovieApi
 @inject ITheaterApi TheaterApi
-@inject IToastService ToastService
+@inject MudBlazor.ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
 
-<div class="flex flex-col gap-8">
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-3xl font-black tracking-tight text-slate-900">Quản lý suất chiếu</h1>
-            <p class="text-slate-500 font-medium">Xếp lịch chiếu phim cho các rạp hát</p>
-        </div>
-        <FluentButton Appearance="Appearance.Accent" IconStart="@(new Size20.Add())" class="h-12 px-6 font-bold shadow-lg shadow-accent/20 rounded-xl">Thêm suất chiếu</FluentButton>
-    </div>
+<PageTitle>Suất chiếu | RATE Admin</PageTitle>
 
-    @if (isLoading)
-    {
-        <div class="h-64 flex items-center justify-center bg-white rounded-[2rem] shadow-sm"><FluentProgressRing /></div>
-    }
-    else
-    {
-        <FluentCard class="p-0 overflow-hidden border-none shadow-md rounded-[2rem] bg-white">
-            <FluentDataGrid Items="@shows.AsQueryable()" TGridItem="ShowDto" Pagination="@pagination">
-                <PropertyColumn Property="@(s => s.Id)" Title="ID" Sortable="true" />
-                <PropertyColumn Property="@(s => s.MovieId)" Title="Mã Phim" Sortable="true" />
-                <PropertyColumn Property="@(s => s.TheaterId)" Title="Mã Rạp" Sortable="true" />
-                <PropertyColumn Property="@(s => DateTime.Parse(s.Date).ToShortDateString())" Title="Ngày" Sortable="true" />
-                <PropertyColumn Property="@(s => s.StartTime)" Title="Bắt đầu" Sortable="true" />
-                <PropertyColumn Property="@(s => s.EndTime)" Title="Kết thúc" Sortable="true" />
-                
-                <TemplateColumn Title="Loại" Sortable="true">
-                    <FluentBadge Appearance="Appearance.Lightweight" Color="@(context.Type == WebUI.Shared.Models.Common.ShowType.ThreeD ? "accent" : "neutral")">
-                        @context.Type
-                    </FluentBadge>
-                </TemplateColumn>
+<PageHeader Title="Suất chiếu"
+            Description="Sắp lịch chiếu theo phim, phòng chiếu, ngày và khung giờ.">
+    <Actions>
+        <PrimaryButton Icon="@MudBlazor.Icons.Material.Outlined.Add" OnClick="@CreateShow">Thêm suất chiếu</PrimaryButton>
+    </Actions>
+</PageHeader>
 
-                <TemplateColumn Title="Hành động" Align="Align.End">
-                    <div class="flex gap-2 justify-end">
-                        <FluentButton IconStart="@(new Size20.Edit())" Appearance="Appearance.Stealth" />
-                        <FluentButton IconStart="@(new Size20.Delete())" Appearance="Appearance.Stealth" Color="Color.Error" />
-                    </div>
-                </TemplateColumn>
-            </FluentDataGrid>
-            
-            <div class="p-4 border-t bg-slate-50 flex justify-center">
-                <FluentPaginator State="@pagination" />
+<DataState IsLoading="@_isLoading"
+           Error="@(_hasLoadIssue ? "load-failed" : null)"
+           IsEmpty="@(!_shows.Any())"
+           OnRetry="@LoadShows">
+    <DataCard>
+        <div class="rate-toolbar">
+            <SearchBox @bind-Value="_searchText" Placeholder="Tìm phim, rạp, trạng thái..." />
+            <div class="rate-toolbar__right">
+                <Badge Tone="primary">@FilteredShows.Count() suất</Badge>
             </div>
-        </FluentCard>
-    }
-</div>
+        </div>
+
+        <DataTable TItem="ShowDto" Items="@PagedShows" EmptyMessage="Không tìm thấy suất chiếu phù hợp.">
+            <HeaderContent>
+                <MudTh>Phim</MudTh>
+                <MudTh>Rạp</MudTh>
+                <MudTh>Ngày</MudTh>
+                <MudTh>Thời gian</MudTh>
+                <MudTh>Loại</MudTh>
+                <MudTh>Trạng thái</MudTh>
+                <MudTh Class="text-right">Hành động</MudTh>
+            </HeaderContent>
+            <RowTemplate Context="show">
+                <MudTd DataLabel="Phim"><strong>@MovieTitle(show.MovieId)</strong></MudTd>
+                <MudTd DataLabel="Rạp">@TheaterName(show.TheaterId)</MudTd>
+                <MudTd DataLabel="Ngày">@FormatDate(show.Date)</MudTd>
+                <MudTd DataLabel="Thời gian">@show.StartTime - @show.EndTime</MudTd>
+                <MudTd DataLabel="Loại"><Badge Tone="info">@ShowTypeLabel(show.Type)</Badge></MudTd>
+                <MudTd DataLabel="Trạng thái"><Badge Tone="@ShowStatusTone(show.Status)">@ShowStatusLabel(show.Status)</Badge></MudTd>
+                <MudTd DataLabel="Hành động" Class="text-right">
+                    <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Edit" Title="Chỉnh sửa" Intent="primary" OnClick="@(() => EditShow(show))" />
+                    <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Delete" Title="Xóa" Intent="danger" OnClick="@(() => DeleteShow(show))" />
+                </MudTd>
+            </RowTemplate>
+        </DataTable>
+
+        <Pagination Page="@_page" PageChanged="@OnPageChanged" PageSize="@_pageSize" TotalItems="@FilteredShows.Count()" />
+    </DataCard>
+</DataState>
 
 @code {
-    private List<ShowDto> shows = new();
-    private bool isLoading = true;
-    private PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    private readonly List<ShowDto> _shows = [];
+    private readonly Dictionary<int, string> _movieNames = [];
+    private readonly Dictionary<int, string> _theaterNames = [];
+    private bool _isLoading = true;
+    private bool _hasLoadIssue;
+    private string _searchText = "";
+    private int _page = 1;
+    private const int _pageSize = 10;
+
+    private IEnumerable<ShowDto> FilteredShows => _shows
+        .Where(show =>
+            string.IsNullOrWhiteSpace(_searchText)
+            || MovieTitle(show.MovieId).Contains(_searchText, StringComparison.OrdinalIgnoreCase)
+            || TheaterName(show.TheaterId).Contains(_searchText, StringComparison.OrdinalIgnoreCase)
+            || ShowStatusLabel(show.Status).Contains(_searchText, StringComparison.OrdinalIgnoreCase));
+
+    private IEnumerable<ShowDto> PagedShows => FilteredShows
+        .Skip((_page - 1) * _pageSize)
+        .Take(_pageSize);
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadShows();
+    }
+
+    private async Task LoadShows()
+    {
+        _isLoading = true;
+        _hasLoadIssue = false;
+
         try
         {
-            shows = await ShowApi.GetAllAsync();
+            _shows.Clear();
+            _movieNames.Clear();
+            _theaterNames.Clear();
+
+            _shows.AddRange(await ShowApi.GetAllAsync() ?? []);
+
+            foreach (var movie in await MovieApi.GetAllAsync() ?? [])
+            {
+                _movieNames[movie.Id] = movie.Title;
+            }
+
+            foreach (var theater in await TheaterApi.GetAllAsync() ?? [])
+            {
+                _theaterNames[theater.Id] = theater.Name;
+            }
         }
-        catch (Exception ex)
+        catch
         {
-            ToastService.ShowError("Lỗi tải suất chiếu: " + ex.Message);
+            _hasLoadIssue = true;
         }
         finally
         {
-            isLoading = false;
+            _isLoading = false;
         }
+    }
+
+    private Task OnPageChanged(int page)
+    {
+        _page = page;
+        return Task.CompletedTask;
+    }
+
+    private async Task CreateShow()
+    {
+        if (_movieNames.Count == 0 || _theaterNames.Count == 0)
+        {
+            Snackbar.Add("Cần có phim và rạp trước khi tạo suất chiếu.", MudBlazor.Severity.Warning);
+            return;
+        }
+
+        var movieIdText = await JSRuntime.InvokeAsync<string>("prompt", "Movie ID:", _movieNames.Keys.First().ToString());
+        var theaterIdText = await JSRuntime.InvokeAsync<string>("prompt", "Theater ID:", _theaterNames.Keys.First().ToString());
+        var dateText = await JSRuntime.InvokeAsync<string>("prompt", "Ngày chiếu (yyyy-MM-dd):", DateTime.Today.ToString("yyyy-MM-dd"));
+        var startText = await JSRuntime.InvokeAsync<string>("prompt", "Giờ bắt đầu (HH:mm):", "19:00");
+        var endText = await JSRuntime.InvokeAsync<string>("prompt", "Giờ kết thúc (HH:mm):", "21:00");
+
+        if (!int.TryParse(movieIdText, out var movieId)
+            || !int.TryParse(theaterIdText, out var theaterId)
+            || !DateTime.TryParse(dateText, out var date)
+            || !TimeSpan.TryParse(startText, out var start)
+            || !TimeSpan.TryParse(endText, out var end))
+        {
+            Snackbar.Add("Thông tin suất chiếu không hợp lệ.", MudBlazor.Severity.Warning);
+            return;
+        }
+
+        try
+        {
+            var result = await ShowApi.CreateAsync(new CreateShowCommand(
+                date,
+                start,
+                end,
+                movieId,
+                theaterId,
+                ShowType.TwoD));
+            Snackbar.Add(result.Succeeded ? "Đã tạo suất chiếu mới." : "Không thể tạo suất chiếu lúc này.", result.Succeeded ? MudBlazor.Severity.Success : MudBlazor.Severity.Error);
+            await LoadShows();
+        }
+        catch
+        {
+            Snackbar.Add("Không thể tạo suất chiếu lúc này.", MudBlazor.Severity.Error);
+        }
+    }
+
+    private async Task EditShow(ShowDto show)
+    {
+        var dateText = await JSRuntime.InvokeAsync<string>("prompt", "Ngày chiếu (yyyy-MM-dd):", DateInputValue(show.Date));
+        var startText = await JSRuntime.InvokeAsync<string>("prompt", "Giờ bắt đầu (HH:mm):", show.StartTime);
+        var endText = await JSRuntime.InvokeAsync<string>("prompt", "Giờ kết thúc (HH:mm):", show.EndTime);
+        if (!DateTime.TryParse(dateText, out var date)
+            || !TimeSpan.TryParse(startText, out var start)
+            || !TimeSpan.TryParse(endText, out var end))
+        {
+            Snackbar.Add("Thông tin suất chiếu không hợp lệ.", MudBlazor.Severity.Warning);
+            return;
+        }
+
+        try
+        {
+            await ShowApi.UpdateAsync(new UpdateShowCommand(
+                show.Id,
+                date,
+                start,
+                end,
+                show.MovieId,
+                show.TheaterId,
+                show.Type,
+                show.Status));
+            Snackbar.Add("Đã đồng bộ suất chiếu.", MudBlazor.Severity.Success);
+            await LoadShows();
+        }
+        catch
+        {
+            Snackbar.Add("Không thể cập nhật suất chiếu lúc này.", MudBlazor.Severity.Error);
+        }
+    }
+
+    private async Task DeleteShow(ShowDto show)
+    {
+        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Xóa suất chiếu #{show.Id}?");
+        if (!ok)
+        {
+            return;
+        }
+
+        try
+        {
+            await ShowApi.DeleteAsync(show.Id);
+            Snackbar.Add("Đã xóa suất chiếu.", MudBlazor.Severity.Success);
+            await LoadShows();
+        }
+        catch
+        {
+            Snackbar.Add("Không thể xóa suất chiếu lúc này.", MudBlazor.Severity.Error);
+        }
+    }
+
+    private string MovieTitle(int movieId) => _movieNames.TryGetValue(movieId, out var title) ? title : $"Phim #{movieId}";
+    private string TheaterName(int theaterId) => _theaterNames.TryGetValue(theaterId, out var name) ? name : $"Rạp #{theaterId}";
+    private static string ShowTypeLabel(ShowType type) => type == ShowType.ThreeD ? "3D" : "2D";
+
+    private static string FormatDate(string value)
+    {
+        return DateTime.TryParse(value, out var date) ? date.ToString("dd/MM/yyyy") : value;
+    }
+
+    private static string DateInputValue(string value)
+        => DateTime.TryParse(value, out var date) ? date.ToString("yyyy-MM-dd") : value;
+
+    private static string ShowStatusLabel(ShowStatus status) => status switch
+    {
+        ShowStatus.Free => "Còn ghế",
+        ShowStatus.AlmostFull => "Sắp đầy",
+        ShowStatus.Full => "Đã đầy",
+        _ => "Không rõ"
+    };
+
+    private static string ShowStatusTone(ShowStatus status)
+    {
+        return status switch
+        {
+            ShowStatus.Free => "success",
+            ShowStatus.AlmostFull => "warning",
+            ShowStatus.Full => "danger",
+            _ => "neutral"
+        };
     }
 }

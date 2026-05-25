@@ -1,0 +1,151 @@
+@page "/auth/verify-otp"
+@layout AuthLayout
+@rendermode InteractiveWebAssembly
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<section class="mx-auto flex min-h-[calc(100vh-7rem)] w-full max-w-sm flex-col justify-center">
+    <a href="/auth/login" class="mb-7 inline-flex w-fit items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-slate-950 dark:text-slate-400 dark:hover:text-white">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m15 18-6-6 6-6" />
+        </svg>
+        Đăng nhập
+    </a>
+
+    <div class="rounded-xl border border-slate-200 bg-white p-6 text-center shadow-sm dark:border-slate-800 dark:bg-slate-950">
+        <h1 class="text-2xl font-bold tracking-tight text-slate-950 dark:text-white">Nhập mã OTP</h1>
+        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Nhập mã 6 chữ số đã được gửi đến email của bạn.</p>
+
+        @if (!string.IsNullOrWhiteSpace(errorMessage))
+        {
+            <div class="mt-5 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-left text-sm font-medium text-red-700 dark:border-red-900/70 dark:bg-red-950/40 dark:text-red-300" role="alert">
+                @errorMessage
+            </div>
+        }
+
+        <form class="mt-6 space-y-5" @onsubmit="Verify" @onsubmit:preventDefault="true">
+            @if (string.IsNullOrWhiteSpace(Email))
+            {
+                <div class="space-y-2 text-left">
+                    <label for="otp-email" class="text-sm font-semibold text-slate-800 dark:text-slate-200">Email</label>
+                    <input id="otp-email"
+                           name="email"
+                           type="email"
+                           autocomplete="email"
+                           placeholder="name@example.com"
+                           class="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 dark:border-slate-800 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500"
+                           @bind="email"
+                           @bind:event="oninput" />
+                </div>
+            }
+
+            <div class="flex items-center justify-center gap-2">
+                @for (var index = 0; index < 6; index++)
+                {
+                    var current = index;
+                    if (current == 3)
+                    {
+                        <span class="px-1 text-lg font-semibold text-slate-400">-</span>
+                    }
+
+                    <input id="@($"otp-{current}")"
+                           inputmode="numeric"
+                           maxlength="1"
+                           value="@OtpValues[current]"
+                           class="h-11 w-10 rounded-md border border-slate-200 bg-white text-center text-base font-bold text-slate-950 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-500/20 dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+                           @oninput="(e) => HandleInput(current, e)"
+                           @onkeydown="(e) => HandleKeyDown(current, e)" />
+                }
+            </div>
+
+            <button type="submit"
+                    disabled="@isLoading"
+                    class="inline-flex h-11 w-full items-center justify-center rounded-lg bg-red-600 px-4 text-sm font-bold text-white shadow-sm shadow-red-600/20 transition hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-60 dark:ring-offset-slate-950">
+                @if (isLoading)
+                {
+                    <svg class="mr-2 h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4Z" />
+                    </svg>
+                }
+                Tiếp tục
+            </button>
+        </form>
+
+        <p class="mt-5 text-xs text-slate-500 dark:text-slate-400">
+            Chưa nhận được mã?
+            <a href="/auth/forgot-password" class="font-semibold text-red-600 hover:text-red-700 hover:underline dark:text-red-400 dark:hover:text-red-300">Gửi lại mã</a>
+        </p>
+    </div>
+</section>
+
+@code {
+    [SupplyParameterFromQuery] public string? Email { get; set; }
+
+    private readonly string[] OtpValues = ["", "", "", "", "", ""];
+    private string email = string.Empty;
+    private string? errorMessage;
+    private bool isLoading;
+
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrWhiteSpace(Email))
+        {
+            email = Email;
+        }
+    }
+
+    private async Task HandleInput(int index, ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString() ?? string.Empty;
+        var digit = value.FirstOrDefault(char.IsDigit);
+        OtpValues[index] = digit == default ? string.Empty : digit.ToString();
+
+        if (!string.IsNullOrEmpty(OtpValues[index]) && index < 5)
+        {
+            await FocusInput(index + 1);
+        }
+    }
+
+    private async Task HandleKeyDown(int index, KeyboardEventArgs e)
+    {
+        if (e.Key == "Backspace" && string.IsNullOrEmpty(OtpValues[index]) && index > 0)
+        {
+            await FocusInput(index - 1);
+        }
+    }
+
+    private async Task FocusInput(int index)
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("rateAuth.focusById", $"otp-{index}");
+        }
+        catch
+        {
+            // Focus is a progressive enhancement.
+        }
+    }
+
+    private async Task Verify()
+    {
+        errorMessage = null;
+        var code = string.Concat(OtpValues);
+
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            errorMessage = "Vui lòng nhập email tài khoản.";
+            return;
+        }
+
+        if (code.Length != 6)
+        {
+            errorMessage = "Vui lòng nhập đủ 6 chữ số OTP.";
+            return;
+        }
+
+        isLoading = true;
+        await Task.Yield();
+        NavigationManager.NavigateTo($"/auth/reset-password?email={Uri.EscapeDataString(email.Trim())}&token={Uri.EscapeDataString(code)}");
+    }
+}

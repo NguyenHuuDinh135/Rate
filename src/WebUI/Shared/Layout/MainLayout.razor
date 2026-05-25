@@ -7,9 +7,9 @@
 @inject IDispatcher Dispatcher
 @inject NavigationManager NavigationManager
 
-<div class="min-h-screen flex flex-col bg-slate-950 text-slate-100 font-sans">
+<div class="min-h-screen flex flex-col bg-slate-50 text-slate-950 font-sans transition-colors dark:bg-slate-950 dark:text-slate-100">
     @* --- PREMIUM STICKY NAVBAR (GLASSMORPHISM) --- *@
-    <header class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-900 shadow-xl transition-all duration-300">
+    <header class="sticky top-0 z-50 border-b border-slate-200 bg-white/85 shadow-sm backdrop-blur-md transition-all duration-300 dark:border-slate-900 dark:bg-slate-950/80 dark:shadow-xl">
         <div class="container mx-auto max-w-7xl flex items-center justify-between h-20 px-4 sm:px-6 lg:px-8">
             
             @* Logo Brand *@
@@ -17,31 +17,32 @@
                 <div class="w-10 h-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:bg-accent/20 group-hover:border-accent/40 transition-all duration-300">
                     <FluentIcon Value="@(new Size24.MoviesAndTv())" Color="Color.Accent" class="w-6 h-6" />
                 </div>
-                <span class="text-2xl font-black tracking-tighter text-white group-hover:text-accent transition-colors duration-300">RATE</span>
+                <span class="text-2xl font-black tracking-tighter text-slate-950 group-hover:text-accent transition-colors duration-300 dark:text-white">RATE</span>
             </a>
 
             @* Desktop Navigation Menus (Perfect Spacing & Baseline Alignment) *@
-            <nav class="hidden md:flex items-center gap-8 text-sm font-black tracking-widest uppercase text-slate-400">
-                <a href="/" class="hover:text-white transition-colors duration-300 relative py-2 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-accent hover:after:w-full after:transition-all after:duration-300">Phim đang chiếu</a>
-                <a href="/theaters" class="hover:text-white transition-colors duration-300 relative py-2 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-accent hover:after:w-full after:transition-all after:duration-300">Hệ thống rạp</a>
-                <a href="/about" class="hover:text-white transition-colors duration-300 relative py-2 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-accent hover:after:w-full after:transition-all after:duration-300">Giới thiệu</a>
+            <nav class="hidden md:flex items-center gap-8 text-sm font-black tracking-widest uppercase text-slate-500 dark:text-slate-400">
+                <a href="/" class="hover:text-slate-950 dark:hover:text-white transition-colors duration-300 relative py-2 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-accent hover:after:w-full after:transition-all after:duration-300">Phim đang chiếu</a>
+                <a href="/theaters" class="hover:text-slate-950 dark:hover:text-white transition-colors duration-300 relative py-2 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-accent hover:after:w-full after:transition-all after:duration-300">Hệ thống rạp</a>
+                <a href="/about" class="hover:text-slate-950 dark:hover:text-white transition-colors duration-300 relative py-2 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-accent hover:after:w-full after:transition-all after:duration-300">Giới thiệu</a>
             </nav>
 
             @* Actions Area (Login, Register, Profile) *@
             <div class="flex items-center gap-4">
+                <ThemeToggle Class="hidden sm:inline-flex" />
                 @if (AuthState.Value.IsAuthenticated)
                 {
-                    <a href="/profile" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 hover:text-white hover:border-slate-700 hover:bg-slate-800/80 transition-all duration-300">
+                    <a href="/profile" class="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 transition-all duration-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-700 dark:hover:bg-slate-800/80 dark:hover:text-white">
                         <FluentIcon Value="@(new Size20.Person())" Color="Color.Neutral" class="w-5 h-5 text-slate-400" />
                         <span class="text-xs font-black tracking-wider uppercase hidden sm:inline">@AuthState.Value.User?.Username</span>
                     </a>
-                    <button @onclick="HandleLogout" class="h-10 px-4 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-accent transition-colors duration-300 cursor-pointer">
+                    <button @onclick="HandleLogout" class="h-10 px-4 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-accent transition-colors duration-300 cursor-pointer dark:text-slate-400">
                         Đăng xuất
                     </button>
                 }
                 else
                 {
-                    <a href="/auth/login" class="px-4 py-2.5 text-xs font-black uppercase tracking-widest text-slate-300 hover:text-white transition-colors duration-300">
+                    <a href="/auth/login" class="px-4 py-2.5 text-xs font-black uppercase tracking-widest text-slate-600 hover:text-slate-950 transition-colors duration-300 dark:text-slate-300 dark:hover:text-white">
                         Đăng nhập
                     </a>
                     <a href="/auth/register" class="px-5 py-2.5 bg-accent hover:bg-accent-hover text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-lg shadow-accent/20 hover:shadow-accent/40 hover:scale-[1.03] transition-all duration-300 active:scale-95">
@@ -58,7 +59,7 @@
     </main>
 
     @* --- PREMIUM FOOTER --- *@
-    <footer class="hidden md:block border-t border-slate-900 bg-slate-950 py-12">
+    <footer class="hidden md:block border-t border-slate-200 bg-white py-12 dark:border-slate-900 dark:bg-slate-950">
         <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center space-y-4">
             <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">
                 &copy; @DateTime.Now.Year RATE Movie Reservation System. Built with .NET 10 & Tailwind CSS.
@@ -70,20 +71,20 @@
     </footer>
 
     @* --- MOBILE BOTTOM NAVIGATION (PERFECT RESPONSIVE ALIGNMENT) --- *@
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-slate-950/90 backdrop-blur-md border-t border-slate-900 flex justify-around items-center px-4 z-50 shadow-2xl">
-        <a href="/" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-accent transition-colors duration-300 py-1 w-16">
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 border-t border-slate-200 bg-white/90 backdrop-blur-md flex justify-around items-center px-4 z-50 shadow-2xl dark:border-slate-900 dark:bg-slate-950/90">
+        <a href="/" class="flex flex-col items-center justify-center gap-1 text-slate-500 hover:text-accent transition-colors duration-300 py-1 w-16 dark:text-slate-400">
             <FluentIcon Value="@(new Size24.Home())" Color="Color.Neutral" class="w-5 h-5" />
             <span class="text-[9px] font-black uppercase tracking-wider">Home</span>
         </a>
-        <a href="/movies" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-accent transition-colors duration-300 py-1 w-16">
+        <a href="/movies" class="flex flex-col items-center justify-center gap-1 text-slate-500 hover:text-accent transition-colors duration-300 py-1 w-16 dark:text-slate-400">
             <FluentIcon Value="@(new Size24.MoviesAndTv())" Color="Color.Neutral" class="w-5 h-5" />
             <span class="text-[9px] font-black uppercase tracking-wider">Phim</span>
         </a>
-        <a href="/tickets" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-accent transition-colors duration-300 py-1 w-16">
+        <a href="/tickets" class="flex flex-col items-center justify-center gap-1 text-slate-500 hover:text-accent transition-colors duration-300 py-1 w-16 dark:text-slate-400">
             <FluentIcon Value="@(new Size24.Receipt())" Color="Color.Neutral" class="w-5 h-5" />
             <span class="text-[9px] font-black uppercase tracking-wider">Vé</span>
         </a>
-        <a href="/profile" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-accent transition-colors duration-300 py-1 w-16">
+        <a href="/profile" class="flex flex-col items-center justify-center gap-1 text-slate-500 hover:text-accent transition-colors duration-300 py-1 w-16 dark:text-slate-400">
             <FluentIcon Value="@(new Size24.Person())" Color="Color.Neutral" class="w-5 h-5" />
             <span class="text-[9px] font-black uppercase tracking-wider">Hồ sơ</span>
         </a>

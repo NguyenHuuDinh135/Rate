@@ -1,0 +1,26 @@
+<MudTooltip Text="@Title">
+    <MudIconButton Icon="@Icon"
+                   Color="@MudColor"
+                   Size="MudBlazor.Size.Small"
+                   Variant="MudBlazor.Variant.Text"
+                   Disabled="@Disabled"
+                   OnClick="@OnClick"
+                   Class="@Class" />
+</MudTooltip>
+
+@code {
+    [Parameter, EditorRequired] public string Icon { get; set; } = "";
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string Intent { get; set; } = "default";
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    private MudBlazor.Color MudColor => Intent switch
+    {
+        "danger" => MudBlazor.Color.Error,
+        "primary" => MudBlazor.Color.Primary,
+        "success" => MudBlazor.Color.Success,
+        _ => MudBlazor.Color.Default
+    };
+}

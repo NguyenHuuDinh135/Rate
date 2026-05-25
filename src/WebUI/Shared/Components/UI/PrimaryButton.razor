@@ -1,0 +1,19 @@
+<MudButton Variant="MudBlazor.Variant.Filled"
+           Color="MudBlazor.Color.Primary"
+           Size="MudBlazor.Size.Medium"
+           StartIcon="@Icon"
+           Disabled="@Disabled"
+           OnClick="@OnClick"
+           Class="@ButtonClass">
+    @ChildContent
+</MudButton>
+
+@code {
+    [Parameter] public string? Icon { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public EventCallback<MouseEventArgs> OnClick { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private string ButtonClass => $"rate-primary-button {Class}".Trim();
+}

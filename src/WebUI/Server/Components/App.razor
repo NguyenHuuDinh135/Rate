@@ -8,10 +8,24 @@
     <ResourcePreloader />
     <link href="@Assets["_content/MudBlazor/MudBlazor.min.css"]" rel="stylesheet" />
     <link rel="stylesheet" href="@Assets["app.css"]" />
+    <link rel="stylesheet" href="@Assets["admin.css"]" />
     <link rel="stylesheet" href="@Assets["WebUI.Server.styles.css"]" />
     <link href="_content/Microsoft.FluentUI.AspNetCore.Components/css/reboot.css" rel="stylesheet" />
     <ImportMap />
     <link rel="icon" type="image/png" href="favicon.png" />
+    <script>
+        (() => {
+            try {
+                const stored = window.localStorage.getItem("rate-theme");
+                const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+                const isDarkMode = stored === "dark" || (!stored && prefersDark);
+                document.documentElement.classList.toggle("dark", isDarkMode);
+                document.documentElement.dataset.theme = isDarkMode ? "dark" : "light";
+            } catch {
+                document.documentElement.dataset.theme = "light";
+            }
+        })();
+    </script>
     <HeadOutlet @rendermode="InteractiveAuto" />
 </head>
 

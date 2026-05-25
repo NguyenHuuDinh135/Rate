@@ -1,84 +1,91 @@
 @page "/admin/bookings"
 @layout AdminLayout
-@using Microsoft.FluentUI.AspNetCore.Components
-@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
-@using WebUI.Shared.Models.Bookings
-@using WebUI.Shared.Services.Api
-@using WebUI.Shared.Components
+@using MudBlazor
+@using WebUI.Shared.Components.Admin
+@using WebUI.Shared.Components.UI
 @inject IBookingApi BookingApi
-@inject IToastService ToastService
-@inject IDialogService DialogService
+@inject MudBlazor.ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
 
-<PageTitle>Quản lý Vé Đã Đặt | RATE ADMIN</PageTitle>
+<PageTitle>Đặt vé | RATE Admin</PageTitle>
 
-<div class="flex flex-col gap-8">
-    <div>
-        <h1 class="text-3xl font-black tracking-tight text-slate-900">Quản lý Vé Đã Đặt</h1>
-        <p class="text-slate-500 font-medium">Danh sách và trạng thái toàn bộ vé ghế đã bán trên hệ thống</p>
-    </div>
+<PageHeader Title="Đặt vé"
+            Description="Theo dõi vé đã đặt, trạng thái giữ ghế, thanh toán và hủy vé." />
 
-    @if (isLoading)
-    {
-        <div class="flex justify-center py-20 bg-white rounded-[2rem] border border-slate-100 shadow-md">
-            <FluentProgressRing></FluentProgressRing>
-        </div>
-    }
-    else if (!bookings.Any())
-    {
-        <div class="flex flex-col items-center justify-center py-20 bg-white rounded-[2rem] border border-slate-100 shadow-md gap-4">
-            <FluentIcon Value="@(new Size32.Document())" class="text-slate-200" />
-            <p class="text-slate-400 font-bold">Chưa có vé nào được đặt.</p>
-        </div>
-    }
-    else
-    {
-        <FluentCard class="p-0 overflow-hidden border-none shadow-md rounded-[2rem] bg-white">
-            <FluentDataGrid Items="@bookings.AsQueryable()" TGridItem="BookingDto" ResizableColumns="true" Pagination="@pagination">
-                <PropertyColumn Property="@(b => b.Id)" Title="Mã Vé" Sortable="true" Align="Align.Start" />
-                <PropertyColumn Property="@(b => b.UserId)" Title="Người đặt" Sortable="true" />
-                <PropertyColumn Property="@(b => b.ShowId)" Title="Mã Suất Chiếu" Sortable="true" />
-                <TemplateColumn Title="Ghế Ngồi">
-                    <FluentBadge Appearance="Appearance.Neutral" class="font-black">@($"{context.SeatRow}{context.SeatNumber}")</FluentBadge>
-                </TemplateColumn>
-                <PropertyColumn Property="@(b => b.Price)" Title="Giá Vé" Sortable="true" Format="N0" />
-                <TemplateColumn Title="Trạng thái" Sortable="true">
-                    @if (context.Status == BookingStatus.Paid)
-                    {
-                        <FluentBadge Appearance="Appearance.Lightweight" Fill="success">Đã thanh toán</FluentBadge>
-                    }
-                    else if (context.Status == BookingStatus.Reserved)
-                    {
-                        <FluentBadge Appearance="Appearance.Lightweight" Fill="warning">Đang giữ ghế</FluentBadge>
-                    }
-                    else
-                    {
-                        <FluentBadge Appearance="Appearance.Lightweight" Fill="danger">Đã hủy</FluentBadge>
-                    }
-                </TemplateColumn>
-
-                <TemplateColumn Title="Hành động" Align="Align.End">
-                    <div class="flex gap-2 justify-end">
-                        <PermissionGate Permission="Permission.Bookings.Edit">
-                            @if (context.Status != BookingStatus.Cancelled)
-                            {
-                                <FluentButton IconStart="@(new Size20.Delete())" Appearance="Appearance.Stealth" Color="Color.Error" OnClick="@(() => CancelBooking(context))">Hủy vé</FluentButton>
-                            }
-                        </PermissionGate>
-                    </div>
-                </TemplateColumn>
-            </FluentDataGrid>
-            
-            <div class="p-4 border-t bg-slate-50 flex justify-center">
-                <FluentPaginator State="@pagination" />
+<DataState IsLoading="@_isLoading"
+           Error="@(_hasLoadIssue ? "load-failed" : null)"
+           IsEmpty="@(!_bookings.Any())"
+           OnRetry="@LoadBookings">
+    <DataCard>
+        <div class="rate-toolbar">
+            <div class="rate-toolbar__left">
+                <SearchBox @bind-Value="_searchText" Placeholder="Tìm mã vé, người đặt, ghế..." />
+                <MudSelect T="string" @bind-Value="_statusFilter" Variant="MudBlazor.Variant.Outlined" Margin="MudBlazor.Margin.Dense" Dense="true" Class="min-w-40">
+                    <MudSelectItem T="string" Value="@("all")">Tất cả trạng thái</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("confirmed")">Đã xác nhận</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("reserved")">Giữ ghế</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("cancelled")">Đã hủy</MudSelectItem>
+                </MudSelect>
             </div>
-        </FluentCard>
-    }
-</div>
+            <Badge Tone="primary">@FilteredBookings.Count() vé</Badge>
+        </div>
+
+        <DataTable TItem="BookingDto" Items="@PagedBookings" EmptyMessage="Không tìm thấy đặt vé phù hợp.">
+            <HeaderContent>
+                <MudTh>Mã vé</MudTh>
+                <MudTh>Người đặt</MudTh>
+                <MudTh>Suất chiếu</MudTh>
+                <MudTh>Ghế</MudTh>
+                <MudTh>Giá</MudTh>
+                <MudTh>Trạng thái</MudTh>
+                <MudTh Class="text-right">Hành động</MudTh>
+            </HeaderContent>
+            <RowTemplate Context="booking">
+                <MudTd DataLabel="Mã vé">#@booking.Id</MudTd>
+                <MudTd DataLabel="Người đặt">@DisplayText(booking.UserId)</MudTd>
+                <MudTd DataLabel="Suất chiếu">#@booking.ShowId</MudTd>
+                <MudTd DataLabel="Ghế"><Badge>@($"{booking.SeatRow}{booking.SeatNumber}")</Badge></MudTd>
+                <MudTd DataLabel="Giá">@FormatCurrency(booking.Price)</MudTd>
+                <MudTd DataLabel="Trạng thái"><Badge Tone="@BookingTone(booking.Status)">@BookingLabel(booking.Status)</Badge></MudTd>
+                <MudTd DataLabel="Hành động" Class="text-right">
+                    <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Visibility" Title="Xem chi tiết" OnClick="@(() => ViewBooking(booking))" />
+                    @if (booking.Status != BookingStatus.Cancelled)
+                    {
+                        <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Cancel" Title="Hủy vé" Intent="danger" OnClick="@(() => CancelBooking(booking))" />
+                    }
+                </MudTd>
+            </RowTemplate>
+        </DataTable>
+
+        <Pagination Page="@_page" PageChanged="@OnPageChanged" PageSize="@_pageSize" TotalItems="@FilteredBookings.Count()" />
+    </DataCard>
+</DataState>
 
 @code {
-    private List<BookingDto> bookings = new();
-    private bool isLoading = true;
-    private PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    private readonly List<BookingDto> _bookings = [];
+    private bool _isLoading = true;
+    private bool _hasLoadIssue;
+    private string _searchText = "";
+    private string _statusFilter = "all";
+    private int _page = 1;
+    private const int _pageSize = 10;
+
+    private IEnumerable<BookingDto> FilteredBookings => _bookings
+        .Where(booking => string.IsNullOrWhiteSpace(_searchText)
+            || booking.Id.ToString().Contains(_searchText, StringComparison.OrdinalIgnoreCase)
+            || DisplayText(booking.UserId).Contains(_searchText, StringComparison.OrdinalIgnoreCase)
+            || $"{booking.SeatRow}{booking.SeatNumber}".Contains(_searchText, StringComparison.OrdinalIgnoreCase))
+        .Where(booking => _statusFilter switch
+        {
+            "confirmed" => booking.Status == BookingStatus.Confirmed,
+            "reserved" => booking.Status == BookingStatus.Reserved,
+            "cancelled" => booking.Status == BookingStatus.Cancelled,
+            _ => true
+        });
+
+    private IEnumerable<BookingDto> PagedBookings => FilteredBookings
+        .Skip((_page - 1) * _pageSize)
+        .Take(_pageSize);
 
     protected override async Task OnInitializedAsync()
     {
@@ -87,41 +94,76 @@
 
     private async Task LoadBookings()
     {
+        _isLoading = true;
+        _hasLoadIssue = false;
+
         try
         {
-            isLoading = true;
-            bookings = await BookingApi.GetAllAsync() ?? new List<BookingDto>();
+            _bookings.Clear();
+            _bookings.AddRange(await BookingApi.GetAllAsync() ?? []);
         }
-        catch (Exception ex)
+        catch
         {
-            ToastService.ShowError("Lỗi khi tải danh sách vé: " + ex.Message);
+            _hasLoadIssue = true;
         }
         finally
         {
-            isLoading = false;
+            _isLoading = false;
         }
+    }
+
+    private Task OnPageChanged(int page)
+    {
+        _page = page;
+        return Task.CompletedTask;
+    }
+
+    private void ViewBooking(BookingDto booking)
+    {
+        Snackbar.Add($"Đang xem đặt vé #{booking.Id}.", MudBlazor.Severity.Info);
     }
 
     private async Task CancelBooking(BookingDto booking)
     {
-        var confirm = await DialogService.ShowConfirmationAsync(
-            $"Bạn có chắc chắn muốn hủy và giải phóng ghế '{booking.SeatRow}{booking.SeatNumber}' của vé #{booking.Id}?",
-            "Hủy vé", "Quay lại", "Xác nhận hủy đặt vé");
-
-        var result = await confirm.Result;
-        if (!result.Cancelled)
+        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Hủy vé #{booking.Id} và giải phóng ghế {booking.SeatRow}{booking.SeatNumber}?");
+        if (!ok)
         {
-            try
-            {
-                // Status 2 is Cancelled in standard booking flow
-                await BookingApi.UpdateAsync(new UpdateBookingCommand(booking.Id, 2));
-                ToastService.ShowSuccess("Đã hủy vé đặt thành công!");
-                await LoadBookings();
-            }
-            catch (Exception ex)
-            {
-                ToastService.ShowError("Hủy đặt vé thất bại: " + ex.Message);
-            }
+            return;
+        }
+
+        try
+        {
+            await BookingApi.UpdateAsync(new UpdateBookingCommand(
+                booking.Id,
+                booking.SeatRow ?? string.Empty,
+                booking.SeatNumber ?? 0,
+                (float)booking.Price,
+                BookingStatus.Cancelled));
+            Snackbar.Add("Đã hủy đặt vé.", MudBlazor.Severity.Success);
+            await LoadBookings();
+        }
+        catch
+        {
+            Snackbar.Add("Không thể hủy đặt vé lúc này.", MudBlazor.Severity.Error);
         }
     }
+
+    private static string DisplayText(string? value) => string.IsNullOrWhiteSpace(value) ? "-" : value;
+    private static string FormatCurrency(decimal amount) => $"{amount:N0} đ";
+
+    private static string BookingLabel(BookingStatus status) => status switch
+    {
+        BookingStatus.Confirmed => "Đã xác nhận",
+        BookingStatus.Reserved => "Giữ ghế",
+        BookingStatus.Cancelled => "Đã hủy",
+        _ => "Không rõ"
+    };
+
+    private static string BookingTone(BookingStatus status) => status switch
+    {
+        BookingStatus.Confirmed => "success",
+        BookingStatus.Reserved => "warning",
+        BookingStatus.Cancelled => "danger",
+        _ => "neutral"
+    };
 }

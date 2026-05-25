@@ -26,6 +26,8 @@ namespace backend.Web.Endpoints
             groupBuilder.MapPost("forgot-password", ForgotPassword).AllowAnonymous();
             groupBuilder.MapPost("reset-password", ResetPassword).AllowAnonymous();
             groupBuilder.MapPost("change-password", ChangePassword).RequireAuthorization();
+            groupBuilder.MapGet("external-login", ExternalLogin).AllowAnonymous();
+            groupBuilder.MapGet("external-callback", ExternalCallback).AllowAnonymous();
         }
 
         public static async Task<Results<Ok<Result>, BadRequest<Result>, Conflict<string>>> Register(
@@ -54,6 +56,35 @@ namespace backend.Web.Endpoints
             return TypedResults.Ok(result);
         }
 
+        private static void SetTokenCookies(HttpContext httpContext, AuthTokenResult result)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true, // Force secure in production/local if using HTTPS
+                SameSite = SameSiteMode.Lax,
+                Path = "/"
+            };
+
+            httpContext.Response.Cookies.Append("access_token", result.AccessToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = cookieOptions.Secure,
+                SameSite = cookieOptions.SameSite,
+                Expires = DateTimeOffset.UtcNow.AddHours(2),
+                Path = "/"
+            });
+
+            httpContext.Response.Cookies.Append("refresh_token", result.RefreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = cookieOptions.Secure,
+                SameSite = cookieOptions.SameSite,
+                Expires = DateTimeOffset.UtcNow.AddDays(7),
+                Path = "/"
+            });
+        }
+
         public static async Task<Results<Ok<AuthTokenResult>, UnauthorizedHttpResult, StatusCodeHttpResult>> Login(
             ISender sender,
             LoginCommand request,
@@ -79,16 +110,54 @@ namespace backend.Web.Endpoints
                 return TypedResults.Unauthorized();
             }
 
+            SetTokenCookies(httpContext, result);
+
             return TypedResults.Ok(result);
         }
 
-        public static async Task<Results<Ok<AuthTokenResult>, UnauthorizedHttpResult>> Refresh(ISender sender, RefreshTokenCommand request)
+        public static async Task<Results<Ok<AuthTokenResult>, UnauthorizedHttpResult>> Refresh(
+            ISender sender, 
+            HttpContext httpContext,
+            RefreshTokenCommand? requestBody)
         {
-            var result = await sender.Send(request);
+            string? accessToken = httpContext.Request.Cookies["access_token"];
+            string? refreshToken = httpContext.Request.Cookies["refresh_token"];
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                accessToken = requestBody?.AccessToken;
+                if (string.IsNullOrEmpty(accessToken))
+                {
+                    var authHeader = httpContext.Request.Headers["Authorization"].ToString();
+                    if (authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                    {
+                        accessToken = authHeader.Substring("Bearer ".Length).Trim();
+                    }
+                }
+            }
+
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                refreshToken = requestBody?.RefreshToken;
+            }
+
+            if (string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(refreshToken))
+            {
+                return TypedResults.Unauthorized();
+            }
+
+            var result = await sender.Send(new RefreshTokenCommand
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            });
+
             if (result is null)
             {
                 return TypedResults.Unauthorized();
             }
+
+            SetTokenCookies(httpContext, result);
 
             return TypedResults.Ok(result);
         }
@@ -97,6 +166,9 @@ namespace backend.Web.Endpoints
             ISender sender,
             HttpContext httpContext)
         {
+            httpContext.Response.Cookies.Delete("access_token");
+            httpContext.Response.Cookies.Delete("refresh_token");
+
             var principal = httpContext.User;
             var jti = principal.FindFirstValue(JwtRegisteredClaimNames.Jti);
             if (string.IsNullOrWhiteSpace(jti))
@@ -117,6 +189,30 @@ namespace backend.Web.Endpoints
             });
 
             return ok ? TypedResults.Ok() : TypedResults.Unauthorized();
+        }
+
+        public static IResult ExternalLogin(string provider, HttpContext httpContext)
+        {
+            var callbackUrl = $"/api/auth/external-callback?provider={provider}&email={provider.ToLower()}user@example.com&username={provider.ToLower()}user";
+            return TypedResults.Redirect(callbackUrl);
+        }
+
+        public static async Task<IResult> ExternalCallback(
+            string provider,
+            string email,
+            string username,
+            IAuthenticationService authService,
+            HttpContext httpContext)
+        {
+            var result = await authService.ExternalLoginAsync(email, username, httpContext.RequestAborted);
+            if (result is null)
+            {
+                return TypedResults.Redirect("/auth/login?error=ExternalLoginFailed");
+            }
+
+            SetTokenCookies(httpContext, result);
+
+            return TypedResults.Redirect("/");
         }
 
         public static async Task<Ok<ForgotPasswordResponse>> ForgotPassword(

@@ -9,9 +9,9 @@ public record TheaterDto(
     string Name,
     int NumOfRows,
     int SeatsPerRow,
-    string Type,
-    List<TheaterSeatDto> Missing,
-    List<TheaterSeatDto> Blocked);
+    TheaterType Type,
+    List<TheaterSeatDto>? Missing = null,
+    List<TheaterSeatDto>? Blocked = null);
 
 public record ShowDto(
     int Id,
@@ -20,5 +20,5 @@ public record ShowDto(
     string Date,
     int MovieId,
     int TheaterId,
-    string Status,
+    ShowStatus Status,
     ShowType Type);

@@ -7,16 +7,16 @@ namespace WebUI.Shared.Services.Api;
 public interface IPaymentApi
 {
     [Get("/api/payments/all")]
-    Task<WebUI.Shared.Models.Common.ApiResponse<List<PaymentDto>>> GetAllAsync();
+    Task<List<PaymentDto>> GetAllAsync();
 
     [Get("/api/payments/id/{id}")]
-    Task<WebUI.Shared.Models.Common.ApiResponse<PaymentDto>> GetByIdAsync(int id);
+    Task<PaymentDto> GetByIdAsync(int id);
 
     [Get("/api/payments/users/{userId}")]
-    Task<WebUI.Shared.Models.Common.ApiResponse<List<PaymentDto>>> GetByUserAsync(string userId);
+    Task<List<PaymentDto>> GetByUserAsync(string userId);
 
     [Post("/api/payments/create")]
-    Task<int> CreateAsync([Body] CreatePaymentCommand payload);
+    Task<OperationResultDto<int>> CreateAsync([Body] CreatePaymentCommand payload);
 
     [Put("/api/payments/update")]
     Task UpdateAsync([Body] UpdatePaymentCommand payload);

@@ -1,55 +1,270 @@
 @page "/admin/users"
+@page "/admin/activity"
 @layout AdminLayout
-@using WebUI.Shared.Models.Auth
-@using WebUI.Shared.Services.Api
-@using Microsoft.FluentUI.AspNetCore.Components
-@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
-@inject IAuthApi AuthApi
-@inject IToastService ToastService
+@using MudBlazor
+@using WebUI.Shared.Components.Admin
+@using WebUI.Shared.Components.UI
+@inject IUserApi UserApi
+@inject IPermissionApi PermissionApi
+@inject NavigationManager NavigationManager
+@inject MudBlazor.ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
 
-<div class="flex flex-col gap-8">
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-3xl font-black tracking-tight text-slate-900">Quản lý người dùng</h1>
-            <p class="text-slate-500 font-medium">Danh sách tài khoản và phân quyền hệ thống</p>
-        </div>
-    </div>
+<PageTitle>Người dùng | RATE Admin</PageTitle>
 
-    <FluentCard class="p-0 overflow-hidden border-none shadow-md rounded-[2rem] bg-white">
-        <FluentDataGrid Items="@users.AsQueryable()" TGridItem="UserProfileDto" Pagination="@pagination">
-            <PropertyColumn Property="@(u => u.Id)" Title="ID" Sortable="true" />
-            <PropertyColumn Property="@(u => u.UserName)" Title="Username" Sortable="true" Filterable="true" />
-            <PropertyColumn Property="@(u => u.Email)" Title="Email" Sortable="true" Filterable="true" />
-            
-            <TemplateColumn Title="Vai trò">
-                <FluentBadge Appearance="Appearance.Lightweight">User</FluentBadge>
-            </TemplateColumn>
+<PageHeader Title="@PageTitleText"
+            Description="Quản lý tài khoản quản trị, vai trò và hoạt động gần đây của người dùng.">
+    <Actions>
+        <PrimaryButton Icon="@MudBlazor.Icons.Material.Outlined.PersonAdd" OnClick="@CreateUser">Thêm người dùng</PrimaryButton>
+    </Actions>
+</PageHeader>
 
-            <TemplateColumn Title="Hành động" Align="Align.End">
-                <div class="flex gap-2 justify-end">
-                    <FluentButton IconStart="@(new Size20.LockOpen())" Appearance="Appearance.Stealth" Title="Reset mật khẩu" />
-                    <FluentButton IconStart="@(new Size20.Delete())" Appearance="Appearance.Stealth" Color="Color.Error" />
+<DataState IsLoading="@_isLoading"
+           Error="@(_hasLoadIssue ? "load-failed" : null)"
+           IsEmpty="@(!_users.Any())"
+           OnRetry="@LoadUsers">
+    <div class="rate-grid-2 rate-grid-2--wide-left">
+        <DataCard>
+            <div class="rate-toolbar">
+                <SearchBox @bind-Value="_searchText" Placeholder="Tìm tên, email, vai trò..." />
+                <Badge Tone="primary">@FilteredUsers.Count() người dùng</Badge>
+            </div>
+
+            <DataTable TItem="AdminUserDto" Items="@PagedUsers" EmptyMessage="Không tìm thấy người dùng phù hợp.">
+                <HeaderContent>
+                    <MudTh>Người dùng</MudTh>
+                    <MudTh>Email</MudTh>
+                    <MudTh>Vai trò</MudTh>
+                    <MudTh>Ngày tạo</MudTh>
+                    <MudTh Class="text-right">Hành động</MudTh>
+                </HeaderContent>
+                <RowTemplate Context="user">
+                    <MudTd DataLabel="Người dùng">
+                        <div class="flex items-center gap-3">
+                            <MudAvatar Size="MudBlazor.Size.Small" Color="MudBlazor.Color.Primary">@Initial(user.UserName)</MudAvatar>
+                            <div>
+                                <div class="font-bold">@user.UserName</div>
+                                <div class="text-xs text-slate-500">#@ShortId(user.Id)</div>
+                            </div>
+                        </div>
+                    </MudTd>
+                    <MudTd DataLabel="Email">@user.Email</MudTd>
+                    <MudTd DataLabel="Vai trò">
+                        @if (user.Roles.Any())
+                        {
+                            @foreach (var role in user.Roles.Take(2))
+                            {
+                                <Badge Tone="@RoleTone(role)" Class="mr-1">@role</Badge>
+                            }
+                        }
+                        else
+                        {
+                            <Badge>User</Badge>
+                        }
+                    </MudTd>
+                    <MudTd DataLabel="Ngày tạo">@FormatDate(user.CreatedAt)</MudTd>
+                    <MudTd DataLabel="Hành động" Class="text-right">
+                        <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Visibility" Title="Xem hồ sơ" OnClick="@(() => ViewUser(user))" />
+                        <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Edit" Title="Chỉnh sửa" Intent="primary" OnClick="@(() => EditUser(user))" />
+                        <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Delete" Title="Xóa" Intent="danger" OnClick="@(() => DeleteUser(user))" />
+                    </MudTd>
+                </RowTemplate>
+            </DataTable>
+
+            <Pagination Page="@_page" PageChanged="@OnPageChanged" PageSize="@_pageSize" TotalItems="@FilteredUsers.Count()" />
+        </DataCard>
+
+        <DataCard>
+            <div class="rate-card-section">
+                @if (_selectedUser is not null)
+                {
+                    <div class="rate-user-profile-panel">
+                        <MudAvatar Size="MudBlazor.Size.Large" Color="MudBlazor.Color.Primary">@Initial(_selectedUser.UserName)</MudAvatar>
+                        <div>
+                            <h2 class="rate-card-title mb-1">@_selectedUser.UserName</h2>
+                            <p class="text-sm text-slate-500 mb-3">@_selectedUser.Email</p>
+                            <div class="flex flex-wrap gap-1">
+                                @foreach (var role in _selectedUser.Roles)
+                                {
+                                    <Badge Tone="@RoleTone(role)">@role</Badge>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <h2 class="rate-card-title mt-5">Hoạt động gần đây</h2>
+                <div class="rate-list">
+                    @foreach (var activity in _activities.Take(8))
+                    {
+                        <div class="rate-list-row">
+                            <div>
+                                <strong>@activity.Action</strong>
+                                <span>@activity.UserName · @RelativeTime(activity.OccurredAt)</span>
+                            </div>
+                            <Badge Tone="info">@activity.Type</Badge>
+                        </div>
+                    }
                 </div>
-            </TemplateColumn>
-        </FluentDataGrid>
-        
-        <div class="p-4 border-t bg-slate-50 flex justify-center">
-            <FluentPaginator State="@pagination" />
-        </div>
-    </FluentCard>
-</div>
+            </div>
+        </DataCard>
+    </div>
+</DataState>
 
 @code {
-    private List<UserProfileDto> users = new();
-    private PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    private readonly List<AdminUserDto> _users = [];
+    private readonly List<UserActivityDto> _activities = [];
+    private readonly List<RoleDto> _roles = [];
+    private AdminUserDto? _selectedUser;
+    private bool _isLoading = true;
+    private bool _hasLoadIssue;
+    private string _searchText = "";
+    private int _page = 1;
+    private const int _pageSize = 10;
 
-    protected override void OnInitialized()
+    private bool IsActivityPage => NavigationManager.ToBaseRelativePath(NavigationManager.Uri).StartsWith("admin/activity", StringComparison.OrdinalIgnoreCase);
+    private string PageTitleText => IsActivityPage ? "Hoạt động người dùng" : "Người dùng";
+
+    private IEnumerable<AdminUserDto> FilteredUsers => _users
+        .Where(user => string.IsNullOrWhiteSpace(_searchText)
+            || user.UserName.Contains(_searchText, StringComparison.OrdinalIgnoreCase)
+            || user.Email.Contains(_searchText, StringComparison.OrdinalIgnoreCase)
+            || user.Roles.Any(role => role.Contains(_searchText, StringComparison.OrdinalIgnoreCase)));
+
+    private IEnumerable<AdminUserDto> PagedUsers => FilteredUsers
+        .Skip((_page - 1) * _pageSize)
+        .Take(_pageSize);
+
+    protected override async Task OnInitializedAsync()
     {
-        // Mock data for now since we don't have a GetUsersAsync in IAuthApi yet
-        users = new List<UserProfileDto> {
-            new UserProfileDto("1", "admin", "admin@rate.com", new List<string> { "Permission.ManagePermissions" }),
-            new UserProfileDto("2", "dinhnh", "dinh@rate.com", new List<string>()),
-            new UserProfileDto("3", "test_user", "test@gmail.com", new List<string>())
-        };
+        await LoadUsers();
+    }
+
+    private async Task LoadUsers()
+    {
+        _isLoading = true;
+        _hasLoadIssue = false;
+
+        try
+        {
+            _users.Clear();
+            _activities.Clear();
+            _roles.Clear();
+
+            _users.AddRange(await UserApi.GetAllAsync() ?? []);
+            _activities.AddRange(await UserApi.GetActivityAsync() ?? []);
+            _roles.AddRange(await PermissionApi.GetAllRolesAsync() ?? []);
+            _selectedUser = _selectedUser is null
+                ? _users.FirstOrDefault()
+                : _users.FirstOrDefault(x => x.Id == _selectedUser.Id) ?? _users.FirstOrDefault();
+        }
+        catch
+        {
+            _hasLoadIssue = true;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private Task OnPageChanged(int page)
+    {
+        _page = page;
+        return Task.CompletedTask;
+    }
+
+    private async Task CreateUser()
+    {
+        var email = await JSRuntime.InvokeAsync<string>("prompt", "Email người dùng:", "");
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return;
+        }
+
+        var password = await JSRuntime.InvokeAsync<string>("prompt", "Mật khẩu tạm thời:", "Admin123!");
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            return;
+        }
+
+        var userName = email.Split('@', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? email;
+        var roles = _roles.Count == 0 ? new List<string>() : [_roles[0].Name];
+
+        try
+        {
+            var result = await UserApi.CreateAsync(new CreateAdminUserRequest(userName, email, password, roles));
+            Snackbar.Add(result.Succeeded ? "Đã tạo người dùng." : "Không thể tạo người dùng lúc này.", result.Succeeded ? MudBlazor.Severity.Success : MudBlazor.Severity.Error);
+            await LoadUsers();
+        }
+        catch
+        {
+            Snackbar.Add("Không thể tạo người dùng lúc này.", MudBlazor.Severity.Error);
+        }
+    }
+
+    private void ViewUser(AdminUserDto user)
+    {
+        _selectedUser = user;
+    }
+
+    private async Task EditUser(AdminUserDto user)
+    {
+        var userName = await JSRuntime.InvokeAsync<string>("prompt", "Tên người dùng:", user.UserName);
+        if (string.IsNullOrWhiteSpace(userName))
+        {
+            return;
+        }
+
+        var email = await JSRuntime.InvokeAsync<string>("prompt", "Email:", user.Email);
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return;
+        }
+
+        try
+        {
+            await UserApi.UpdateAsync(new UpdateAdminUserRequest(user.Id, userName, email, user.Roles));
+            Snackbar.Add("Đã cập nhật người dùng.", MudBlazor.Severity.Success);
+            await LoadUsers();
+        }
+        catch
+        {
+            Snackbar.Add("Không thể cập nhật người dùng lúc này.", MudBlazor.Severity.Error);
+        }
+    }
+
+    private async Task DeleteUser(AdminUserDto user)
+    {
+        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Xóa người dùng '{user.UserName}'?");
+        if (!ok)
+        {
+            return;
+        }
+
+        try
+        {
+            await UserApi.DeleteAsync(user.Id);
+            Snackbar.Add("Đã xóa người dùng.", MudBlazor.Severity.Success);
+            await LoadUsers();
+        }
+        catch
+        {
+            Snackbar.Add("Không thể xóa người dùng lúc này.", MudBlazor.Severity.Error);
+        }
+    }
+
+    private static string Initial(string value) => string.IsNullOrWhiteSpace(value) ? "U" : value[..1].ToUpperInvariant();
+    private static string ShortId(string value) => value.Length <= 8 ? value : value[..8];
+    private static string FormatDate(DateTime value) => value.ToLocalTime().ToString("dd/MM/yyyy");
+    private static string RoleTone(string role) => role.Contains("admin", StringComparison.OrdinalIgnoreCase) ? "primary" : "info";
+
+    private static string RelativeTime(DateTime value)
+    {
+        var delta = DateTime.UtcNow - value.ToUniversalTime();
+        if (delta.TotalMinutes < 1) return "vừa xong";
+        if (delta.TotalHours < 1) return $"{(int)delta.TotalMinutes} phút trước";
+        if (delta.TotalDays < 1) return $"{(int)delta.TotalHours} giờ trước";
+        return value.ToLocalTime().ToString("dd/MM/yyyy HH:mm");
     }
 }

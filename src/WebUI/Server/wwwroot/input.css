@@ -1,0 +1,8 @@
+/* wwwroot/css/input.css */
+
+@import "tailwindcss";
+
+/* Cho Tailwind quét các file Razor */
+@source "../../**/*.razor";
+@source "../../**/*.cshtml";
+@source "../../**/*.html";
