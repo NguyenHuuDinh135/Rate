@@ -10,6 +10,8 @@ using WebUI.Server.Services.Device;
 using WebUI.Shared.Layout;
 using Blazored.LocalStorage;
 using Tailwind;
+using MudBlazor.Services;
+using WebUI.Shared.Services.Admin;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,10 +24,13 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddFluentUIComponents();
+builder.Services.AddMudServices();
 builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddScoped<ITokenStorage, WebTokenStorage>();
 builder.Services.AddScoped<IDeviceService, WebDeviceService>();
+builder.Services.AddScoped<IAdminThemeService, AdminThemeService>();
+builder.Services.AddScoped<AdminMockDataService>();
 
 builder.Services.AddFluxor(options => 
     options.ScanAssemblies(typeof(MainLayout).Assembly));

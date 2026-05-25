@@ -1,0 +1,81 @@
+@using MudBlazor
+@using WebUI.Shared.Services.Admin
+@implements IDisposable
+@inject IAdminThemeService AdminThemeService
+
+<MudThemeProvider Theme="@RateTheme" @bind-IsDarkMode="_isDarkMode" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+@code {
+    private bool _isDarkMode;
+
+    private static readonly MudTheme RateTheme = new()
+    {
+        PaletteLight = new PaletteLight
+        {
+            Primary = "#dc2626",
+            Secondary = "#111827",
+            Tertiary = "#f97316",
+            Background = "#f8fafc",
+            Surface = "#ffffff",
+            AppbarBackground = "#ffffff",
+            AppbarText = "#111827",
+            DrawerBackground = "#ffffff",
+            DrawerText = "#334155",
+            TextPrimary = "#111827",
+            TextSecondary = "#64748b",
+            TableLines = "#e2e8f0",
+            Divider = "#e2e8f0"
+        },
+        PaletteDark = new PaletteDark
+        {
+            Primary = "#f87171",
+            Secondary = "#f8fafc",
+            Tertiary = "#fb923c",
+            Background = "#0f172a",
+            Surface = "#111827",
+            AppbarBackground = "#111827",
+            AppbarText = "#f8fafc",
+            DrawerBackground = "#111827",
+            DrawerText = "#cbd5e1",
+            TextPrimary = "#f8fafc",
+            TextSecondary = "#cbd5e1",
+            TableLines = "#1f2937",
+            Divider = "#1f2937"
+        },
+        Typography = new MudBlazor.Typography
+        {
+            Default = new DefaultTypography
+            {
+                FontFamily = ["Inter", "ui-sans-serif", "system-ui", "sans-serif"]
+            },
+            H1 = new H1Typography { FontWeight = "700" },
+            H2 = new H2Typography { FontWeight = "700" },
+            H3 = new H3Typography { FontWeight = "700" },
+            Button = new ButtonTypography { FontWeight = "600", TextTransform = "none" }
+        },
+        LayoutProperties = new LayoutProperties
+        {
+            DefaultBorderRadius = "8px"
+        }
+    };
+
+    protected override void OnInitialized()
+    {
+        _isDarkMode = AdminThemeService.IsDarkMode;
+        AdminThemeService.ThemeChanged += OnAdminThemeChanged;
+    }
+
+    private void OnAdminThemeChanged()
+    {
+        _isDarkMode = AdminThemeService.IsDarkMode;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        AdminThemeService.ThemeChanged -= OnAdminThemeChanged;
+    }
+}

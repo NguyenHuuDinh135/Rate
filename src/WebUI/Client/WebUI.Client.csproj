@@ -16,6 +16,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" VersionOverride="10.0.5" />
     <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" />
     <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" />
+    <PackageReference Include="MudBlazor" />
     <PackageReference Include="Refit.HttpClientFactory" />
   </ItemGroup>
 
