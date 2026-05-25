@@ -1,0 +1,20 @@
+<MudTextField T="string"
+              Value="@Value"
+              ValueChanged="@ValueChanged"
+              Placeholder="@Placeholder"
+              Immediate="true"
+              Variant="MudBlazor.Variant.Outlined"
+              Margin="MudBlazor.Margin.Dense"
+              Adornment="MudBlazor.Adornment.Start"
+              AdornmentIcon="@MudBlazor.Icons.Material.Outlined.Search"
+              Clearable="true"
+              Class="@SearchClass" />
+
+@code {
+    [Parameter] public string Value { get; set; } = "";
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public string Placeholder { get; set; } = "Tìm kiếm...";
+    [Parameter] public string? Class { get; set; }
+
+    private string SearchClass => $"rate-search-box {Class}".Trim();
+}

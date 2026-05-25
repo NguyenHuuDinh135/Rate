@@ -1,61 +1,168 @@
 @page "/admin"
+@page "/admin/dashboard"
 @layout AdminLayout
-@using Microsoft.FluentUI.AspNetCore.Components
-@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
+@using MudBlazor
+@using WebUI.Shared.Components.Admin
+@using WebUI.Shared.Components.UI
 @using WebUI.Shared.Models.Common
 @using WebUI.Shared.Services.Api
 @inject IMovieApi MovieApi
 @inject IShowApi ShowApi
 @inject IBookingApi BookingApi
 @inject IPaymentApi PaymentApi
+@inject AdminMockDataService MockData
 
-<div class="flex flex-col gap-8">
-    <div>
-        <h1 class="text-3xl font-black tracking-tight text-slate-900">Tổng quan hệ thống</h1>
-        <p class="text-slate-500 font-medium">Chào mừng bạn trở lại trang quản trị RATE.</p>
+<PageTitle>Dashboard | RATE Admin</PageTitle>
+
+<PageHeader Title="Dashboard"
+            Description="Tổng quan doanh thu, lịch chiếu, đặt vé và hoạt động vận hành hệ thống." />
+
+@if (_isLoading)
+{
+    <div class="rate-stat-grid">
+        @for (var i = 0; i < 4; i++)
+        {
+            <DataCard Class="rate-card-section">
+                <MudSkeleton Height="22px" Width="40%" />
+                <MudSkeleton Height="34px" Width="70%" Class="mt-3" />
+            </DataCard>
+        }
+    </div>
+}
+else
+{
+    @if (_hasLoadIssue)
+    {
+        <MudAlert Severity="MudBlazor.Severity.Warning" Variant="MudBlazor.Variant.Outlined" Class="mb-4">
+            Một số dữ liệu chưa sẵn sàng. Dashboard đang hiển thị phần đã tải được.
+        </MudAlert>
+    }
+
+    <div class="rate-stat-grid">
+        <WebUI.Shared.Components.Admin.StatCard Title="Doanh thu"
+                                                Value="@FormatCurrency(_payments.Sum(p => p.Amount))"
+                                                Delta="+12%"
+                                                Icon="@MudBlazor.Icons.Material.Outlined.Payments"
+                                                Tone="success" />
+        <WebUI.Shared.Components.Admin.StatCard Title="Vé đã đặt"
+                                                Value="@_bookings.Count.ToString("N0")"
+                                                Delta="+5%"
+                                                Icon="@MudBlazor.Icons.Material.Outlined.ConfirmationNumber"
+                                                Tone="info" />
+        <WebUI.Shared.Components.Admin.StatCard Title="Phim"
+                                                Value="@_movies.Count.ToString("N0")"
+                                                Icon="@MudBlazor.Icons.Material.Outlined.Movie"
+                                                Tone="warning" />
+        <WebUI.Shared.Components.Admin.StatCard Title="Suất chiếu"
+                                                Value="@_shows.Count.ToString("N0")"
+                                                Icon="@MudBlazor.Icons.Material.Outlined.EventSeat" />
     </div>
 
-    @* Stat Cards *@
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard Title="Doanh thu" Value="125.4M đ" Delta="+12%" Icon="@(new Size24.Money())" Color="bg-emerald-500" />
-        <StatCard Title="Vé đã bán" Value="1,240" Delta="+5%" Icon="@(new Size24.MoviesAndTv())" Color="bg-blue-500" />
-        <StatCard Title="Phim đang chiếu" Value="12" Delta="0" Icon="@(new Size24.MoviesAndTv())" Color="bg-amber-500" />
-        <StatCard Title="Người dùng mới" Value="85" Delta="+18%" Icon="@(new Size24.People())" Color="bg-purple-500" />
-    </div>
+    <div class="rate-grid-2">
+        <DataCard>
+            <div class="rate-card-section">
+                <h2 class="rate-card-title">Đặt vé gần đây</h2>
+            </div>
+            <DataTable TItem="BookingDto" Items="@_recentBookings" EmptyMessage="Chưa có đặt vé nào.">
+                <HeaderContent>
+                    <MudTh>Mã vé</MudTh>
+                    <MudTh>Người đặt</MudTh>
+                    <MudTh>Ghế</MudTh>
+                    <MudTh>Giá</MudTh>
+                    <MudTh>Trạng thái</MudTh>
+                </HeaderContent>
+                <RowTemplate Context="booking">
+                    <MudTd DataLabel="Mã vé">#@booking.Id</MudTd>
+                    <MudTd DataLabel="Người đặt">@DisplayText(booking.UserId)</MudTd>
+                    <MudTd DataLabel="Ghế">@($"{booking.SeatRow}{booking.SeatNumber}")</MudTd>
+                    <MudTd DataLabel="Giá">@FormatCurrency(booking.Price)</MudTd>
+                    <MudTd DataLabel="Trạng thái"><Badge Tone="@BookingTone(booking.Status)">@BookingLabel(booking.Status)</Badge></MudTd>
+                </RowTemplate>
+            </DataTable>
+        </DataCard>
 
-    @* Chart & Recent Bookings *@
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div class="lg:col-span-8">
-            <FluentCard class="p-8 rounded-[2rem] shadow-md border-none h-[400px] flex items-center justify-center bg-white">
-                <div class="text-center space-y-4">
-                    <FluentIcon Value="@(new Size24.Settings())" class="mx-auto opacity-20" />
-                    <p class="text-slate-400 font-bold uppercase tracking-widest text-xs">Biểu đồ doanh thu (Placeholder)</p>
-                </div>
-            </FluentCard>
-        </div>
-
-        <div class="lg:col-span-4">
-            <FluentCard class="p-8 rounded-[2rem] shadow-md border-none bg-white">
-                <h3 class="font-black text-lg mb-6">Đơn hàng mới nhất</h3>
-                <div class="flex flex-col gap-4">
-                    @for (int i = 0; i < 5; i++)
+        <DataCard>
+            <div class="rate-card-section">
+                <h2 class="rate-card-title">Hoạt động người dùng</h2>
+                <div class="rate-list">
+                    @foreach (var item in MockData.GetActivities())
                     {
-                        <div class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer">
-                            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
-                                <FluentIcon Value="@(new Size20.Person())" />
+                        <div class="rate-list-row">
+                            <div>
+                                <strong>@item.Action</strong>
+                                <span>@item.UserName · @item.TimeAgo</span>
                             </div>
-                            <div class="flex-1 overflow-hidden">
-                                <p class="font-bold text-sm truncate">User_@(i+100)</p>
-                                <p class="text-[10px] text-slate-400 font-bold">2 phút trước</p>
-                            </div>
-                            <span class="font-black text-sm text-accent">95K</span>
+                            <Badge Tone="primary">@item.Type</Badge>
                         </div>
                     }
                 </div>
-            </FluentCard>
-        </div>
+            </div>
+        </DataCard>
     </div>
-</div>
+}
 
 @code {
+    private readonly List<MovieDto> _movies = [];
+    private readonly List<ShowDto> _shows = [];
+    private readonly List<BookingDto> _bookings = [];
+    private readonly List<PaymentDto> _payments = [];
+    private bool _isLoading = true;
+    private bool _hasLoadIssue;
+
+    private IEnumerable<BookingDto> _recentBookings => _bookings
+        .OrderByDescending(b => b.Id)
+        .Take(6);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDashboard();
+    }
+
+    private async Task LoadDashboard()
+    {
+        _isLoading = true;
+        _hasLoadIssue = false;
+
+        await LoadSafely(async () => _movies.AddRange(await MovieApi.GetAllAsync()));
+        await LoadSafely(async () => _shows.AddRange(await ShowApi.GetAllAsync()));
+        await LoadSafely(async () => _bookings.AddRange(await BookingApi.GetAllAsync() ?? []));
+        await LoadSafely(async () =>
+        {
+            var payments = await PaymentApi.GetAllAsync();
+            _payments.AddRange(payments.Body ?? []);
+        });
+
+        _isLoading = false;
+    }
+
+    private async Task LoadSafely(Func<Task> load)
+    {
+        try
+        {
+            await load();
+        }
+        catch
+        {
+            _hasLoadIssue = true;
+        }
+    }
+
+    private static string DisplayText(string? value) => string.IsNullOrWhiteSpace(value) ? "-" : value;
+    private static string FormatCurrency(decimal amount) => $"{amount:N0} đ";
+
+    private static string BookingLabel(BookingStatus status) => status switch
+    {
+        BookingStatus.Paid => "Đã thanh toán",
+        BookingStatus.Reserved => "Giữ ghế",
+        BookingStatus.Cancelled => "Đã hủy",
+        _ => "Không rõ"
+    };
+
+    private static string BookingTone(BookingStatus status) => status switch
+    {
+        BookingStatus.Paid => "success",
+        BookingStatus.Reserved => "warning",
+        BookingStatus.Cancelled => "danger",
+        _ => "neutral"
+    };
 }

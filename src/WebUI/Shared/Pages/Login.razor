@@ -61,10 +61,10 @@
 
 @code {
     [SupplyParameterFromForm]
-    private string email { get; set; } = "";
+    private string? email { get; set; }
     
     [SupplyParameterFromForm]
-    private string password { get; set; } = "";
+    private string? password { get; set; }
 
     protected override void OnInitialized()
     {

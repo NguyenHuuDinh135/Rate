@@ -1,0 +1,25 @@
+@if (TotalPages > 1)
+{
+    <div class="rate-pagination">
+        <span class="rate-pagination__summary">@Summary</span>
+        <MudPagination Count="@TotalPages"
+                       Selected="@Page"
+                       SelectedChanged="@PageChanged"
+                       Color="MudBlazor.Color.Primary"
+                       Size="MudBlazor.Size.Small"
+                       ShowFirstButton="true"
+                       ShowLastButton="true" />
+    </div>
+}
+
+@code {
+    [Parameter] public int Page { get; set; } = 1;
+    [Parameter] public int TotalItems { get; set; }
+    [Parameter] public int PageSize { get; set; } = 10;
+    [Parameter] public EventCallback<int> PageChanged { get; set; }
+
+    private int TotalPages => Math.Max(1, (int)Math.Ceiling(TotalItems / (double)Math.Max(1, PageSize)));
+    private int From => TotalItems == 0 ? 0 : ((Page - 1) * PageSize) + 1;
+    private int To => Math.Min(TotalItems, Page * PageSize);
+    private string Summary => $"{From}-{To} / {TotalItems}";
+}

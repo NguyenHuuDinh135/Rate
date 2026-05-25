@@ -1,0 +1,40 @@
+<aside class="rate-admin-sidebar-shell">
+    <div class="rate-admin-brand">
+        <div class="rate-admin-brand__mark">R</div>
+        <div>
+            <div class="rate-admin-brand__title">RATE</div>
+            <div class="rate-admin-brand__subtitle">Movie Admin</div>
+        </div>
+    </div>
+
+    <MudNavMenu Class="rate-admin-nav">
+        <MudNavLink Href="/admin" Match="NavLinkMatch.All" Icon="@MudBlazor.Icons.Material.Outlined.Dashboard" ActiveClass="rate-admin-nav-active">Dashboard</MudNavLink>
+        <MudNavLink Href="/admin/movies" Icon="@MudBlazor.Icons.Material.Outlined.Movie" ActiveClass="rate-admin-nav-active">Quản lý phim</MudNavLink>
+        <MudNavLink Href="/admin/genres" Icon="@MudBlazor.Icons.Material.Outlined.Category" ActiveClass="rate-admin-nav-active">Thể loại</MudNavLink>
+        <MudNavLink Href="/admin/cinemas" Icon="@MudBlazor.Icons.Material.Outlined.Apartment" ActiveClass="rate-admin-nav-active">Rạp chiếu</MudNavLink>
+        <MudNavLink Href="/admin/showtimes" Icon="@MudBlazor.Icons.Material.Outlined.EventSeat" ActiveClass="rate-admin-nav-active">Suất chiếu</MudNavLink>
+        <MudNavLink Href="/admin/bookings" Icon="@MudBlazor.Icons.Material.Outlined.ConfirmationNumber" ActiveClass="rate-admin-nav-active">Đặt vé</MudNavLink>
+        <MudNavLink Href="/admin/activity" Icon="@MudBlazor.Icons.Material.Outlined.ManageAccounts" ActiveClass="rate-admin-nav-active">Hoạt động người dùng</MudNavLink>
+        <MudNavLink Href="/admin/payments" Icon="@MudBlazor.Icons.Material.Outlined.Payments" ActiveClass="rate-admin-nav-active">Thanh toán</MudNavLink>
+        <MudNavGroup Title="Cài đặt" Icon="@MudBlazor.Icons.Material.Outlined.Settings" Expanded="true">
+            <MudNavLink Href="/admin/settings" Icon="@MudBlazor.Icons.Material.Outlined.Groups" ActiveClass="rate-admin-nav-active">Nhóm người dùng</MudNavLink>
+            <MudNavLink Href="/admin/users" Icon="@MudBlazor.Icons.Material.Outlined.Person" ActiveClass="rate-admin-nav-active">Người dùng</MudNavLink>
+            <MudNavLink Href="/admin/settings?tab=permissions" Icon="@MudBlazor.Icons.Material.Outlined.Security" ActiveClass="rate-admin-nav-active">Quyền</MudNavLink>
+        </MudNavGroup>
+    </MudNavMenu>
+
+    <div class="rate-admin-profile">
+        <MudAvatar Size="MudBlazor.Size.Small" Color="MudBlazor.Color.Primary">@Initials</MudAvatar>
+        <div class="rate-admin-profile__meta">
+            <div class="rate-admin-profile__name">@DisplayName</div>
+            <div class="rate-admin-profile__role">Administrator</div>
+        </div>
+    </div>
+</aside>
+
+@code {
+    [Parameter] public string? UserName { get; set; }
+
+    private string DisplayName => string.IsNullOrWhiteSpace(UserName) ? "Admin" : UserName!;
+    private string Initials => string.IsNullOrWhiteSpace(DisplayName) ? "A" : DisplayName[..1].ToUpperInvariant();
+}

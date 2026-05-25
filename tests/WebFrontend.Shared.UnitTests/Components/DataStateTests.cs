@@ -5,6 +5,7 @@ using Microsoft.FluentUI.AspNetCore.Components;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
+using MudBlazor.Services;
 
 namespace WebUI.Shared.UnitTests.Components;
 
@@ -14,6 +15,7 @@ public class DataStateTests : BunitContext
     {
         JSInterop.Mode = JSRuntimeMode.Loose;
         Services.AddFluentUIComponents();
+        Services.AddMudServices();
     }
 
     [Fact]
@@ -25,18 +27,18 @@ public class DataStateTests : BunitContext
             .Add(p => p.LoadingMessage, loadingMessage)
         );
 
-        cut.Find("span").MarkupMatches($"<span class=\"text-xs font-black uppercase tracking-widest text-slate-400\">{loadingMessage}</span>");
+        cut.Find("span").TextContent.ShouldBe(loadingMessage);
     }
 
     [Fact]
     public void Should_RenderError_When_ErrorIsNotEmpty()
     {
-        var errorMessage = "Something went wrong";
         var cut = Render<DataState>(parameters => parameters
-            .Add(p => p.Error, errorMessage)
+            .Add(p => p.Error, "Something went wrong")
         );
 
-        cut.Find("p").MarkupMatches($"<p class=\"text-sm text-slate-500 font-medium leading-relaxed\">{errorMessage}</p>");
+        cut.Find("h3").TextContent.ShouldContain("Không thể tải dữ liệu");
+        cut.Markup.ShouldNotContain("Something went wrong");
     }
 
     [Fact]
@@ -48,7 +50,7 @@ public class DataStateTests : BunitContext
             .Add(p => p.OnRetry, () => retryCalled = true)
         );
 
-        cut.Find("fluent-button").Click();
+        cut.Find("button").Click();
         retryCalled.ShouldBeTrue();
     }
 
@@ -61,7 +63,7 @@ public class DataStateTests : BunitContext
             .Add(p => p.EmptyMessage, emptyMessage)
         );
 
-        cut.Find("p").MarkupMatches($"<p class=\"text-sm text-slate-500 font-medium italic\">{emptyMessage}</p>");
+        cut.Find("p").TextContent.ShouldBe(emptyMessage);
     }
 
     [Fact]

@@ -1,0 +1,24 @@
+<MudPaper Elevation="0" Class="rate-stat-card">
+    <div class="rate-stat-card__icon @ToneClass">
+        <MudIcon Icon="@Icon" Size="MudBlazor.Size.Medium" />
+    </div>
+    <div class="rate-stat-card__body">
+        <span>@Title</span>
+        <strong>@Value</strong>
+        @if (!string.IsNullOrWhiteSpace(Delta))
+        {
+            <small class="@DeltaClass">@Delta</small>
+        }
+    </div>
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = "";
+    [Parameter, EditorRequired] public string Value { get; set; } = "";
+    [Parameter] public string Delta { get; set; } = "";
+    [Parameter] public string Icon { get; set; } = MudBlazor.Icons.Material.Outlined.Analytics;
+    [Parameter] public string Tone { get; set; } = "primary";
+
+    private string ToneClass => $"rate-stat-card__icon--{Tone}";
+    private string DeltaClass => Delta.StartsWith("-", StringComparison.Ordinal) ? "rate-stat-card__delta negative" : "rate-stat-card__delta";
+}

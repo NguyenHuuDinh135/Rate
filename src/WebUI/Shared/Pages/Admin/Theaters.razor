@@ -1,73 +1,112 @@
 @page "/admin/theaters"
+@page "/admin/cinemas"
+@page "/admin/rooms"
 @layout AdminLayout
-@using WebUI.Shared.Models.Theaters
-@using WebUI.Shared.Services.Api
-@using Microsoft.FluentUI.AspNetCore.Components
-@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
+@using MudBlazor
+@using WebUI.Shared.Components.Admin
+@using WebUI.Shared.Components.UI
 @inject ITheaterApi TheaterApi
-@inject IToastService ToastService
+@inject MudBlazor.ISnackbar Snackbar
 
-<div class="flex flex-col gap-8">
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-3xl font-black tracking-tight text-slate-900">Quản lý rạp hát</h1>
-            <p class="text-slate-500 font-medium">Cấu hình phòng chiếu và sơ đồ ghế</p>
+<PageTitle>Rạp chiếu | RATE Admin</PageTitle>
+
+<PageHeader Title="Rạp chiếu"
+            Description="Quản lý phòng chiếu, kiểu phòng và sức chứa ghế. Room được ánh xạ theo Theater hiện có.">
+    <Actions>
+        <PrimaryButton Icon="@MudBlazor.Icons.Material.Outlined.Add" OnClick="@CreateTheater">Thêm rạp</PrimaryButton>
+    </Actions>
+</PageHeader>
+
+<DataState IsLoading="@_isLoading"
+           Error="@(_hasLoadIssue ? "load-failed" : null)"
+           IsEmpty="@(!_theaters.Any())"
+           OnRetry="@LoadTheaters">
+    <DataCard>
+        <div class="rate-toolbar">
+            <SearchBox @bind-Value="_searchText" Placeholder="Tìm theo tên rạp/phòng..." />
+            <Badge Tone="primary">@FilteredTheaters.Count() phòng</Badge>
         </div>
-        <FluentButton Appearance="Appearance.Accent" IconStart="@(new Size20.Add())" class="h-12 px-6 font-bold shadow-lg shadow-accent/20 rounded-xl">Thêm rạp mới</FluentButton>
-    </div>
 
-    @if (isLoading)
-    {
-        <div class="h-64 flex items-center justify-center bg-white rounded-[2rem] shadow-sm"><FluentProgressRing /></div>
-    }
-    else
-    {
-        <FluentCard class="p-0 overflow-hidden border-none shadow-md rounded-[2rem] bg-white">
-            <FluentDataGrid Items="@theaters.AsQueryable()" TGridItem="TheaterDto" Pagination="@pagination">
-                <PropertyColumn Property="@(t => t.Id)" Title="ID" Sortable="true" />
-                <PropertyColumn Property="@(t => t.Name)" Title="Tên Rạp" Sortable="true" Filterable="true" />
-                <PropertyColumn Property="@(t => t.NumOfRows)" Title="Số hàng" Sortable="true" />
-                <PropertyColumn Property="@(t => t.SeatsPerRow)" Title="Ghế mỗi hàng" Sortable="true" />
-                <PropertyColumn Property="@(t => t.Type)" Title="Loại" Sortable="true" />
-                
-                <TemplateColumn Title="Tổng số ghế">
-                    @(context.NumOfRows * context.SeatsPerRow)
-                </TemplateColumn>
+        <DataTable TItem="TheaterDto" Items="@PagedTheaters" EmptyMessage="Không tìm thấy rạp chiếu phù hợp.">
+            <HeaderContent>
+                <MudTh>Rạp/Phòng</MudTh>
+                <MudTh>Loại</MudTh>
+                <MudTh>Sơ đồ</MudTh>
+                <MudTh>Số ghế</MudTh>
+                <MudTh Class="text-right">Hành động</MudTh>
+            </HeaderContent>
+            <RowTemplate Context="theater">
+                <MudTd DataLabel="Rạp/Phòng">
+                    <strong>@theater.Name</strong>
+                    <div class="text-xs text-slate-500">#@theater.Id</div>
+                </MudTd>
+                <MudTd DataLabel="Loại"><Badge Tone="info">@theater.Type</Badge></MudTd>
+                <MudTd DataLabel="Sơ đồ">@theater.NumOfRows hàng × @theater.SeatsPerRow ghế</MudTd>
+                <MudTd DataLabel="Số ghế">@SeatCount(theater).ToString("N0")</MudTd>
+                <MudTd DataLabel="Hành động" Class="text-right">
+                    <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Visibility" Title="Xem sơ đồ" OnClick="@(() => ViewTheater(theater))" />
+                    <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Edit" Title="Chỉnh sửa" Intent="primary" OnClick="@(() => EditTheater(theater))" />
+                    <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Delete" Title="Xóa" Intent="danger" OnClick="@(() => DeleteTheater(theater))" />
+                </MudTd>
+            </RowTemplate>
+        </DataTable>
 
-                <TemplateColumn Title="Hành động" Align="Align.End">
-                    <div class="flex gap-2 justify-end">
-                        <FluentButton IconStart="@(new Size20.Settings())" Appearance="Appearance.Stealth" Title="Cấu hình ghế" />
-                        <FluentButton IconStart="@(new Size20.Edit())" Appearance="Appearance.Stealth" />
-                        <FluentButton IconStart="@(new Size20.Delete())" Appearance="Appearance.Stealth" Color="Color.Error" />
-                    </div>
-                </TemplateColumn>
-            </FluentDataGrid>
-            
-            <div class="p-4 border-t bg-slate-50 flex justify-center">
-                <FluentPaginator State="@pagination" />
-            </div>
-        </FluentCard>
-    }
-</div>
+        <Pagination Page="@_page" PageChanged="@OnPageChanged" PageSize="@_pageSize" TotalItems="@FilteredTheaters.Count()" />
+    </DataCard>
+</DataState>
 
 @code {
-    private List<TheaterDto> theaters = new();
-    private bool isLoading = true;
-    private PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    private readonly List<TheaterDto> _theaters = [];
+    private bool _isLoading = true;
+    private bool _hasLoadIssue;
+    private string _searchText = "";
+    private int _page = 1;
+    private const int _pageSize = 10;
+
+    private IEnumerable<TheaterDto> FilteredTheaters => _theaters
+        .Where(theater => string.IsNullOrWhiteSpace(_searchText)
+            || theater.Name.Contains(_searchText, StringComparison.OrdinalIgnoreCase)
+            || theater.Type.Contains(_searchText, StringComparison.OrdinalIgnoreCase));
+
+    private IEnumerable<TheaterDto> PagedTheaters => FilteredTheaters
+        .Skip((_page - 1) * _pageSize)
+        .Take(_pageSize);
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadTheaters();
+    }
+
+    private async Task LoadTheaters()
+    {
+        _isLoading = true;
+        _hasLoadIssue = false;
+
         try
         {
-            theaters = await TheaterApi.GetAllAsync();
+            _theaters.Clear();
+            _theaters.AddRange(await TheaterApi.GetAllAsync() ?? []);
         }
-        catch (Exception ex)
+        catch
         {
-            ToastService.ShowError("Lỗi tải danh sách rạp: " + ex.Message);
+            _hasLoadIssue = true;
         }
         finally
         {
-            isLoading = false;
+            _isLoading = false;
         }
     }
+
+    private Task OnPageChanged(int page)
+    {
+        _page = page;
+        return Task.CompletedTask;
+    }
+
+    private void CreateTheater() => Snackbar.Add("API tạo rạp chưa sẵn sàng.", MudBlazor.Severity.Info);
+    private void ViewTheater(TheaterDto theater) => Snackbar.Add($"Đang xem sơ đồ {theater.Name}.", MudBlazor.Severity.Info);
+    private void EditTheater(TheaterDto theater) => Snackbar.Add($"API cập nhật {theater.Name} chưa sẵn sàng.", MudBlazor.Severity.Info);
+    private void DeleteTheater(TheaterDto theater) => Snackbar.Add($"API xóa {theater.Name} chưa sẵn sàng.", MudBlazor.Severity.Warning);
+
+    private static int SeatCount(TheaterDto theater) => Math.Max(0, (theater.NumOfRows * theater.SeatsPerRow) - theater.Missing.Count - theater.Blocked.Count);
 }

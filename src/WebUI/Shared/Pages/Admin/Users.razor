@@ -1,55 +1,130 @@
 @page "/admin/users"
+@page "/admin/activity"
 @layout AdminLayout
-@using WebUI.Shared.Models.Auth
-@using WebUI.Shared.Services.Api
-@using Microsoft.FluentUI.AspNetCore.Components
-@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
-@inject IAuthApi AuthApi
-@inject IToastService ToastService
+@using MudBlazor
+@using WebUI.Shared.Components.Admin
+@using WebUI.Shared.Components.UI
+@inject AdminMockDataService MockData
+@inject NavigationManager NavigationManager
+@inject MudBlazor.ISnackbar Snackbar
 
-<div class="flex flex-col gap-8">
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-3xl font-black tracking-tight text-slate-900">Quản lý người dùng</h1>
-            <p class="text-slate-500 font-medium">Danh sách tài khoản và phân quyền hệ thống</p>
+<PageTitle>Người dùng | RATE Admin</PageTitle>
+
+<PageHeader Title="@PageTitleText"
+            Description="Quản lý tài khoản quản trị, vai trò và hoạt động gần đây của người dùng.">
+    <Actions>
+        <PrimaryButton Icon="@MudBlazor.Icons.Material.Outlined.PersonAdd" OnClick="@CreateUser">Thêm người dùng</PrimaryButton>
+    </Actions>
+</PageHeader>
+
+<div class="rate-grid-2">
+    <DataCard>
+        <div class="rate-toolbar">
+            <SearchBox @bind-Value="_searchText" Placeholder="Tìm tên, email, quyền..." />
+            <Badge Tone="primary">@FilteredUsers.Count() người dùng</Badge>
         </div>
-    </div>
 
-    <FluentCard class="p-0 overflow-hidden border-none shadow-md rounded-[2rem] bg-white">
-        <FluentDataGrid Items="@users.AsQueryable()" TGridItem="UserProfileDto" Pagination="@pagination">
-            <PropertyColumn Property="@(u => u.Id)" Title="ID" Sortable="true" />
-            <PropertyColumn Property="@(u => u.UserName)" Title="Username" Sortable="true" Filterable="true" />
-            <PropertyColumn Property="@(u => u.Email)" Title="Email" Sortable="true" Filterable="true" />
-            
-            <TemplateColumn Title="Vai trò">
-                <FluentBadge Appearance="Appearance.Lightweight">User</FluentBadge>
-            </TemplateColumn>
+        <DataTable TItem="UserProfileDto" Items="@PagedUsers" EmptyMessage="Không tìm thấy người dùng phù hợp.">
+            <HeaderContent>
+                <MudTh>Người dùng</MudTh>
+                <MudTh>Email</MudTh>
+                <MudTh>Vai trò/Quyền</MudTh>
+                <MudTh Class="text-right">Hành động</MudTh>
+            </HeaderContent>
+            <RowTemplate Context="user">
+                <MudTd DataLabel="Người dùng">
+                    <div class="flex items-center gap-3">
+                        <MudAvatar Size="MudBlazor.Size.Small" Color="MudBlazor.Color.Primary">@Initial(user.UserName)</MudAvatar>
+                        <div>
+                            <div class="font-bold">@user.UserName</div>
+                            <div class="text-xs text-slate-500">#@user.Id</div>
+                        </div>
+                    </div>
+                </MudTd>
+                <MudTd DataLabel="Email">@user.Email</MudTd>
+                <MudTd DataLabel="Vai trò/Quyền">
+                    @if (user.Permissions.Any())
+                    {
+                        @foreach (var permission in user.Permissions.Take(2))
+                        {
+                            <Badge Tone="primary" Class="mr-1">@ShortPermission(permission)</Badge>
+                        }
+                    }
+                    else
+                    {
+                        <Badge>User</Badge>
+                    }
+                </MudTd>
+                <MudTd DataLabel="Hành động" Class="text-right">
+                    <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Visibility" Title="Xem hồ sơ" OnClick="@(() => ViewUser(user))" />
+                    <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Edit" Title="Chỉnh sửa" Intent="primary" OnClick="@(() => EditUser(user))" />
+                    <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Delete" Title="Xóa" Intent="danger" OnClick="@(() => DeleteUser(user))" />
+                </MudTd>
+            </RowTemplate>
+        </DataTable>
 
-            <TemplateColumn Title="Hành động" Align="Align.End">
-                <div class="flex gap-2 justify-end">
-                    <FluentButton IconStart="@(new Size20.LockOpen())" Appearance="Appearance.Stealth" Title="Reset mật khẩu" />
-                    <FluentButton IconStart="@(new Size20.Delete())" Appearance="Appearance.Stealth" Color="Color.Error" />
-                </div>
-            </TemplateColumn>
-        </FluentDataGrid>
-        
-        <div class="p-4 border-t bg-slate-50 flex justify-center">
-            <FluentPaginator State="@pagination" />
+        <Pagination Page="@_page" PageChanged="@OnPageChanged" PageSize="@_pageSize" TotalItems="@FilteredUsers.Count()" />
+    </DataCard>
+
+    <DataCard>
+        <div class="rate-card-section">
+            <h2 class="rate-card-title">Hoạt động gần đây</h2>
+            <div class="rate-list">
+                @foreach (var activity in MockData.GetActivities())
+                {
+                    <div class="rate-list-row">
+                        <div>
+                            <strong>@activity.Action</strong>
+                            <span>@activity.UserName · @activity.TimeAgo</span>
+                        </div>
+                        <Badge Tone="info">@activity.Type</Badge>
+                    </div>
+                }
+            </div>
         </div>
-    </FluentCard>
+    </DataCard>
 </div>
 
 @code {
-    private List<UserProfileDto> users = new();
-    private PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    private readonly List<UserProfileDto> _users = [];
+    private string _searchText = "";
+    private int _page = 1;
+    private const int _pageSize = 10;
+
+    private bool IsActivityPage => NavigationManager.ToBaseRelativePath(NavigationManager.Uri).StartsWith("admin/activity", StringComparison.OrdinalIgnoreCase);
+    private string PageTitleText => IsActivityPage ? "Hoạt động người dùng" : "Người dùng";
+
+    private IEnumerable<UserProfileDto> FilteredUsers => _users
+        .Where(user => string.IsNullOrWhiteSpace(_searchText)
+            || user.UserName.Contains(_searchText, StringComparison.OrdinalIgnoreCase)
+            || user.Email.Contains(_searchText, StringComparison.OrdinalIgnoreCase)
+            || user.Permissions.Any(permission => permission.Contains(_searchText, StringComparison.OrdinalIgnoreCase)));
+
+    private IEnumerable<UserProfileDto> PagedUsers => FilteredUsers
+        .Skip((_page - 1) * _pageSize)
+        .Take(_pageSize);
 
     protected override void OnInitialized()
     {
-        // Mock data for now since we don't have a GetUsersAsync in IAuthApi yet
-        users = new List<UserProfileDto> {
-            new UserProfileDto("1", "admin", "admin@rate.com", new List<string> { "Permission.ManagePermissions" }),
-            new UserProfileDto("2", "dinhnh", "dinh@rate.com", new List<string>()),
-            new UserProfileDto("3", "test_user", "test@gmail.com", new List<string>())
-        };
+        _users.AddRange(MockData.GetUsers());
+    }
+
+    private Task OnPageChanged(int page)
+    {
+        _page = page;
+        return Task.CompletedTask;
+    }
+
+    private void CreateUser() => Snackbar.Add("API người dùng chưa sẵn sàng. Đang dùng mock service riêng cho admin.", MudBlazor.Severity.Info);
+    private void ViewUser(UserProfileDto user) => Snackbar.Add($"Đang xem {user.UserName}.", MudBlazor.Severity.Info);
+    private void EditUser(UserProfileDto user) => Snackbar.Add($"API cập nhật {user.UserName} chưa sẵn sàng.", MudBlazor.Severity.Info);
+    private void DeleteUser(UserProfileDto user) => Snackbar.Add($"API xóa {user.UserName} chưa sẵn sàng.", MudBlazor.Severity.Warning);
+
+    private static string Initial(string value) => string.IsNullOrWhiteSpace(value) ? "U" : value[..1].ToUpperInvariant();
+
+    private static string ShortPermission(string permission)
+    {
+        var parts = permission.Split('.', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return parts.Length == 0 ? permission : parts[^1];
     }
 }

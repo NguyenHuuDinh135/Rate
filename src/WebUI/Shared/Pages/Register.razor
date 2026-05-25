@@ -70,16 +70,16 @@
 
 @code {
     [SupplyParameterFromForm]
-    private string username { get; set; } = "";
+    private string? username { get; set; }
     
     [SupplyParameterFromForm]
-    private string email { get; set; } = "";
+    private string? email { get; set; }
     
     [SupplyParameterFromForm]
-    private string password { get; set; } = "";
+    private string? password { get; set; }
     
     [SupplyParameterFromForm]
-    private string confirmPassword { get; set; } = "";
+    private string? confirmPassword { get; set; }
     
     private string? errorMessage;
     private bool isLoading = false;

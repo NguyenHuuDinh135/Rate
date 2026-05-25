@@ -1,0 +1,11 @@
+<div class="rate-state rate-state-empty">
+    <MudIcon Icon="@Icon" Size="MudBlazor.Size.Large" Color="MudBlazor.Color.Default" />
+    <h3>@Title</h3>
+    <p>@Description</p>
+</div>
+
+@code {
+    [Parameter] public string Icon { get; set; } = MudBlazor.Icons.Material.Outlined.Inbox;
+    [Parameter] public string Title { get; set; } = "Không có dữ liệu";
+    [Parameter] public string Description { get; set; } = "Dữ liệu sẽ xuất hiện tại đây khi có bản ghi phù hợp.";
+}

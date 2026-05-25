@@ -1,0 +1,10 @@
+<MudPaper Elevation="0" Class="@CardClass">
+    @ChildContent
+</MudPaper>
+
+@code {
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private string CardClass => $"rate-data-card {Class}".Trim();
+}

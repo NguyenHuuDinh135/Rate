@@ -22,7 +22,7 @@
                         var index = i;
                         <input type="text" maxlength="1" 
                                class="w-12 h-16 text-center text-2xl font-black bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-accent focus:bg-white focus:shadow-xl focus:shadow-accent/10 outline-none transition-all"
-                               @bind="otpValues[index]" 
+                               @bind="OtpValues[index]" 
                                @oninput="(e) => HandleInput(index, e)" />
                     }
                 </div>
@@ -43,7 +43,9 @@
 
 @code {
     [SupplyParameterFromForm]
-    private string[] otpValues { get; set; } = new string[6] { "", "", "", "", "", "" };
+    private string[]? otpValues { get; set; }
+
+    private string[] OtpValues => otpValues ??= new string[6] { "", "", "", "", "", "" };
 
     private void HandleInput(int index, ChangeEventArgs e)
     {
@@ -52,7 +54,7 @@
 
     private async Task Verify()
     {
-        var code = string.Join("", otpValues);
+        var code = string.Join("", OtpValues);
         if (code.Length == 6)
         {
             ToastService.ShowSuccess("Xác thực thành công!");

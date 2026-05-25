@@ -1,0 +1,15 @@
+<div class="rate-state rate-state-error">
+    <MudIcon Icon="@MudBlazor.Icons.Material.Outlined.ErrorOutline" Size="MudBlazor.Size.Large" Color="MudBlazor.Color.Error" />
+    <h3>@Title</h3>
+    <p>@Message</p>
+    @if (OnRetry.HasDelegate)
+    {
+        <MudButton Variant="MudBlazor.Variant.Outlined" Color="MudBlazor.Color.Primary" OnClick="@OnRetry">Thử lại</MudButton>
+    }
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Không thể tải dữ liệu";
+    [Parameter] public string Message { get; set; } = "Hệ thống chưa sẵn sàng. Vui lòng thử lại sau.";
+    [Parameter] public EventCallback OnRetry { get; set; }
+}

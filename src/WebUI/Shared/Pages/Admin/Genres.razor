@@ -1,72 +1,65 @@
 @page "/admin/genres"
 @layout AdminLayout
-@using Microsoft.FluentUI.AspNetCore.Components
-@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
-@using WebUI.Shared.Models.Movies
-@using WebUI.Shared.Services.Api
-@using WebUI.Shared.Components
+@using MudBlazor
+@using WebUI.Shared.Components.Admin
+@using WebUI.Shared.Components.UI
 @inject IGenreApi GenreApi
-@inject IToastService ToastService
+@inject MudBlazor.ISnackbar Snackbar
 @inject IJSRuntime JSRuntime
 
-<PageTitle>Quản lý Thể loại | RATE ADMIN</PageTitle>
+<PageTitle>Thể loại | RATE Admin</PageTitle>
 
-<div class="flex flex-col gap-8">
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-3xl font-black tracking-tight text-slate-900">Quản lý Thể loại</h1>
-            <p class="text-slate-500 font-medium">Danh mục các thể loại phim trong hệ thống</p>
-        </div>
-        <PermissionGate Permission="Permission.Movies.Create">
-            <FluentButton Appearance="Appearance.Accent" IconStart="@(new Size20.Add())" class="h-12 px-6 font-bold shadow-lg shadow-accent/20 rounded-xl" OnClick="@(() => OpenGenreDialog(null))">
-                Thêm thể loại mới
-            </FluentButton>
-        </PermissionGate>
-    </div>
+<PageHeader Title="Thể loại"
+            Description="Quản lý danh mục thể loại phim dùng cho lọc, tìm kiếm và hiển thị nội dung.">
+    <Actions>
+        <PrimaryButton Icon="@MudBlazor.Icons.Material.Outlined.Add" OnClick="@(() => OpenGenreDialog(null))">Thêm thể loại</PrimaryButton>
+    </Actions>
+</PageHeader>
 
-    @if (isLoading)
-    {
-        <div class="flex justify-center py-20 bg-white rounded-[2rem] border border-slate-100 shadow-md">
-            <FluentProgressRing></FluentProgressRing>
+<DataState IsLoading="@_isLoading"
+           Error="@(_hasLoadIssue ? "load-failed" : null)"
+           IsEmpty="@(!_genres.Any())"
+           OnRetry="@LoadGenres">
+    <DataCard>
+        <div class="rate-toolbar">
+            <SearchBox @bind-Value="_searchText" Placeholder="Tìm thể loại..." />
+            <Badge Tone="primary">@FilteredGenres.Count() thể loại</Badge>
         </div>
-    }
-    else if (!genres.Any())
-    {
-        <div class="flex flex-col items-center justify-center py-20 bg-white rounded-[2rem] border border-slate-100 shadow-md gap-4">
-            <FluentIcon Value="@(new Size32.Tag())" class="text-slate-200" />
-            <p class="text-slate-400 font-bold">Chưa có thể loại nào.</p>
-        </div>
-    }
-    else
-    {
-        <FluentCard class="p-0 overflow-hidden border-none shadow-md rounded-[2rem] bg-white">
-            <FluentDataGrid Items="@genres.AsQueryable()" TGridItem="GenreDto" ResizableColumns="true" Pagination="@pagination">
-                <PropertyColumn Property="@(g => g.Id)" Title="ID Thể loại" Sortable="true" Align="Align.Start" />
-                <PropertyColumn Property="@(g => g.Name)" Title="Tên Thể loại" Sortable="true" />
-                
-                <TemplateColumn Title="Hành động" Align="Align.End">
-                    <div class="flex gap-2 justify-end">
-                        <PermissionGate Permission="Permission.Movies.Edit">
-                            <FluentButton IconStart="@(new Size20.Edit())" Appearance="Appearance.Stealth" OnClick="@(() => OpenGenreDialog(context))" />
-                        </PermissionGate>
-                        <PermissionGate Permission="Permission.Movies.Delete">
-                            <FluentButton IconStart="@(new Size20.Delete())" Appearance="Appearance.Stealth" Color="Color.Error" OnClick="@(() => ConfirmDeleteGenre(context))" />
-                        </PermissionGate>
-                    </div>
-                </TemplateColumn>
-            </FluentDataGrid>
-            
-            <div class="p-4 border-t bg-slate-50 flex justify-center">
-                <FluentPaginator State="@pagination" />
-            </div>
-        </FluentCard>
-    }
-</div>
+
+        <DataTable TItem="GenreDto" Items="@PagedGenres" EmptyMessage="Không tìm thấy thể loại phù hợp.">
+            <HeaderContent>
+                <MudTh>ID</MudTh>
+                <MudTh>Tên thể loại</MudTh>
+                <MudTh Class="text-right">Hành động</MudTh>
+            </HeaderContent>
+            <RowTemplate Context="genre">
+                <MudTd DataLabel="ID">#@genre.Id</MudTd>
+                <MudTd DataLabel="Tên thể loại"><strong>@genre.Name</strong></MudTd>
+                <MudTd DataLabel="Hành động" Class="text-right">
+                    <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Edit" Title="Chỉnh sửa" Intent="primary" OnClick="@(() => OpenGenreDialog(genre))" />
+                    <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Delete" Title="Xóa" Intent="danger" OnClick="@(() => ConfirmDeleteGenre(genre))" />
+                </MudTd>
+            </RowTemplate>
+        </DataTable>
+
+        <Pagination Page="@_page" PageChanged="@OnPageChanged" PageSize="@_pageSize" TotalItems="@FilteredGenres.Count()" />
+    </DataCard>
+</DataState>
 
 @code {
-    private List<GenreDto> genres = new();
-    private bool isLoading = true;
-    private PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    private readonly List<GenreDto> _genres = [];
+    private bool _isLoading = true;
+    private bool _hasLoadIssue;
+    private string _searchText = "";
+    private int _page = 1;
+    private const int _pageSize = 10;
+
+    private IEnumerable<GenreDto> FilteredGenres => _genres
+        .Where(genre => string.IsNullOrWhiteSpace(_searchText) || genre.Name.Contains(_searchText, StringComparison.OrdinalIgnoreCase));
+
+    private IEnumerable<GenreDto> PagedGenres => FilteredGenres
+        .Skip((_page - 1) * _pageSize)
+        .Take(_pageSize);
 
     protected override async Task OnInitializedAsync()
     {
@@ -75,73 +68,86 @@
 
     private async Task LoadGenres()
     {
+        _isLoading = true;
+        _hasLoadIssue = false;
+
         try
         {
-            isLoading = true;
-            genres = await GenreApi.GetAllAsync() ?? new List<GenreDto>();
+            _genres.Clear();
+            _genres.AddRange(await GenreApi.GetAllAsync() ?? []);
         }
-        catch (Exception ex)
+        catch
         {
-            ToastService.ShowError("Lỗi khi tải danh sách thể loại: " + ex.Message);
+            _hasLoadIssue = true;
         }
         finally
         {
-            isLoading = false;
+            _isLoading = false;
         }
+    }
+
+    private Task OnPageChanged(int page)
+    {
+        _page = page;
+        return Task.CompletedTask;
     }
 
     private async Task OpenGenreDialog(GenreDto? genre)
     {
-        var isNew = genre == null;
-        var nameInput = genre?.Name ?? "";
+        var isNew = genre is null;
+        var currentName = genre?.Name ?? "";
+        var value = await JSRuntime.InvokeAsync<string>("prompt", isNew ? "Nhập tên thể loại mới:" : "Chỉnh sửa tên thể loại:", currentName);
 
-        var newName = await JSRuntime.InvokeAsync<string>("prompt", isNew ? "Nhập tên thể loại mới:" : "Chỉnh sửa tên thể loại:", nameInput);
-
-        if (newName != null)
+        if (value is null)
         {
-            newName = newName.Trim();
-            if (string.IsNullOrWhiteSpace(newName))
+            return;
+        }
+
+        value = value.Trim();
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            Snackbar.Add("Tên thể loại không được để trống.", MudBlazor.Severity.Warning);
+            return;
+        }
+
+        try
+        {
+            if (isNew)
             {
-                ToastService.ShowError("Tên thể loại không được để trống!");
-                return;
+                await GenreApi.CreateAsync(new CreateGenreCommand(value));
+                Snackbar.Add("Đã thêm thể loại.", MudBlazor.Severity.Success);
+            }
+            else
+            {
+                await GenreApi.UpdateAsync(new UpdateGenreCommand(genre!.Id, value));
+                Snackbar.Add("Đã cập nhật thể loại.", MudBlazor.Severity.Success);
             }
 
-            try
-            {
-                if (isNew)
-                {
-                    await GenreApi.CreateAsync(new CreateGenreCommand(newName));
-                    ToastService.ShowSuccess("Thêm thể loại thành công!");
-                }
-                else
-                {
-                    await GenreApi.UpdateAsync(new UpdateGenreCommand(genre!.Id, newName));
-                    ToastService.ShowSuccess("Cập nhật thể loại thành công!");
-                }
-                await LoadGenres();
-            }
-            catch (Exception ex)
-            {
-                ToastService.ShowError("Thao tác thất bại: " + ex.Message);
-            }
+            await LoadGenres();
+        }
+        catch
+        {
+            Snackbar.Add("Không thể lưu thể loại lúc này.", MudBlazor.Severity.Error);
         }
     }
 
     private async Task ConfirmDeleteGenre(GenreDto genre)
     {
-        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Bạn có chắc chắn muốn xóa thể loại '{genre.Name}'?");
-        if (ok)
+        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Xóa thể loại '{genre.Name}'?");
+        if (!ok)
         {
-            try
-            {
-                await GenreApi.DeleteAsync(genre.Id);
-                ToastService.ShowSuccess("Xóa thể loại thành công!");
-                await LoadGenres();
-            }
-            catch (Exception ex)
-            {
-                ToastService.ShowError("Xóa thất bại: " + ex.Message);
-            }
+            return;
+        }
+
+        try
+        {
+            await GenreApi.DeleteAsync(genre.Id);
+            Snackbar.Add("Đã xóa thể loại.", MudBlazor.Severity.Success);
+            await LoadGenres();
+        }
+        catch
+        {
+            Snackbar.Add("Không thể xóa thể loại lúc này.", MudBlazor.Severity.Error);
         }
     }
 }
