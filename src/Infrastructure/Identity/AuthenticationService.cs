@@ -56,6 +56,49 @@ public sealed class AuthenticationService(
         };
     }
 
+    public async Task<AuthTokenResult?> ExternalLoginAsync(string email, string username, CancellationToken cancellationToken = default)
+    {
+        var user = await userManager.FindByEmailAsync(email);
+        if (user is null)
+        {
+            user = new ApplicationUser
+            {
+                UserName = username,
+                Email = email,
+                EmailConfirmed = true
+            };
+            var createResult = await userManager.CreateAsync(user);
+            if (!createResult.Succeeded)
+            {
+                return null;
+            }
+
+            await userManager.AddToRoleAsync(user, "User");
+        }
+
+        var roles = await userManager.GetRolesAsync(user);
+        var accessToken = jwtService.GenerateAccessToken(
+            user.Id,
+            user.Email ?? string.Empty,
+            user.UserName ?? string.Empty,
+            roles);
+
+        var refreshToken = jwtService.GenerateRefreshToken();
+        await refreshTokenStore.StoreAsync(
+            user.Id,
+            refreshToken,
+            TimeSpan.FromDays(_settings.RefreshTokenExpiryDays),
+            cancellationToken);
+
+        return new AuthTokenResult
+        {
+            AccessToken = accessToken,
+            RefreshToken = refreshToken,
+            UserId = user.Id,
+            Email = user.Email ?? string.Empty
+        };
+    }
+
     public async Task<AuthTokenResult?> RefreshAsync(string accessToken, string refreshToken, CancellationToken cancellationToken = default)
     {
         var userId = jwtService.ValidateAccessToken(accessToken)?.ToString();

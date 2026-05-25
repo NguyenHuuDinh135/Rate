@@ -1,11 +1,12 @@
 namespace WebUI.Shared.Models.Auth;
 
 public record LoginRequest(string Email, string Password);
-public record RegisterRequest(string UserName, string Email, string Password);
+public record RegisterRequest(string FullName, string Email, string Password);
 public record VerifyOtpRequest(string Email, string OtpCode);
 
 public record TokenResponseDto(
     string? AccessToken,
+    string? RefreshToken,
     string? Username,
     string? Email,
     int? ExpiresIn,
@@ -27,3 +28,7 @@ public record CreateAdminUserRequest(string UserName, string Email, string Passw
 public record UpdateAdminUserRequest(string Id, string UserName, string Email, List<string> Roles);
 
 public record UserActivityDto(int Id, string UserName, string Action, string Type, DateTime OccurredAt);
+
+public record ForgotPasswordRequest(string Email);
+public record ForgotPasswordResponse(string Message);
+public record ResetPasswordRequest(string Email, string ResetToken, string NewPassword);

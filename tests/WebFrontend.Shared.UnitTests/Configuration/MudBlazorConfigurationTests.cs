@@ -27,26 +27,36 @@ public class MudBlazorConfigurationTests
     }
 
     [Theory]
-    [InlineData("src/WebUI/Server/Program.cs")]
-    [InlineData("src/WebUI/Client/Program.cs")]
-    public void BlazorHosts_Should_RegisterMudServices(string programPath)
+    [InlineData("src/WebUI/Server/DependencyInjection.cs", "services.AddMudServices();")]
+    [InlineData("src/WebUI/Client/Program.cs", "builder.Services.AddMudServices();")]
+    public void BlazorHosts_Should_RegisterMudServices(string hostPath, string registration)
     {
-        var program = Read(programPath);
+        var host = Read(hostPath);
 
-        program.ShouldContain("using MudBlazor.Services;");
-        program.ShouldContain("builder.Services.AddMudServices();");
+        host.ShouldContain("using MudBlazor.Services;");
+        host.ShouldContain(registration);
     }
 
-    [Theory]
-    [InlineData("src/WebUI/Server/Program.cs")]
-    [InlineData("src/WebUI/Client/Program.cs")]
-    public void BlazorHosts_Should_RegisterBearerHandlerForProtectedApis(string programPath)
+    [Fact]
+    public void ClientHost_Should_RegisterBearerHandlerForProtectedApis()
     {
-        var program = Read(programPath);
+        var program = Read("src/WebUI/Client/Program.cs");
 
         program.ShouldContain("builder.Services.AddTransient<BearerTokenHandler>();");
         program.ShouldContain("AddRefitClient<IUserApi>()");
         program.ShouldContain("AddHttpMessageHandler<BearerTokenHandler>()");
+    }
+
+    [Fact]
+    public void ServerHost_Should_UseBffProxyForProtectedApis()
+    {
+        var program = Read("src/WebUI/Server/Program.cs");
+        var services = Read("src/WebUI/Server/DependencyInjection.cs");
+        var proxy = Read("src/WebUI/Server/Extentions/BffProxyExtentions.cs");
+
+        program.ShouldContain("app.MapBffProxy();");
+        services.ShouldContain("""services.AddHttpClient("BFFProxy");""");
+        proxy.ShouldContain("AttachBearerTokenFromCookie");
     }
 
     [Fact]

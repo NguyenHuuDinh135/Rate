@@ -17,11 +17,7 @@
         </div>
     </div>
     <div class="rate-admin-topbar__right">
-        <MudIconButton Icon="@ThemeIcon"
-                       Variant="MudBlazor.Variant.Text"
-                       Color="MudBlazor.Color.Default"
-                       Size="MudBlazor.Size.Small"
-                       OnClick="@ToggleTheme" />
+        <ThemeToggle Class="h-8 w-8" />
     </div>
 </header>
 
@@ -29,17 +25,10 @@
     [Parameter] public EventCallback OnMenuClick { get; set; }
 
     private string CurrentTitle => ResolveTitle(NavigationManager.ToBaseRelativePath(NavigationManager.Uri));
-    private string ThemeIcon => ThemeService.IsDarkMode ? MudBlazor.Icons.Material.Outlined.LightMode : MudBlazor.Icons.Material.Outlined.DarkMode;
-
     protected override void OnInitialized()
     {
         NavigationManager.LocationChanged += HandleLocationChanged;
         ThemeService.ThemeChanged += HandleThemeChanged;
-    }
-
-    private void ToggleTheme()
-    {
-        ThemeService.Toggle();
     }
 
     private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)

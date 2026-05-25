@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Blazicons.Lucide" />
     <PackageReference Include="Blazored.LocalStorage" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <PackageReference Include="Fluxor.Blazor.Web" />

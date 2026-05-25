@@ -55,7 +55,7 @@ public class PageTests : BunitContext
     {
         var mockAuth = new Mock<IState<AuthState>>();
         mockAuth.Setup(s => s.Value).Returns(new AuthState(true, false, null, 
-            new Models.Auth.TokenResponseDto("tk", "dinhnh", "dinh@rate.com", 3600, new List<string>()), 
+            new Models.Auth.TokenResponseDto("tk", null, "dinhnh", "dinh@rate.com", 3600, new List<string>()), 
             new List<string>()));
         Services.AddSingleton(mockAuth.Object);
 

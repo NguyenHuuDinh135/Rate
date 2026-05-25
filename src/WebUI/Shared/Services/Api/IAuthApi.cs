@@ -1,5 +1,6 @@
 using Refit;
 using WebUI.Shared.Models.Auth;
+using WebUI.Shared.Models.Common;
 
 namespace WebUI.Shared.Services.Api;
 
@@ -9,11 +10,17 @@ public interface IAuthApi
     Task<TokenResponseDto> LoginAsync([Body] LoginRequest payload);
 
     [Post("/api/auth/register")]
-    Task<WebUI.Shared.Models.Common.ApiResponse<int>> RegisterAsync([Body] RegisterRequest payload);
+    Task<OperationResultDto> RegisterAsync([Body] RegisterRequest payload);
 
     [Post("/api/auth/refresh")]
     Task<TokenResponseDto> RefreshTokenAsync();
 
     [Post("/api/auth/logout")]
     Task LogoutAsync();
+
+    [Post("/api/auth/forgot-password")]
+    Task<ForgotPasswordResponse> ForgotPasswordAsync([Body] ForgotPasswordRequest payload);
+
+    [Post("/api/auth/reset-password")]
+    Task<OperationResultDto> ResetPasswordAsync([Body] ResetPasswordRequest payload);
 }

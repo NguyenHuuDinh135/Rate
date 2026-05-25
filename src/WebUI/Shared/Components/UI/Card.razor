@@ -1,0 +1,8 @@
+<div class="rounded-xl border border-border bg-card text-card-foreground shadow @Class">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter] public string Class { get; set; } = string.Empty;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

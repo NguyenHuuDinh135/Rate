@@ -28,3 +28,32 @@ window.animateHeroText = () => {
         );
     }
 };
+
+window.rateTheme = {
+    key: "rate-theme",
+    apply(isDarkMode) {
+        const root = document.documentElement;
+        root.classList.toggle("dark", isDarkMode);
+        root.dataset.theme = isDarkMode ? "dark" : "light";
+    },
+    init(defaultDarkMode) {
+        const stored = window.localStorage.getItem(this.key);
+        const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const isDarkMode = stored === "dark" || (!stored && (defaultDarkMode || prefersDark));
+        this.apply(isDarkMode);
+        return isDarkMode;
+    },
+    set(isDarkMode) {
+        window.localStorage.setItem(this.key, isDarkMode ? "dark" : "light");
+        this.apply(isDarkMode);
+    }
+};
+
+window.rateAuth = {
+    focusById(id) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.focus();
+        }
+    }
+};

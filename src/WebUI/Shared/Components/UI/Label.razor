@@ -1,0 +1,8 @@
+<label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground @Class">
+    @ChildContent
+</label>
+
+@code {
+    [Parameter] public string Class { get; set; } = string.Empty;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}
