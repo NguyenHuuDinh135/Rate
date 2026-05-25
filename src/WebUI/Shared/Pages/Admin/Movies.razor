@@ -7,7 +7,9 @@
 @using WebUI.Shared.Store.Movies
 @inject IState<MovieState> MovieState
 @inject IDispatcher Dispatcher
+@inject IMovieApi MovieApi
 @inject MudBlazor.ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Quản lý phim | RATE Admin</PageTitle>
 
@@ -105,9 +107,31 @@
         return Task.CompletedTask;
     }
 
-    private void CreateMovie()
+    private async Task CreateMovie()
     {
-        Snackbar.Add("API tạo phim chưa sẵn sàng. UI đã chuẩn bị luồng thao tác.", MudBlazor.Severity.Info);
+        var title = await JSRuntime.InvokeAsync<string>("prompt", "Tên phim:", "");
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            return;
+        }
+
+        try
+        {
+            var result = await MovieApi.CreateAsync(new CreateMovieCommand(
+                title,
+                "",
+                DateTime.Now.Year,
+                null,
+                "",
+                "",
+                MovieType.ComingSoon));
+            Snackbar.Add(result.Succeeded ? "Đã tạo phim." : "Không thể tạo phim lúc này.", result.Succeeded ? MudBlazor.Severity.Success : MudBlazor.Severity.Error);
+            Dispatcher.Dispatch(new LoadMoviesAction());
+        }
+        catch
+        {
+            Snackbar.Add("Không thể tạo phim lúc này.", MudBlazor.Severity.Error);
+        }
     }
 
     private void ViewMovie(MovieDto movie)
@@ -115,14 +139,52 @@
         Snackbar.Add($"Đang xem phim: {movie.Title}", MudBlazor.Severity.Info);
     }
 
-    private void EditMovie(MovieDto movie)
+    private async Task EditMovie(MovieDto movie)
     {
-        Snackbar.Add($"API cập nhật phim '{movie.Title}' chưa sẵn sàng.", MudBlazor.Severity.Info);
+        var title = await JSRuntime.InvokeAsync<string>("prompt", "Tên phim:", movie.Title);
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            return;
+        }
+
+        try
+        {
+            await MovieApi.UpdateAsync(new UpdateMovieCommand(
+                movie.Id,
+                title,
+                movie.Summary,
+                movie.Year,
+                movie.Rating,
+                movie.TrailerUrl,
+                movie.PosterUrl,
+                movie.MovieType));
+            Snackbar.Add("Đã cập nhật phim.", MudBlazor.Severity.Success);
+            Dispatcher.Dispatch(new LoadMoviesAction());
+        }
+        catch
+        {
+            Snackbar.Add("Không thể cập nhật phim lúc này.", MudBlazor.Severity.Error);
+        }
     }
 
-    private void DeleteMovie(MovieDto movie)
+    private async Task DeleteMovie(MovieDto movie)
     {
-        Snackbar.Add($"API xóa phim '{movie.Title}' chưa sẵn sàng.", MudBlazor.Severity.Warning);
+        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Xóa phim '{movie.Title}'?");
+        if (!ok)
+        {
+            return;
+        }
+
+        try
+        {
+            await MovieApi.DeleteAsync(movie.Id);
+            Snackbar.Add("Đã xóa phim.", MudBlazor.Severity.Success);
+            Dispatcher.Dispatch(new LoadMoviesAction());
+        }
+        catch
+        {
+            Snackbar.Add("Không thể xóa phim lúc này.", MudBlazor.Severity.Error);
+        }
     }
 
     private static string Poster(string? posterUrl) => string.IsNullOrWhiteSpace(posterUrl) ? "/favicon.png" : posterUrl;

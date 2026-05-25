@@ -22,11 +22,15 @@ public class BookedSeatDto
 }
 
 public record CreateBookingCommand(
-    string UserId,
     int ShowId,
     string SeatRow,
     int SeatNumber,
-    decimal Price,
-    int? Status = null);
+    float Price,
+    string? UserId = null);
 
-public record UpdateBookingCommand(int Id, int Status);
+public record UpdateBookingCommand(
+    int Id,
+    string SeatRow,
+    int SeatNumber,
+    float Price,
+    BookingStatus Status);

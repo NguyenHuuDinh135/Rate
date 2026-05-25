@@ -10,7 +10,7 @@
 @inject IShowApi ShowApi
 @inject IBookingApi BookingApi
 @inject IPaymentApi PaymentApi
-@inject AdminMockDataService MockData
+@inject IUserApi UserApi
 
 <PageTitle>Dashboard | RATE Admin</PageTitle>
 
@@ -85,12 +85,12 @@ else
             <div class="rate-card-section">
                 <h2 class="rate-card-title">Hoạt động người dùng</h2>
                 <div class="rate-list">
-                    @foreach (var item in MockData.GetActivities())
+                    @foreach (var item in _activities.Take(8))
                     {
                         <div class="rate-list-row">
                             <div>
                                 <strong>@item.Action</strong>
-                                <span>@item.UserName · @item.TimeAgo</span>
+                                <span>@item.UserName · @RelativeTime(item.OccurredAt)</span>
                             </div>
                             <Badge Tone="primary">@item.Type</Badge>
                         </div>
@@ -106,6 +106,7 @@ else
     private readonly List<ShowDto> _shows = [];
     private readonly List<BookingDto> _bookings = [];
     private readonly List<PaymentDto> _payments = [];
+    private readonly List<UserActivityDto> _activities = [];
     private bool _isLoading = true;
     private bool _hasLoadIssue;
 
@@ -126,11 +127,8 @@ else
         await LoadSafely(async () => _movies.AddRange(await MovieApi.GetAllAsync()));
         await LoadSafely(async () => _shows.AddRange(await ShowApi.GetAllAsync()));
         await LoadSafely(async () => _bookings.AddRange(await BookingApi.GetAllAsync() ?? []));
-        await LoadSafely(async () =>
-        {
-            var payments = await PaymentApi.GetAllAsync();
-            _payments.AddRange(payments.Body ?? []);
-        });
+        await LoadSafely(async () => _payments.AddRange(await PaymentApi.GetAllAsync() ?? []));
+        await LoadSafely(async () => _activities.AddRange(await UserApi.GetActivityAsync() ?? []));
 
         _isLoading = false;
     }
@@ -152,7 +150,7 @@ else
 
     private static string BookingLabel(BookingStatus status) => status switch
     {
-        BookingStatus.Paid => "Đã thanh toán",
+        BookingStatus.Confirmed => "Đã xác nhận",
         BookingStatus.Reserved => "Giữ ghế",
         BookingStatus.Cancelled => "Đã hủy",
         _ => "Không rõ"
@@ -160,9 +158,18 @@ else
 
     private static string BookingTone(BookingStatus status) => status switch
     {
-        BookingStatus.Paid => "success",
+        BookingStatus.Confirmed => "success",
         BookingStatus.Reserved => "warning",
         BookingStatus.Cancelled => "danger",
         _ => "neutral"
     };
+
+    private static string RelativeTime(DateTime value)
+    {
+        var delta = DateTime.UtcNow - value.ToUniversalTime();
+        if (delta.TotalMinutes < 1) return "vừa xong";
+        if (delta.TotalHours < 1) return $"{(int)delta.TotalMinutes} phút trước";
+        if (delta.TotalDays < 1) return $"{(int)delta.TotalHours} giờ trước";
+        return value.ToLocalTime().ToString("dd/MM/yyyy HH:mm");
+    }
 }

@@ -22,7 +22,7 @@
                 <SearchBox @bind-Value="_searchText" Placeholder="Tìm mã vé, người đặt, ghế..." />
                 <MudSelect T="string" @bind-Value="_statusFilter" Variant="MudBlazor.Variant.Outlined" Margin="MudBlazor.Margin.Dense" Dense="true" Class="min-w-40">
                     <MudSelectItem T="string" Value="@("all")">Tất cả trạng thái</MudSelectItem>
-                    <MudSelectItem T="string" Value="@("paid")">Đã thanh toán</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("confirmed")">Đã xác nhận</MudSelectItem>
                     <MudSelectItem T="string" Value="@("reserved")">Giữ ghế</MudSelectItem>
                     <MudSelectItem T="string" Value="@("cancelled")">Đã hủy</MudSelectItem>
                 </MudSelect>
@@ -77,7 +77,7 @@
             || $"{booking.SeatRow}{booking.SeatNumber}".Contains(_searchText, StringComparison.OrdinalIgnoreCase))
         .Where(booking => _statusFilter switch
         {
-            "paid" => booking.Status == BookingStatus.Paid,
+            "confirmed" => booking.Status == BookingStatus.Confirmed,
             "reserved" => booking.Status == BookingStatus.Reserved,
             "cancelled" => booking.Status == BookingStatus.Cancelled,
             _ => true
@@ -133,7 +133,12 @@
 
         try
         {
-            await BookingApi.UpdateAsync(new UpdateBookingCommand(booking.Id, (int)BookingStatus.Cancelled));
+            await BookingApi.UpdateAsync(new UpdateBookingCommand(
+                booking.Id,
+                booking.SeatRow ?? string.Empty,
+                booking.SeatNumber ?? 0,
+                (float)booking.Price,
+                BookingStatus.Cancelled));
             Snackbar.Add("Đã hủy đặt vé.", MudBlazor.Severity.Success);
             await LoadBookings();
         }
@@ -148,7 +153,7 @@
 
     private static string BookingLabel(BookingStatus status) => status switch
     {
-        BookingStatus.Paid => "Đã thanh toán",
+        BookingStatus.Confirmed => "Đã xác nhận",
         BookingStatus.Reserved => "Giữ ghế",
         BookingStatus.Cancelled => "Đã hủy",
         _ => "Không rõ"
@@ -156,7 +161,7 @@
 
     private static string BookingTone(BookingStatus status) => status switch
     {
-        BookingStatus.Paid => "success",
+        BookingStatus.Confirmed => "success",
         BookingStatus.Reserved => "warning",
         BookingStatus.Cancelled => "danger",
         _ => "neutral"

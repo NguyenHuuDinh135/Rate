@@ -73,8 +73,7 @@
     {
         try
         {
-            var res = await PaymentApi.GetAllAsync();
-            payments = res.Body ?? new List<PaymentDto>();
+            payments = await PaymentApi.GetAllAsync() ?? new List<PaymentDto>();
         }
         catch (Exception) { }
         finally

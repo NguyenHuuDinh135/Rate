@@ -8,6 +8,7 @@
 @inject IMovieApi MovieApi
 @inject ITheaterApi TheaterApi
 @inject MudBlazor.ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Suất chiếu | RATE Admin</PageTitle>
 
@@ -46,7 +47,7 @@
                 <MudTd DataLabel="Ngày">@FormatDate(show.Date)</MudTd>
                 <MudTd DataLabel="Thời gian">@show.StartTime - @show.EndTime</MudTd>
                 <MudTd DataLabel="Loại"><Badge Tone="info">@ShowTypeLabel(show.Type)</Badge></MudTd>
-                <MudTd DataLabel="Trạng thái"><Badge Tone="@ShowStatusTone(show.Status)">@DisplayText(show.Status)</Badge></MudTd>
+                <MudTd DataLabel="Trạng thái"><Badge Tone="@ShowStatusTone(show.Status)">@ShowStatusLabel(show.Status)</Badge></MudTd>
                 <MudTd DataLabel="Hành động" Class="text-right">
                     <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Edit" Title="Chỉnh sửa" Intent="primary" OnClick="@(() => EditShow(show))" />
                     <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Delete" Title="Xóa" Intent="danger" OnClick="@(() => DeleteShow(show))" />
@@ -73,7 +74,7 @@
             string.IsNullOrWhiteSpace(_searchText)
             || MovieTitle(show.MovieId).Contains(_searchText, StringComparison.OrdinalIgnoreCase)
             || TheaterName(show.TheaterId).Contains(_searchText, StringComparison.OrdinalIgnoreCase)
-            || DisplayText(show.Status).Contains(_searchText, StringComparison.OrdinalIgnoreCase));
+            || ShowStatusLabel(show.Status).Contains(_searchText, StringComparison.OrdinalIgnoreCase));
 
     private IEnumerable<ShowDto> PagedShows => FilteredShows
         .Skip((_page - 1) * _pageSize)
@@ -123,13 +124,103 @@
         return Task.CompletedTask;
     }
 
-    private void CreateShow() => Snackbar.Add("API tạo suất chiếu chưa sẵn sàng.", MudBlazor.Severity.Info);
-    private void EditShow(ShowDto show) => Snackbar.Add($"API cập nhật suất chiếu #{show.Id} chưa sẵn sàng.", MudBlazor.Severity.Info);
-    private void DeleteShow(ShowDto show) => Snackbar.Add($"API xóa suất chiếu #{show.Id} chưa sẵn sàng.", MudBlazor.Severity.Warning);
+    private async Task CreateShow()
+    {
+        if (_movieNames.Count == 0 || _theaterNames.Count == 0)
+        {
+            Snackbar.Add("Cần có phim và rạp trước khi tạo suất chiếu.", MudBlazor.Severity.Warning);
+            return;
+        }
+
+        var movieIdText = await JSRuntime.InvokeAsync<string>("prompt", "Movie ID:", _movieNames.Keys.First().ToString());
+        var theaterIdText = await JSRuntime.InvokeAsync<string>("prompt", "Theater ID:", _theaterNames.Keys.First().ToString());
+        var dateText = await JSRuntime.InvokeAsync<string>("prompt", "Ngày chiếu (yyyy-MM-dd):", DateTime.Today.ToString("yyyy-MM-dd"));
+        var startText = await JSRuntime.InvokeAsync<string>("prompt", "Giờ bắt đầu (HH:mm):", "19:00");
+        var endText = await JSRuntime.InvokeAsync<string>("prompt", "Giờ kết thúc (HH:mm):", "21:00");
+
+        if (!int.TryParse(movieIdText, out var movieId)
+            || !int.TryParse(theaterIdText, out var theaterId)
+            || !DateTime.TryParse(dateText, out var date)
+            || !TimeSpan.TryParse(startText, out var start)
+            || !TimeSpan.TryParse(endText, out var end))
+        {
+            Snackbar.Add("Thông tin suất chiếu không hợp lệ.", MudBlazor.Severity.Warning);
+            return;
+        }
+
+        try
+        {
+            var result = await ShowApi.CreateAsync(new CreateShowCommand(
+                date,
+                start,
+                end,
+                movieId,
+                theaterId,
+                ShowType.TwoD));
+            Snackbar.Add(result.Succeeded ? "Đã tạo suất chiếu mới." : "Không thể tạo suất chiếu lúc này.", result.Succeeded ? MudBlazor.Severity.Success : MudBlazor.Severity.Error);
+            await LoadShows();
+        }
+        catch
+        {
+            Snackbar.Add("Không thể tạo suất chiếu lúc này.", MudBlazor.Severity.Error);
+        }
+    }
+
+    private async Task EditShow(ShowDto show)
+    {
+        var dateText = await JSRuntime.InvokeAsync<string>("prompt", "Ngày chiếu (yyyy-MM-dd):", DateInputValue(show.Date));
+        var startText = await JSRuntime.InvokeAsync<string>("prompt", "Giờ bắt đầu (HH:mm):", show.StartTime);
+        var endText = await JSRuntime.InvokeAsync<string>("prompt", "Giờ kết thúc (HH:mm):", show.EndTime);
+        if (!DateTime.TryParse(dateText, out var date)
+            || !TimeSpan.TryParse(startText, out var start)
+            || !TimeSpan.TryParse(endText, out var end))
+        {
+            Snackbar.Add("Thông tin suất chiếu không hợp lệ.", MudBlazor.Severity.Warning);
+            return;
+        }
+
+        try
+        {
+            await ShowApi.UpdateAsync(new UpdateShowCommand(
+                show.Id,
+                date,
+                start,
+                end,
+                show.MovieId,
+                show.TheaterId,
+                show.Type,
+                show.Status));
+            Snackbar.Add("Đã đồng bộ suất chiếu.", MudBlazor.Severity.Success);
+            await LoadShows();
+        }
+        catch
+        {
+            Snackbar.Add("Không thể cập nhật suất chiếu lúc này.", MudBlazor.Severity.Error);
+        }
+    }
+
+    private async Task DeleteShow(ShowDto show)
+    {
+        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Xóa suất chiếu #{show.Id}?");
+        if (!ok)
+        {
+            return;
+        }
+
+        try
+        {
+            await ShowApi.DeleteAsync(show.Id);
+            Snackbar.Add("Đã xóa suất chiếu.", MudBlazor.Severity.Success);
+            await LoadShows();
+        }
+        catch
+        {
+            Snackbar.Add("Không thể xóa suất chiếu lúc này.", MudBlazor.Severity.Error);
+        }
+    }
 
     private string MovieTitle(int movieId) => _movieNames.TryGetValue(movieId, out var title) ? title : $"Phim #{movieId}";
     private string TheaterName(int theaterId) => _theaterNames.TryGetValue(theaterId, out var name) ? name : $"Rạp #{theaterId}";
-    private static string DisplayText(string? value) => string.IsNullOrWhiteSpace(value) ? "Không rõ" : value;
     private static string ShowTypeLabel(ShowType type) => type == ShowType.ThreeD ? "3D" : "2D";
 
     private static string FormatDate(string value)
@@ -137,19 +228,25 @@
         return DateTime.TryParse(value, out var date) ? date.ToString("dd/MM/yyyy") : value;
     }
 
-    private static string ShowStatusTone(string? status)
-    {
-        if (string.IsNullOrWhiteSpace(status))
-        {
-            return "neutral";
-        }
+    private static string DateInputValue(string value)
+        => DateTime.TryParse(value, out var date) ? date.ToString("yyyy-MM-dd") : value;
 
-        return status.ToLowerInvariant() switch
+    private static string ShowStatusLabel(ShowStatus status) => status switch
+    {
+        ShowStatus.Free => "Còn ghế",
+        ShowStatus.AlmostFull => "Sắp đầy",
+        ShowStatus.Full => "Đã đầy",
+        _ => "Không rõ"
+    };
+
+    private static string ShowStatusTone(ShowStatus status)
+    {
+        return status switch
         {
-            "active" or "available" or "open" => "success",
-            "cancelled" or "canceled" => "danger",
-            "soldout" or "sold_out" => "warning",
-            _ => "primary"
+            ShowStatus.Free => "success",
+            ShowStatus.AlmostFull => "warning",
+            ShowStatus.Full => "danger",
+            _ => "neutral"
         };
     }
 }

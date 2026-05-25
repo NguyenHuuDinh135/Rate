@@ -30,7 +30,7 @@ builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<ITokenStorage, WebTokenStorage>();
 builder.Services.AddScoped<IDeviceService, WebDeviceService>();
 builder.Services.AddScoped<IAdminThemeService, AdminThemeService>();
-builder.Services.AddScoped<AdminMockDataService>();
+builder.Services.AddTransient<BearerTokenHandler>();
 
 builder.Services.AddFluxor(options => 
     options.ScanAssemblies(typeof(MainLayout).Assembly));
@@ -43,14 +43,15 @@ if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPIRE_ALLOW_UNSEC
     apiBaseUrl = "http://webapi";
 }
 builder.Services.AddRefitClient<IAuthApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
-builder.Services.AddRefitClient<IMovieApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
-builder.Services.AddRefitClient<IGenreApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
-builder.Services.AddRefitClient<IShowApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
-builder.Services.AddRefitClient<ITheaterApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
-builder.Services.AddRefitClient<IBookingApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
-builder.Services.AddRefitClient<IPaymentApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
-builder.Services.AddRefitClient<IPersonApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
-builder.Services.AddRefitClient<IPermissionApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
+builder.Services.AddRefitClient<IMovieApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl)).AddHttpMessageHandler<BearerTokenHandler>();
+builder.Services.AddRefitClient<IGenreApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl)).AddHttpMessageHandler<BearerTokenHandler>();
+builder.Services.AddRefitClient<IShowApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl)).AddHttpMessageHandler<BearerTokenHandler>();
+builder.Services.AddRefitClient<ITheaterApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl)).AddHttpMessageHandler<BearerTokenHandler>();
+builder.Services.AddRefitClient<IBookingApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl)).AddHttpMessageHandler<BearerTokenHandler>();
+builder.Services.AddRefitClient<IPaymentApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl)).AddHttpMessageHandler<BearerTokenHandler>();
+builder.Services.AddRefitClient<IPersonApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl)).AddHttpMessageHandler<BearerTokenHandler>();
+builder.Services.AddRefitClient<IPermissionApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl)).AddHttpMessageHandler<BearerTokenHandler>();
+builder.Services.AddRefitClient<IUserApi>().ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl)).AddHttpMessageHandler<BearerTokenHandler>();
 
 var app = builder.Build();
 

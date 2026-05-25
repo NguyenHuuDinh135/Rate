@@ -9,10 +9,16 @@ public record ApiResponse<T>(ApiHeaders Headers, T Body);
 
 public record ApiHeaders(int Success, string Message);
 
+public record OperationResultDto(bool Succeeded, string[] Errors);
+
+public record OperationResultDto<T>(bool Succeeded, T? Data, string[] Errors);
+
 public enum MovieType { ComingSoon, NowShowing, Removed }
 public enum PaymentMethod { Cash, Card, Cod, Momo, VnPay }
 public enum ShowType { ThreeD, TwoD }
-public enum BookingStatus { Reserved, Paid, Cancelled }
+public enum ShowStatus { Free, AlmostFull, Full }
+public enum TheaterType { Normal, Royal }
+public enum BookingStatus { Confirmed, Reserved, Cancelled }
 
 public record PaymentDialogData(decimal TotalAmount, int SeatCount);
 
@@ -69,4 +75,3 @@ public class ApiResponseConverter<T> : JsonConverter<ApiResponse<T>>
         writer.WriteEndObject();
     }
 }
-

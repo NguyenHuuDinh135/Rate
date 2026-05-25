@@ -37,6 +37,18 @@ public class MudBlazorConfigurationTests
         program.ShouldContain("builder.Services.AddMudServices();");
     }
 
+    [Theory]
+    [InlineData("src/WebUI/Server/Program.cs")]
+    [InlineData("src/WebUI/Client/Program.cs")]
+    public void BlazorHosts_Should_RegisterBearerHandlerForProtectedApis(string programPath)
+    {
+        var program = Read(programPath);
+
+        program.ShouldContain("builder.Services.AddTransient<BearerTokenHandler>();");
+        program.ShouldContain("AddRefitClient<IUserApi>()");
+        program.ShouldContain("AddHttpMessageHandler<BearerTokenHandler>()");
+    }
+
     [Fact]
     public void ServerApp_Should_LoadMudBlazorAssetsAndProviders()
     {

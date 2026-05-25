@@ -7,6 +7,7 @@
 @using WebUI.Shared.Components.UI
 @inject ITheaterApi TheaterApi
 @inject MudBlazor.ISnackbar Snackbar
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Rạp chiếu | RATE Admin</PageTitle>
 
@@ -66,7 +67,7 @@
     private IEnumerable<TheaterDto> FilteredTheaters => _theaters
         .Where(theater => string.IsNullOrWhiteSpace(_searchText)
             || theater.Name.Contains(_searchText, StringComparison.OrdinalIgnoreCase)
-            || theater.Type.Contains(_searchText, StringComparison.OrdinalIgnoreCase));
+            || theater.Type.ToString().Contains(_searchText, StringComparison.OrdinalIgnoreCase));
 
     private IEnumerable<TheaterDto> PagedTheaters => FilteredTheaters
         .Skip((_page - 1) * _pageSize)
@@ -103,10 +104,75 @@
         return Task.CompletedTask;
     }
 
-    private void CreateTheater() => Snackbar.Add("API tạo rạp chưa sẵn sàng.", MudBlazor.Severity.Info);
-    private void ViewTheater(TheaterDto theater) => Snackbar.Add($"Đang xem sơ đồ {theater.Name}.", MudBlazor.Severity.Info);
-    private void EditTheater(TheaterDto theater) => Snackbar.Add($"API cập nhật {theater.Name} chưa sẵn sàng.", MudBlazor.Severity.Info);
-    private void DeleteTheater(TheaterDto theater) => Snackbar.Add($"API xóa {theater.Name} chưa sẵn sàng.", MudBlazor.Severity.Warning);
+    private async Task CreateTheater()
+    {
+        var name = await JSRuntime.InvokeAsync<string>("prompt", "Tên rạp/phòng:", "");
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return;
+        }
 
-    private static int SeatCount(TheaterDto theater) => Math.Max(0, (theater.NumOfRows * theater.SeatsPerRow) - theater.Missing.Count - theater.Blocked.Count);
+        var rowsText = await JSRuntime.InvokeAsync<string>("prompt", "Số hàng ghế:", "8");
+        var seatsText = await JSRuntime.InvokeAsync<string>("prompt", "Số ghế mỗi hàng:", "12");
+        if (!int.TryParse(rowsText, out var rows) || !int.TryParse(seatsText, out var seatsPerRow))
+        {
+            Snackbar.Add("Số hàng và số ghế phải là số hợp lệ.", MudBlazor.Severity.Warning);
+            return;
+        }
+
+        try
+        {
+            var result = await TheaterApi.CreateAsync(new CreateTheaterCommand(name.Trim(), rows, seatsPerRow, TheaterType.Normal));
+            Snackbar.Add(result.Succeeded ? "Đã tạo rạp mới." : "Không thể tạo rạp lúc này.", result.Succeeded ? MudBlazor.Severity.Success : MudBlazor.Severity.Error);
+            await LoadTheaters();
+        }
+        catch
+        {
+            Snackbar.Add("Không thể tạo rạp lúc này.", MudBlazor.Severity.Error);
+        }
+    }
+
+    private void ViewTheater(TheaterDto theater) => Snackbar.Add($"Đang xem sơ đồ {theater.Name}.", MudBlazor.Severity.Info);
+
+    private async Task EditTheater(TheaterDto theater)
+    {
+        var name = await JSRuntime.InvokeAsync<string>("prompt", "Tên rạp/phòng:", theater.Name);
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return;
+        }
+
+        try
+        {
+            await TheaterApi.UpdateAsync(new UpdateTheaterCommand(theater.Id, name.Trim(), theater.NumOfRows, theater.SeatsPerRow, theater.Type));
+            Snackbar.Add("Đã đồng bộ thông tin rạp.", MudBlazor.Severity.Success);
+            await LoadTheaters();
+        }
+        catch
+        {
+            Snackbar.Add("Không thể cập nhật rạp lúc này.", MudBlazor.Severity.Error);
+        }
+    }
+
+    private async Task DeleteTheater(TheaterDto theater)
+    {
+        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Xóa rạp/phòng '{theater.Name}'?");
+        if (!ok)
+        {
+            return;
+        }
+
+        try
+        {
+            await TheaterApi.DeleteAsync(theater.Id);
+            Snackbar.Add("Đã xóa rạp.", MudBlazor.Severity.Success);
+            await LoadTheaters();
+        }
+        catch
+        {
+            Snackbar.Add("Không thể xóa rạp lúc này.", MudBlazor.Severity.Error);
+        }
+    }
+
+    private static int SeatCount(TheaterDto theater) => Math.Max(0, (theater.NumOfRows * theater.SeatsPerRow) - (theater.Missing?.Count ?? 0) - (theater.Blocked?.Count ?? 0));
 }

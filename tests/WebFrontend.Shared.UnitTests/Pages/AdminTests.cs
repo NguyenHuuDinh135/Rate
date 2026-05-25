@@ -26,6 +26,29 @@ public class AdminTests
     }
 
     [Fact]
+    public void AdminPages_Should_NotUseMockAdminData()
+    {
+        var adminFiles = Directory.GetFiles(
+            Path.Combine(RepoRoot.FullName, "src/WebUI/Shared/Pages/Admin"),
+            "*.razor",
+            SearchOption.AllDirectories);
+
+        foreach (var file in adminFiles)
+        {
+            File.ReadAllText(file).ShouldNotContain("AdminMockDataService");
+        }
+    }
+
+    [Fact]
+    public void AdminCss_Should_RemoveMudMainContentTopPadding()
+    {
+        var css = Read("src/WebUI/Server/wwwroot/admin.css");
+
+        css.ShouldContain(".rate-admin-main.mud-main-content");
+        css.ShouldContain("padding-top: 0 !important;");
+    }
+
+    [Fact]
     public void AdminRoutes_Should_KeepRequestedAliases()
     {
         Read("src/WebUI/Shared/Pages/Admin/Dashboard.razor").ShouldContain("@page \"/admin/dashboard\"");

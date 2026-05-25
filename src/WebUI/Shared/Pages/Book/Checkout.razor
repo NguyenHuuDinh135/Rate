@@ -202,15 +202,20 @@ else
             foreach (var seat in BookingState.Value.SelectedSeats)
             {
                 var cmd = new CreateBookingCommand(
-                    AuthState.Value.User!.Username!, 
                     show!.Id,
                     seat.Row,
                     seat.Number,
-                    (decimal)seat.Price,
-                    1
+                    (float)seat.Price,
+                    AuthState.Value.User!.Username!
                 );
-                var bid = await BookingApi.CreateAsync(cmd);
-                bookingIds.Add(bid);
+                var bookingResult = await BookingApi.CreateAsync(cmd);
+                if (!bookingResult.Succeeded)
+                {
+                    ToastService.ShowError("Không thể tạo đặt vé. Vui lòng thử lại.");
+                    return;
+                }
+
+                bookingIds.Add(bookingResult.Data);
             }
 
             // Note: In a real system, we should also create Concession orders here.
@@ -225,12 +230,17 @@ else
                 show!.Id,
                 bookingIds
             );
-            var payId = await PaymentApi.CreateAsync(payCmd);
+            var paymentResult = await PaymentApi.CreateAsync(payCmd);
+            if (!paymentResult.Succeeded)
+            {
+                ToastService.ShowError("Không thể tạo thanh toán. Vui lòng thử lại.");
+                return;
+            }
 
             // 3. Reset State & Redirect
             Dispatcher.Dispatch(new ResetBookingWorkflowAction());
             ToastService.ShowSuccess("Đặt vé thành công!");
-            NavigationManager.NavigateTo($"/booking/success?Id={payId}&seats={string.Join(",", BookingState.Value.SelectedSeats.Select(s => s.SeatId))}");
+            NavigationManager.NavigateTo($"/booking/success?Id={paymentResult.Data}&seats={string.Join(",", BookingState.Value.SelectedSeats.Select(s => s.SeatId))}");
         }
         catch (Exception ex)
         {

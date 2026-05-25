@@ -97,8 +97,7 @@
     {
         try
         {
-            var res = await PaymentApi.GetByIdAsync(Id);
-            payment = res.Body;
+            payment = await PaymentApi.GetByIdAsync(Id);
         }
         catch (Exception)
         {
@@ -106,4 +105,3 @@
         }
     }
 }
-
