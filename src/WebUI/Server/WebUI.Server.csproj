@@ -13,6 +13,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" VersionOverride="10.0.5" />
     <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" />
     <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" />
+    <PackageReference Include="MudBlazor" />
     <PackageReference Include="Refit.HttpClientFactory" />
     <PackageReference Include="Tailwind.Extensions.AspNetCore" />
     <ProjectReference Include="..\Client\WebUI.Client.csproj" />

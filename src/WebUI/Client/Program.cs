@@ -8,14 +8,19 @@ using WebUI.Shared.Services.Device;
 using WebUI.Client.Services.Device;
 using WebUI.Shared.Layout;
 using Blazored.LocalStorage;
+using MudBlazor.Services;
+using WebUI.Shared.Services.Admin;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
 builder.Services.AddFluentUIComponents();
+builder.Services.AddMudServices();
 builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddScoped<ITokenStorage, WebTokenStorage>();
 builder.Services.AddScoped<IDeviceService, WasmDeviceService>();
+builder.Services.AddScoped<IAdminThemeService, AdminThemeService>();
+builder.Services.AddScoped<AdminMockDataService>();
 
 builder.Services.AddFluxor(options => 
     options.ScanAssemblies(typeof(MainLayout).Assembly));

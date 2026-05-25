@@ -23,6 +23,7 @@
     <PackageReference Include="Moq" />
     <PackageReference Include="Shouldly" />
     <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" />
+    <PackageReference Include="MudBlazor" />
     <PackageReference Include="Fluxor.Blazor.Web" />
     
     <!-- Version overrides to fix Fluxor conflict with .NET 10 -->
