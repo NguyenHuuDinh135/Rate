@@ -1,0 +1,168 @@
+@using WebUI.Shared.Models.Movies
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
+
+<section class="relative h-[80vh] w-full overflow-hidden bg-slate-200 dark:bg-[#131313] transition-colors duration-300">
+    
+    @* Slides Background Carousel with Smooth Crossfade *@
+    @for (int index = 0; index < SlideshowMovies.Count; index++)
+    {
+        var movie = SlideshowMovies[index];
+        var isActive = index == CurrentSlideIndex;
+        <div class="absolute inset-0 transition-all duration-1000 ease-in-out transform @(isActive ? "opacity-90 dark:opacity-85 scale-100 pointer-events-auto" : "opacity-0 scale-105 pointer-events-none")">
+            <img src="@GetResolvedPosterUrl(movie.Title, movie.PosterUrl)" 
+                 onerror="this.src='https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1200&auto=format&fit=crop';"
+                 class="w-full h-full object-cover blur-[1px] scale-102" alt="" />
+            
+            @* Dynamic Gradient Overlay based on Light/Dark Theme *@
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-50 via-slate-50/60 to-slate-200/50 dark:from-[#131313] dark:via-black/50 dark:to-black/80"></div>
+        </div>
+    }
+
+    @* Active Slide Content *@
+    <div class="relative z-20 h-full max-w-[1440px] mx-auto px-[5%] flex flex-col justify-end pb-12 md:pb-20 text-left">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-8">
+            
+            @* Left Side: Info & Actions *@
+            <div class="flex-1 max-w-3xl space-y-4">
+                <div class="flex items-center gap-3 mb-2 hero-animate">
+                    <span class="bg-[#f59e0b] text-black text-[10px] font-black px-2.5 py-0.5 rounded italic uppercase tracking-wider">
+                        ĐANG CHIẾU
+                    </span>
+
+                    @if (ActiveMovie.Rating.HasValue)
+                    {
+                        <span class="text-[#f59e0b] flex items-center gap-1 text-sm font-black bg-white/60 dark:bg-black/40 backdrop-blur-md px-2.5 py-0.5 rounded-lg border border-slate-350 dark:border-white/10 shadow-sm">
+                            ★ @ActiveMovie.Rating.Value.ToString("0.0")
+                        </span>
+                    }
+                </div>
+
+                <div class="flex flex-wrap items-baseline gap-3 hero-animate">
+                    <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tighter leading-none text-slate-900 dark:text-white drop-shadow-2xl">
+                        @ActiveMovie.Title
+                    </h1>
+                    <span class="text-xl sm:text-2xl text-slate-500 dark:text-[#a0a0a0] font-bold">(@ActiveMovie.Year)</span>
+                </div>
+
+                <p class="max-w-2xl text-slate-600 dark:text-[#a0a0a0] text-sm sm:text-base leading-relaxed line-clamp-3 hero-animate drop-shadow-md">
+                    @ActiveMovie.Summary
+                </p>
+
+                @* Action Buttons *@
+                <div class="flex flex-wrap items-center gap-4 pt-4 hero-animate">
+                    <button type="button"
+                            @onclick="() => BookTickets(ActiveMovie.Id)"
+                            class="bg-[#e50914] hover:bg-[#b20710] text-white px-8 py-3.5 sm:px-10 sm:py-4 rounded-xl font-bold text-sm sm:text-base flex items-center gap-3 transition-all duration-300 hover:scale-[1.03] active:scale-95 shadow-xl shadow-[#e50914]/20 cursor-pointer">
+                        <span class="text-lg">▶</span> Đặt Vé Ngay
+                    </button>
+                    
+                    <button type="button"
+                            @onclick="() => WatchTrailer(ActiveMovie.TrailerUrl)"
+                            class="bg-black/10 hover:bg-black/20 dark:bg-white/10 dark:hover:bg-white/20 backdrop-blur-md border border-slate-300 dark:border-white/20 text-slate-800 dark:text-white px-8 py-3.5 sm:px-10 sm:py-4 rounded-xl font-bold text-sm sm:text-base flex items-center gap-3 transition-all duration-300 hover:scale-[1.03] active:scale-95 cursor-pointer">
+                        <span>🎬</span> Xem Trailer
+                    </button>
+                </div>
+            </div>
+
+            @* Right Side: Thumbnail Slideshow navigation *@
+            <div class="hidden lg:flex items-center gap-4 mb-4 z-20">
+                @for (int i = 0; i < Math.Min(5, SlideshowMovies.Count); i++)
+                {
+                    var idx = i;
+                    var movie = SlideshowMovies[i];
+                    var isActive = i == CurrentSlideIndex;
+                    var opacity = isActive ? "opacity-100 border-[#e50914] scale-105" : "opacity-40 border-slate-300 dark:border-white/10 hover:opacity-80";
+                    <button @onclick="() => ChangeSlide(idx)" class="w-[96px] h-[144px] rounded-lg overflow-hidden border-2 shadow-2xl transition-all duration-300 transform active:scale-95 cursor-pointer @opacity">
+                        <img src="@GetResolvedPosterUrl(movie.Title, movie.PosterUrl)" alt="@movie.Title" class="w-full h-full object-cover" />
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* Slide dots indicator for mobile/tablet *@
+    <div class="absolute bottom-6 right-[5%] z-20 flex gap-2 lg:hidden">
+        @for (int idx = 0; idx < SlideshowMovies.Count; idx++)
+        {
+            var slideIdx = idx;
+            <button class="w-2.5 h-2.5 rounded-full transition-all duration-300 cursor-pointer @(slideIdx == CurrentSlideIndex ? "bg-[#e50914] w-6" : "bg-slate-400 dark:bg-white/30 hover:bg-white/50")"
+                    @onclick="() => ChangeSlide(slideIdx)">
+            </button>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter, EditorRequired]
+    public MovieDto ActiveMovie { get; set; } = new();
+
+    [Parameter]
+    public List<MovieDto> SlideshowMovies { get; set; } = new();
+
+    [Parameter]
+    public int CurrentSlideIndex { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnSlideChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnBookTickets { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnWatchTrailer { get; set; }
+
+    private string GetResolvedPosterUrl(string title, string posterUrl)
+    {
+        if (string.IsNullOrWhiteSpace(posterUrl))
+            return "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1200&auto=format&fit=crop";
+
+        var upperTitle = title?.ToUpperInvariant() ?? string.Empty;
+        if (upperTitle.Contains("GODZILLA") || upperTitle.Contains("KONG"))
+            return "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop";
+        if (upperTitle.Contains("JOKER"))
+            return "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200&auto=format&fit=crop";
+        if (upperTitle.Contains("BATMAN"))
+            return "https://images.unsplash.com/photo-1509248961158-e54f6934749c?q=80&w=1200&auto=format&fit=crop";
+        if (upperTitle.Contains("DUNE"))
+            return "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop";
+        if (upperTitle.Contains("DEADPOOL") || upperTitle.Contains("SUICIDE") || upperTitle.Contains("SQUAD"))
+            return "https://images.unsplash.com/photo-1569003339405-ea396a5a8a90?q=80&w=1200&auto=format&fit=crop";
+        if (upperTitle.Contains("TWILIGHT"))
+            return "https://images.unsplash.com/photo-1509248961158-e54f6934749c?q=80&w=1200&auto=format&fit=crop";
+        if (upperTitle.Contains("LIGHTHOUSE"))
+            return "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop";
+        if (upperTitle.Contains("MAX") || upperTitle.Contains("FURY"))
+            return "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop";
+        if (upperTitle.Contains("PRISONERS"))
+            return "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1200&auto=format&fit=crop";
+        if (upperTitle.Contains("STRANGER") || upperTitle.Contains("THINGS"))
+            return "https://images.unsplash.com/photo-1608889174632-414630e4afde?q=80&w=1200&auto=format&fit=crop";
+
+        return posterUrl;
+    }
+
+    private async Task ChangeSlide(int index)
+    {
+        if (OnSlideChanged.HasDelegate)
+        {
+            await OnSlideChanged.InvokeAsync(index);
+        }
+    }
+
+    private async Task BookTickets(int movieId)
+    {
+        if (OnBookTickets.HasDelegate)
+        {
+            await OnBookTickets.InvokeAsync(movieId);
+        }
+    }
+
+    private async Task WatchTrailer(string trailerUrl)
+    {
+        if (OnWatchTrailer.HasDelegate)
+        {
+            await OnWatchTrailer.InvokeAsync(trailerUrl);
+        }
+    }
+}

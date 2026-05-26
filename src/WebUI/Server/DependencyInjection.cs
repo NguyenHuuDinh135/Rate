@@ -5,6 +5,7 @@ using MudBlazor.Services;
 using Refit;
 using WebUI.Server.Services.Device;
 using WebUI.Shared.Layout;
+using WebUI.Shared.Models.Common;
 using WebUI.Shared.Services.Admin;
 using WebUI.Shared.Services.Api;
 using WebUI.Shared.Services.Device;
@@ -44,37 +45,53 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        var bffBaseUrl = configuration["BffBaseUrl"] ?? "http://localhost:5000";
+        var apiBaseUrl = configuration["ApiBaseUrl"] ?? "http://localhost:15000";
 
-        services.AddRefitClient<IAuthApi>()
-            .ConfigureHttpClient(c => c.BaseAddress = new Uri(bffBaseUrl));
+        if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPIRE_ALLOW_UNSECURED_TRANSPORT")) ||
+            !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_DASHBOARD_OTLP_ENDPOINT_URL")))
+        {
+            apiBaseUrl = "http://webapi";
+        }
 
-        services.AddRefitClient<IMovieApi>()
-            .ConfigureHttpClient(c => c.BaseAddress = new Uri(bffBaseUrl));
+        var refitSettings = new RefitSettings
+        {
+            ContentSerializer = new SystemTextJsonContentSerializer(new System.Text.Json.JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+                Converters = { new ApiResponseConverterFactory() }
+            })
+        };
 
-        services.AddRefitClient<IGenreApi>()
-            .ConfigureHttpClient(c => c.BaseAddress = new Uri(bffBaseUrl));
+        services.AddRefitClient<IAuthApi>(refitSettings)
+            .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
 
-        services.AddRefitClient<IShowApi>()
-            .ConfigureHttpClient(c => c.BaseAddress = new Uri(bffBaseUrl));
+        services.AddRefitClient<IMovieApi>(refitSettings)
+            .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
 
-        services.AddRefitClient<ITheaterApi>()
-            .ConfigureHttpClient(c => c.BaseAddress = new Uri(bffBaseUrl));
+        services.AddRefitClient<IGenreApi>(refitSettings)
+            .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
 
-        services.AddRefitClient<IBookingApi>()
-            .ConfigureHttpClient(c => c.BaseAddress = new Uri(bffBaseUrl));
+        services.AddRefitClient<IShowApi>(refitSettings)
+            .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
 
-        services.AddRefitClient<IPaymentApi>()
-            .ConfigureHttpClient(c => c.BaseAddress = new Uri(bffBaseUrl));
+        services.AddRefitClient<ITheaterApi>(refitSettings)
+            .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
 
-        services.AddRefitClient<IPersonApi>()
-            .ConfigureHttpClient(c => c.BaseAddress = new Uri(bffBaseUrl));
+        services.AddRefitClient<IBookingApi>(refitSettings)
+            .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
 
-        services.AddRefitClient<IPermissionApi>()
-            .ConfigureHttpClient(c => c.BaseAddress = new Uri(bffBaseUrl));
+        services.AddRefitClient<IPaymentApi>(refitSettings)
+            .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
 
-        services.AddRefitClient<IUserApi>()
-            .ConfigureHttpClient(c => c.BaseAddress = new Uri(bffBaseUrl));
+        services.AddRefitClient<IPersonApi>(refitSettings)
+            .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
+
+        services.AddRefitClient<IPermissionApi>(refitSettings)
+            .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
+
+        services.AddRefitClient<IUserApi>(refitSettings)
+            .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl));
 
         return services;
     }

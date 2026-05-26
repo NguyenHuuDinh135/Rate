@@ -1,0 +1,22 @@
+<div class="space-y-4">
+    <h3 class="font-bold text-sm uppercase tracking-wider">@Title</h3>
+
+    <ul class="space-y-2 text-sm text-on-surface-variant">
+        @foreach (var item in Items)
+        {
+            <li>
+                <a href="#" class="hover:text-on-surface underline transition-all opacity-80 hover:opacity-100">
+                    @item
+                </a>
+            </li>
+        }
+    </ul>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public List<string> Items { get; set; } = new();
+}

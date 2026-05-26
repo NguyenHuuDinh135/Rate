@@ -1,0 +1,362 @@
+Hãy rebuild lại giao diện trang chủ Cinema Booking bằng ngôn ngữ/framework mới, KHÔNG copy HTML cũ trực tiếp.
+
+Mục tiêu:
+Tạo giao diện website đặt vé xem phim phong cách dark theme, hiện đại, giống Netflix/cinema booking.
+
+Tổng thể giao diện:
+- Nền chính màu tối: #131313.
+- Chữ chính màu trắng.
+- Chữ phụ màu xám: #a0a0a0.
+- Màu nhấn chính: đỏ #e50914.
+- Font ưu tiên: Manrope hoặc sans-serif tương đương.
+- Layout giới hạn chiều rộng tối đa khoảng 1440px.
+- Padding ngang desktop khoảng 5%.
+- Giao diện responsive cho desktop, tablet, mobile.
+
+Cấu trúc trang:
+1. Header / Navbar cố định trên cùng
+- Header fixed top, phủ toàn chiều ngang, z-index cao.
+- Nền header màu tối trong suốt khoảng 80%, có blur phía sau.
+- Có border-bottom mờ.
+- Bên trái:
+  - Logo text: “Cinema Booking”, màu đỏ, chữ in hoa, font đậm.
+  - Menu điều hướng: Home, About, Movies, Theaters.
+  - Home đang active: màu đỏ, font bold, có gạch dưới đỏ.
+  - Các menu khác màu xám, hover chuyển đỏ.
+- Bên phải:
+  - Ô search bo tròn, placeholder: “Search for a movie, person,...”
+  - Icon đổi theme dạng mặt trăng.
+  - Button “Sign In” nền đỏ, chữ trắng, bo nhẹ, font bold.
+
+2. Hero Section
+- Chiều cao khoảng 80vh.
+- Có ảnh nền phim phủ toàn section, object-cover.
+- Phủ lớp gradient tối:
+  - Dưới đậm màu #131313.
+  - Giữa hơi trong suốt.
+  - Trên tối nhẹ.
+- Nội dung nằm dưới cùng bên trái, padding bottom lớn.
+- Hiển thị badge “ĐANG CHIẾU” nền vàng/cam, chữ đen, nhỏ, italic.
+- Hiển thị rating có icon ngôi sao màu vàng và điểm “6.5”.
+- Tiêu đề lớn: “GODZILLA VS KONG”
+  - Chữ rất lớn, uppercase, font black, tracking chặt.
+- Năm phim: “(2021)” màu xám, size khoảng 24px.
+- Mô tả phim giới hạn khoảng 3 dòng, width tối đa khoảng 560px.
+- Button chính:
+  - Text: “Đặt Vé Ngay”
+  - Nền đỏ, chữ trắng, icon play bên trái.
+  - Padding lớn, font bold.
+- Bên phải hàng dưới hero có danh sách thumbnail poster:
+  - 5 ảnh nhỏ kích thước khoảng 96x144.
+  - Bo góc, border mờ.
+  - Thumbnail đầu rõ, các thumbnail sau opacity thấp.
+
+3. Section “Phim đang chiếu”
+- Container căn giữa, padding top/bottom khoảng 48px.
+- Header section gồm:
+  - Icon tam giác đỏ “▷”.
+  - Title: “Phim đang chiếu”, font bold, italic.
+  - Bên phải có 2 nút tròn previous/next, border xám.
+- Grid movie card:
+  - Desktop lớn: 7 cột.
+  - Tablet: 4 hoặc 3 cột.
+  - Mobile: 2 cột.
+- Movie card:
+  - Poster tỉ lệ 2:3, bo góc, overflow hidden.
+  - Hover poster scale nhẹ lên 110%.
+  - Badge rating ở góc trái trên poster: nền đen trong suốt, blur nhẹ, text nhỏ.
+  - Có icon sao vàng và điểm rating.
+  - Dưới poster:
+    - Tên phim uppercase, font bold, size nhỏ, truncate.
+    - Meta: “Phim rạp • năm”, màu xám, size rất nhỏ.
+
+Danh sách phim đang chiếu:
+- GODZILLA VS KONG — 2021 — rating 6.5
+- JOKER — 2019 — rating 8.4
+- TWILIGHT — 2008 — rating 5.3
+- THE LIGHTHOUSE — 2019 — rating 7.4
+- MAD MAX FURY ROAD — 2015 — rating 8.1
+- PRISONERS — 2013 — rating 8.1
+- THERE WILL BE BLOOD — 2007 — rating 8.2
+
+4. Section “Phim sắp chiếu”
+- Layout tương tự section phim đang chiếu.
+- Title có icon lịch “🗓” màu đỏ.
+- Grid desktop 5 cột, mobile 2 cột.
+- Card giống movie card.
+- Badge có thể là rating hoặc “TBA”.
+
+Danh sách phim sắp chiếu:
+- SUICIDE SQUAD 2 — 2021 — TBA
+- THE BATMAN — 2022 — TBA
+- DUNE — 2021 — 8.0
+- DEADPOOL 2 — 2018 — 7.7
+- STRANGER THINGS SEASON... — 2022 — 8.7
+
+5. Section “Khám phá”
+- Header gồm:
+  - Icon lấp lánh “✨” màu đỏ.
+  - Title: “Khám phá”.
+  - Badge nhỏ bên phải: “31 phim”, nền đỏ trong suốt.
+- Grid desktop 6 cột, tablet 3 cột, mobile 2 cột.
+- Card giống movie card.
+- Có nhiều phim hơn, dùng dữ liệu mẫu:
+  - GODZILLA VS KONG — 2021 — 6.5
+  - JOKER — 2019 — 8.4
+  - TWILIGHT — 2008 — 5.3
+  - THE LIGHTHOUSE — 2019 — 7.4
+  - MAD MAX FURY ROAD — 2015 — 8.1
+  - PRISONERS — 2013 — 8.1
+  - THERE WILL BE BLOOD — 2007 — 8.2
+  - CLOVERFIELD — 2008 — 7.0
+  - DAWN OF THE PLANET OF THE APES — 2014 — 7.6
+  - THE HANGOVER — 2009 — 7.7
+  - WAR DOGS — 2016 — 7.1
+  - ATLANTA — 2016 — 8.6
+- Cuối section có button căn giữa:
+  - Text: “Tải thêm phim”
+  - Border xám, nền trong suốt, hover nền xám tối.
+
+6. Footer
+- Nền footer tối hơn: #0e0e0e.
+- Border top mờ.
+- Padding top lớn khoảng 64px.
+- Grid 4 cột trên desktop, 1 cột trên mobile.
+- Cột 1:
+  - Logo icon máy chiếu + “Cinema Booking”.
+  - Mô tả: “Your ultimate destination for booking movie tickets online. Fast, easy, and secure.”
+- Cột 2 Quick Links:
+  - Movies
+  - Theaters
+  - Explore
+  - About
+- Cột 3 Support:
+  - Help Center
+  - Terms of Service
+  - Privacy Policy
+  - Contact Us
+- Cột 4 Contact:
+  - Da Nang, Vietnam
+  - contact@cinema.vn
+  - GitHub
+- Dòng cuối footer:
+  - Bên trái: “Built by Gọi Tên Em Đi at UTE. The source code is available on GitHub.”
+  - Bên phải: “© 2025 Cinema Booking. All rights reserved.”
+
+Yêu cầu component hóa:
+- Tạo component Layout/MainLayout.
+- Tạo component Header/NavBar.
+- Tạo component HeroSection.
+- Tạo component MovieSection.
+- Tạo component MovieCard.
+- Tạo component Footer.
+- Dữ liệu phim nên tách thành list/object/model, không hard-code lặp UI.
+- MovieCard nhận các props/parameters:
+  - Title
+  - Year
+  - Type
+  - Rating
+  - PosterUrl
+  - IsUpcoming hoặc Status
+- MovieSection nhận:
+  - Title
+  - Icon
+  - Movies
+  - Column layout tùy section
+  - ShowNavigationButtons
+
+Yêu cầu interaction:
+- Hover card thì poster zoom nhẹ.
+- Hover link/menu đổi sang màu đỏ.
+- Button có transition mượt.
+- Search input có focus ring màu đỏ.
+- Header luôn fixed khi scroll.
+
+Yêu cầu style:
+- Giữ dark theme.
+- Giữ spacing rộng, card poster dạng rạp phim.
+- Không dùng màu sáng quá nhiều.
+- Giao diện phải responsive.
+- Ưu tiên clean code, dễ maintain.
+
+
+Hãy rebuild lại giao diện trang chủ Cinema Booking bằng ngôn ngữ/framework mới, KHÔNG copy HTML cũ trực tiếp.
+
+Mục tiêu:
+Tạo giao diện website đặt vé xem phim phong cách dark theme, hiện đại, giống Netflix/cinema booking.
+
+Tổng thể giao diện:
+- Nền chính màu tối: #131313.
+- Chữ chính màu trắng.
+- Chữ phụ màu xám: #a0a0a0.
+- Màu nhấn chính: đỏ #e50914.
+- Font ưu tiên: Manrope hoặc sans-serif tương đương.
+- Layout giới hạn chiều rộng tối đa khoảng 1440px.
+- Padding ngang desktop khoảng 5%.
+- Giao diện responsive cho desktop, tablet, mobile.
+
+Cấu trúc trang:
+1. Header / Navbar cố định trên cùng
+- Header fixed top, phủ toàn chiều ngang, z-index cao.
+- Nền header màu tối trong suốt khoảng 80%, có blur phía sau.
+- Có border-bottom mờ.
+- Bên trái:
+  - Logo text: “Cinema Booking”, màu đỏ, chữ in hoa, font đậm.
+  - Menu điều hướng: Home, About, Movies, Theaters.
+  - Home đang active: màu đỏ, font bold, có gạch dưới đỏ.
+  - Các menu khác màu xám, hover chuyển đỏ.
+- Bên phải:
+  - Ô search bo tròn, placeholder: “Search for a movie, person,...”
+  - Icon đổi theme dạng mặt trăng.
+  - Button “Sign In” nền đỏ, chữ trắng, bo nhẹ, font bold.
+
+2. Hero Section
+- Chiều cao khoảng 80vh.
+- Có ảnh nền phim phủ toàn section, object-cover.
+- Phủ lớp gradient tối:
+  - Dưới đậm màu #131313.
+  - Giữa hơi trong suốt.
+  - Trên tối nhẹ.
+- Nội dung nằm dưới cùng bên trái, padding bottom lớn.
+- Hiển thị badge “ĐANG CHIẾU” nền vàng/cam, chữ đen, nhỏ, italic.
+- Hiển thị rating có icon ngôi sao màu vàng và điểm “6.5”.
+- Tiêu đề lớn: “GODZILLA VS KONG”
+  - Chữ rất lớn, uppercase, font black, tracking chặt.
+- Năm phim: “(2021)” màu xám, size khoảng 24px.
+- Mô tả phim giới hạn khoảng 3 dòng, width tối đa khoảng 560px.
+- Button chính:
+  - Text: “Đặt Vé Ngay”
+  - Nền đỏ, chữ trắng, icon play bên trái.
+  - Padding lớn, font bold.
+- Bên phải hàng dưới hero có danh sách thumbnail poster:
+  - 5 ảnh nhỏ kích thước khoảng 96x144.
+  - Bo góc, border mờ.
+  - Thumbnail đầu rõ, các thumbnail sau opacity thấp.
+
+3. Section “Phim đang chiếu”
+- Container căn giữa, padding top/bottom khoảng 48px.
+- Header section gồm:
+  - Icon tam giác đỏ “▷”.
+  - Title: “Phim đang chiếu”, font bold, italic.
+  - Bên phải có 2 nút tròn previous/next, border xám.
+- Grid movie card:
+  - Desktop lớn: 7 cột.
+  - Tablet: 4 hoặc 3 cột.
+  - Mobile: 2 cột.
+- Movie card:
+  - Poster tỉ lệ 2:3, bo góc, overflow hidden.
+  - Hover poster scale nhẹ lên 110%.
+  - Badge rating ở góc trái trên poster: nền đen trong suốt, blur nhẹ, text nhỏ.
+  - Có icon sao vàng và điểm rating.
+  - Dưới poster:
+    - Tên phim uppercase, font bold, size nhỏ, truncate.
+    - Meta: “Phim rạp • năm”, màu xám, size rất nhỏ.
+
+Danh sách phim đang chiếu:
+- GODZILLA VS KONG — 2021 — rating 6.5
+- JOKER — 2019 — rating 8.4
+- TWILIGHT — 2008 — rating 5.3
+- THE LIGHTHOUSE — 2019 — rating 7.4
+- MAD MAX FURY ROAD — 2015 — rating 8.1
+- PRISONERS — 2013 — rating 8.1
+- THERE WILL BE BLOOD — 2007 — rating 8.2
+
+4. Section “Phim sắp chiếu”
+- Layout tương tự section phim đang chiếu.
+- Title có icon lịch “🗓” màu đỏ.
+- Grid desktop 5 cột, mobile 2 cột.
+- Card giống movie card.
+- Badge có thể là rating hoặc “TBA”.
+
+Danh sách phim sắp chiếu:
+- SUICIDE SQUAD 2 — 2021 — TBA
+- THE BATMAN — 2022 — TBA
+- DUNE — 2021 — 8.0
+- DEADPOOL 2 — 2018 — 7.7
+- STRANGER THINGS SEASON... — 2022 — 8.7
+
+5. Section “Khám phá”
+- Header gồm:
+  - Icon lấp lánh “✨” màu đỏ.
+  - Title: “Khám phá”.
+  - Badge nhỏ bên phải: “31 phim”, nền đỏ trong suốt.
+- Grid desktop 6 cột, tablet 3 cột, mobile 2 cột.
+- Card giống movie card.
+- Có nhiều phim hơn, dùng dữ liệu mẫu:
+  - GODZILLA VS KONG — 2021 — 6.5
+  - JOKER — 2019 — 8.4
+  - TWILIGHT — 2008 — 5.3
+  - THE LIGHTHOUSE — 2019 — 7.4
+  - MAD MAX FURY ROAD — 2015 — 8.1
+  - PRISONERS — 2013 — 8.1
+  - THERE WILL BE BLOOD — 2007 — 8.2
+  - CLOVERFIELD — 2008 — 7.0
+  - DAWN OF THE PLANET OF THE APES — 2014 — 7.6
+  - THE HANGOVER — 2009 — 7.7
+  - WAR DOGS — 2016 — 7.1
+  - ATLANTA — 2016 — 8.6
+- Cuối section có button căn giữa:
+  - Text: “Tải thêm phim”
+  - Border xám, nền trong suốt, hover nền xám tối.
+
+6. Footer
+- Nền footer tối hơn: #0e0e0e.
+- Border top mờ.
+- Padding top lớn khoảng 64px.
+- Grid 4 cột trên desktop, 1 cột trên mobile.
+- Cột 1:
+  - Logo icon máy chiếu + “Cinema Booking”.
+  - Mô tả: “Your ultimate destination for booking movie tickets online. Fast, easy, and secure.”
+- Cột 2 Quick Links:
+  - Movies
+  - Theaters
+  - Explore
+  - About
+- Cột 3 Support:
+  - Help Center
+  - Terms of Service
+  - Privacy Policy
+  - Contact Us
+- Cột 4 Contact:
+  - Da Nang, Vietnam
+  - contact@cinema.vn
+  - GitHub
+- Dòng cuối footer:
+  - Bên trái: “Built by Gọi Tên Em Đi at UTE. The source code is available on GitHub.”
+  - Bên phải: “© 2025 Cinema Booking. All rights reserved.”
+
+Yêu cầu component hóa:
+- Tạo component Layout/MainLayout.
+- Tạo component Header/NavBar.
+- Tạo component HeroSection.
+- Tạo component MovieSection.
+- Tạo component MovieCard.
+- Tạo component Footer.
+- Dữ liệu phim nên tách thành list/object/model, không hard-code lặp UI.
+- MovieCard nhận các props/parameters:
+  - Title
+  - Year
+  - Type
+  - Rating
+  - PosterUrl
+  - IsUpcoming hoặc Status
+- MovieSection nhận:
+  - Title
+  - Icon
+  - Movies
+  - Column layout tùy section
+  - ShowNavigationButtons
+
+Yêu cầu interaction:
+- Hover card thì poster zoom nhẹ.
+- Hover link/menu đổi sang màu đỏ.
+- Button có transition mượt.
+- Search input có focus ring màu đỏ.
+- Header luôn fixed khi scroll.
+
+Yêu cầu style:
+- Giữ dark theme.
+- Giữ spacing rộng, card poster dạng rạp phim.
+- Không dùng màu sáng quá nhiều.
+- Giao diện phải responsive.
+- Ưu tiên clean code, dễ maintain.

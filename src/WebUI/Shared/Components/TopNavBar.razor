@@ -1,0 +1,101 @@
+@using Fluxor
+@using WebUI.Shared.Store.Auth
+@inject IState<AuthState> AuthState
+@inject IDispatcher Dispatcher
+@inject NavigationManager NavigationManager
+
+<header class="fixed top-0 left-0 right-0 z-50 bg-white/85 text-slate-800 border-b border-slate-200/50 dark:bg-[#131313]/85 dark:text-white dark:border-white/10 backdrop-blur-md transition-all duration-300">
+    <nav class="max-w-[1440px] mx-auto px-[5%] py-4 flex justify-between items-center">
+        
+        @* Left Area: Logo & Navigation Links *@
+        <div class="flex items-center gap-8 md:gap-12">
+            <NavLink href="/" class="text-[#e50914] text-xl md:text-2xl font-black uppercase tracking-wider transition-transform active:scale-95 flex items-center gap-2">
+                <span class="text-2xl">📽</span>
+                <span>Cinema Booking</span>
+            </NavLink>
+
+            <ul class="hidden md:flex items-center gap-6 text-sm font-medium tracking-wide">
+                <li>
+                    <NavLink href="/" Match="NavLinkMatch.All" class="text-slate-500 hover:text-[#e50914] dark:text-[#a0a0a0] dark:hover:text-[#e50914] transition-colors duration-300 py-1" ActiveClass="text-[#e50914] font-bold border-b-2 border-[#e50914]">
+                        Home
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink href="/about" class="text-slate-500 hover:text-[#e50914] dark:text-[#a0a0a0] dark:hover:text-[#e50914] transition-colors duration-300 py-1" ActiveClass="text-[#e50914] font-bold border-b-2 border-[#e50914]">
+                        About
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink href="/movies" class="text-slate-500 hover:text-[#e50914] dark:text-[#a0a0a0] dark:hover:text-[#e50914] transition-colors duration-300 py-1" ActiveClass="text-[#e50914] font-bold border-b-2 border-[#e50914]">
+                        Movies
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink href="/theaters" class="text-slate-500 hover:text-[#e50914] dark:text-[#a0a0a0] dark:hover:text-[#e50914] transition-colors duration-300 py-1" ActiveClass="text-[#e50914] font-bold border-b-2 border-[#e50914]">
+                        Theaters
+                    </NavLink>
+                </li>
+            </ul>
+        </div>
+
+        @* Right Area: Search, Theme, Auth *@
+        <div class="flex items-center gap-4 flex-1 justify-end max-w-lg ml-6">
+            <div class="relative w-full max-w-[240px] hidden sm:block">
+                <input @bind="SearchText"
+                       @bind:event="oninput"
+                       @onkeyup="HandleSearchKeyUp"
+                       class="w-full bg-slate-100 text-slate-800 text-xs rounded-full py-2.5 pl-4 pr-10 border border-slate-200/50 placeholder-slate-400 focus:ring-1 focus:ring-[#e50914] focus:border-[#e50914] focus:outline-none dark:bg-[#202020] dark:text-white dark:border-white/10 dark:placeholder-[#a0a0a0] transition-all duration-300"
+                       placeholder="Search for a movie, person,..." />
+                <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#a0a0a0] pointer-events-none text-xs">🔍</span>
+            </div>
+
+            <ThemeToggle Class="text-slate-500 hover:text-slate-900 dark:text-[#a0a0a0] dark:hover:text-white transition-colors p-2 bg-transparent border-none dark:bg-transparent dark:border-none shadow-none hover:bg-slate-100 dark:hover:bg-[#202020] rounded-full" />
+
+            @if (AuthState.Value.IsAuthenticated)
+            {
+                <div class="flex items-center gap-3">
+                    <NavLink href="/profile" class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-100 text-xs font-semibold text-slate-700 hover:border-[#e50914] dark:border-white/10 dark:bg-[#202020] dark:text-white dark:hover:border-[#e50914] transition-all">
+                        <span>👤</span>
+                        <span class="max-w-[80px] truncate">@AuthState.Value.User?.Username</span>
+                    </NavLink>
+                    <button @onclick="HandleLogout" class="text-xs font-bold text-slate-500 hover:text-[#e50914] dark:text-[#a0a0a0] dark:hover:text-[#e50914] transition-colors cursor-pointer py-2">
+                        Sign Out
+                    </button>
+                </div>
+            }
+            else
+            {
+                <NavLink href="/auth/login" class="bg-[#e50914] hover:bg-[#b20710] text-white px-5 py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-[#e50914]/20 flex items-center justify-center">
+                    Sign In
+                </NavLink>
+            }
+        </div>
+    </nav>
+</header>
+
+@code {
+    private string SearchText { get; set; } = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        if (!AuthState.Value.IsAuthenticated)
+        {
+            Dispatcher.Dispatch(new InitializeAuthAction());
+        }
+    }
+
+    private void HandleSearchKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(SearchText))
+        {
+            NavigationManager.NavigateTo($"/movies?search={Uri.EscapeDataString(SearchText)}");
+        }
+    }
+
+    private void HandleLogout()
+    {
+        Dispatcher.Dispatch(new LogoutAction());
+        NavigationManager.NavigateTo("/");
+    }
+}

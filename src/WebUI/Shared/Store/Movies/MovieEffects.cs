@@ -10,8 +10,8 @@ public class MovieEffects(IMovieApi movieApi)
     {
         try
         {
-            var movies = await movieApi.GetAllAsync();
-            dispatcher.Dispatch(new LoadMoviesSuccessAction(movies));
+            var response = await movieApi.GetAllAsync();
+            dispatcher.Dispatch(new LoadMoviesSuccessAction(response.Body));
         }
         catch (Exception ex)
         {
@@ -24,8 +24,8 @@ public class MovieEffects(IMovieApi movieApi)
     {
         try
         {
-            var movie = await movieApi.GetByIdAsync(action.Id);
-            dispatcher.Dispatch(new LoadMovieByIdSuccessAction(movie));
+            var response = await movieApi.GetByIdAsync(action.Id);
+            dispatcher.Dispatch(new LoadMovieByIdSuccessAction(response.Body));
         }
         catch (Exception ex)
         {

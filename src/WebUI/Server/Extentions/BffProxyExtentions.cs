@@ -7,13 +7,17 @@ public static class BffProxyExtensions
 {
     public static IEndpointRouteBuilder MapBffProxy(this IEndpointRouteBuilder app)
     {
-        app.Map("/api", async (HttpContext httpContext, IHttpClientFactory httpClientFactory) =>
+        app.Map("/api/{**slug}", async (HttpContext httpContext, IHttpClientFactory httpClientFactory) =>
         {
             var apiBaseUrl = GetApiBaseUrl(httpContext);
 
             var client = httpClientFactory.CreateClient("BFFProxy");
 
-            var path = httpContext.Request.Path.Value ?? string.Empty;
+            var fullPath = httpContext.Request.Path.Value ?? string.Empty;
+            var path = fullPath.StartsWith("/api", StringComparison.OrdinalIgnoreCase) 
+                ? fullPath.Substring(4) 
+                : fullPath;
+
             var query = httpContext.Request.QueryString.Value ?? string.Empty;
             var targetUrl = $"{apiBaseUrl}/api{path}{query}";
 

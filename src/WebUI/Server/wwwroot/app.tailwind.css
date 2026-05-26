@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
+@source "../../**/*.razor";
+@source "../../**/*.cshtml";
+@source "../../**/*.html";
+
 :root {
   /* Overwrite Fluent UI harsh blue accent with our premium Netflix Red globally */
   --accent-color: #E50914 !important;

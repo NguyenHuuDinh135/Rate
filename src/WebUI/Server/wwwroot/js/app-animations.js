@@ -38,8 +38,7 @@ window.rateTheme = {
     },
     init(defaultDarkMode) {
         const stored = window.localStorage.getItem(this.key);
-        const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-        const isDarkMode = stored === "dark" || (!stored && (defaultDarkMode || prefersDark));
+        const isDarkMode = stored !== "light";
         this.apply(isDarkMode);
         return isDarkMode;
     },

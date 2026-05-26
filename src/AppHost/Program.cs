@@ -34,9 +34,9 @@ var web = builder.AddProject<Projects.Web>(Services.WebApi)
     .WaitFor(elasticsearch);
 
 // Blazor Web App
-// builder.AddProject<Projects.WebFrontend>("frontend")
-//     .WithReference(web)
-//     .WaitFor(web);
+builder.AddProject<Projects.WebUI_Server>("frontend")
+    .WithReference(web)
+    .WaitFor(web);
 
 // Mobile App (MAUI Blazor Hybrid Client)
 builder.AddProject("mobile-app", "../MobileApp/MobileApp.csproj")

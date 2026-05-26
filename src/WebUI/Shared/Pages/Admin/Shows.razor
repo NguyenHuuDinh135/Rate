@@ -98,7 +98,8 @@
 
             _shows.AddRange(await ShowApi.GetAllAsync() ?? []);
 
-            foreach (var movie in await MovieApi.GetAllAsync() ?? [])
+            var movieResponse = await MovieApi.GetAllAsync();
+            foreach (var movie in movieResponse?.Body ?? [])
             {
                 _movieNames[movie.Id] = movie.Title;
             }

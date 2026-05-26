@@ -124,7 +124,11 @@ else
         _isLoading = true;
         _hasLoadIssue = false;
 
-        await LoadSafely(async () => _movies.AddRange(await MovieApi.GetAllAsync()));
+        await LoadSafely(async () => 
+        {
+            var response = await MovieApi.GetAllAsync();
+            _movies.AddRange(response.Body);
+        });
         await LoadSafely(async () => _shows.AddRange(await ShowApi.GetAllAsync()));
         await LoadSafely(async () => _bookings.AddRange(await BookingApi.GetAllAsync() ?? []));
         await LoadSafely(async () => _payments.AddRange(await PaymentApi.GetAllAsync() ?? []));
