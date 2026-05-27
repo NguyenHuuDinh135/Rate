@@ -35,7 +35,7 @@ public record CreateMovieCommand(
     decimal? Rating,
     string TrailerUrl,
     string PosterUrl,
-    MovieType MovieType);
+    int MovieType);
 
 public record UpdateMovieCommand(
     int Id,
@@ -45,7 +45,7 @@ public record UpdateMovieCommand(
     decimal? Rating,
     string TrailerUrl,
     string PosterUrl,
-    MovieType MovieType);
+    int MovieType);
 
 public record CreateGenreCommand(string Name);
 public record UpdateGenreCommand(int Id, string Name);

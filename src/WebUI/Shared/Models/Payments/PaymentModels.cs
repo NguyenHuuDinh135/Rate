@@ -6,12 +6,12 @@ namespace WebUI.Shared.Models.Payments;
 public record CreatePaymentCommand(
     decimal Amount,
     string PaymentDatetime,
-    string PaymentMethod,
+    int PaymentMethod,
     string UserId,
     int ShowId,
     List<int> Bookings);
 
-public record UpdatePaymentCommand(int Id, decimal Amount, PaymentMethod PaymentMethod);
+public record UpdatePaymentCommand(int Id, decimal Amount, int PaymentMethod);
 
 public class PaymentDto
 {

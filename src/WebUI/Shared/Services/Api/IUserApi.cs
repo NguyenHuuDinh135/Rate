@@ -6,6 +6,9 @@ namespace WebUI.Shared.Services.Api;
 
 public interface IUserApi
 {
+    [Get("/api/users/me")]
+    Task<AuthUserDto> GetMeAsync();
+
     [Get("/api/users/all")]
     Task<List<AdminUserDto>> GetAllAsync();
 

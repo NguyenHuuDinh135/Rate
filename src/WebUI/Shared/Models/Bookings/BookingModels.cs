@@ -33,4 +33,4 @@ public record UpdateBookingCommand(
     string SeatRow,
     int SeatNumber,
     float Price,
-    BookingStatus Status);
+    int Status);
