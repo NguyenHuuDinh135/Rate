@@ -32,7 +32,21 @@ public static class DependencyInjection
             options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
         });
 
-        builder.Services.AddCors();
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("WebUI", policy =>
+            {
+                policy
+                    .WithOrigins(
+                        "http://localhost:16000",
+                        "https://localhost:16000",
+                        "http://127.0.0.1:16000",
+                        "https://127.0.0.1:16000"
+                    )
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
     }
 
     public static void AddKeyVaultIfConfigured(this IHostApplicationBuilder builder)

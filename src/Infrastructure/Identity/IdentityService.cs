@@ -50,6 +50,20 @@ public class IdentityService : IIdentityService
         return user != null && await _userManager.IsInRoleAsync(user, role);
     }
 
+    public async Task<IReadOnlyList<string>> GetRolesAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return new List<string>();
+        }
+
+        var roles = await _userManager.GetRolesAsync(user);
+
+        return roles.ToList();
+    }
+
     public async Task<bool> AuthorizeAsync(string userId, string policyName)
     {
         var user = await _userManager.FindByIdAsync(userId);

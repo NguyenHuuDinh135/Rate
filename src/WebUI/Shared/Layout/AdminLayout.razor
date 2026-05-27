@@ -39,8 +39,14 @@
 
         if (!AuthState.Value.IsAuthenticated)
         {
-            // Preserve current behavior: the redirect is intentionally disabled while admin auth is still being wired.
-            // NavigationManager.NavigateTo("/auth/login");
+             NavigationManager.NavigateTo("/auth/login");
+             return;
+        }
+
+        var roles = AuthState.Value.User?.Roles ?? new List<string>();
+        if (!roles.Contains("admin", StringComparer.OrdinalIgnoreCase))
+        {
+            NavigationManager.NavigateTo("/unauthorized");
         }
     }
 

@@ -1,0 +1,100 @@
+@using MudBlazor
+@using System.ComponentModel.DataAnnotations
+@using WebUI.Shared.Services.Api
+@using WebUI.Shared.Models.Theaters
+
+<MudDialog>
+    <DialogContent>
+        <MudForm Model="@_model" @ref="_form" ValidationDelay="0">
+            <MudTextField @bind-Value="_model.Name"
+                          For="@(() => _model.Name)"
+                          Label="Tên rạp chiếu"
+                          Required="true"
+                          RequiredError="Tên rạp chiếu không được để trống" />
+
+            <div class="grid grid-cols-2 gap-4 mt-4">
+                <MudNumericField @bind-Value="_model.NumOfRows"
+                                 For="@(() => _model.NumOfRows)"
+                                 Label="Số hàng ghế"
+                                 Required="true"
+                                 Min="1" Max="100" />
+
+                <MudNumericField @bind-Value="_model.SeatsPerRow"
+                                 For="@(() => _model.SeatsPerRow)"
+                                 Label="Số ghế mỗi hàng"
+                                 Required="true"
+                                 Min="1" Max="100" />
+            </div>
+
+            <MudSelect T="TheaterType" @bind-Value="_model.Type" Label="Loại rạp" Class="mt-4">
+                <MudSelectItem Value="@TheaterType.Normal">Tiêu chuẩn</MudSelectItem>
+                <MudSelectItem Value="@TheaterType.Royal">Royal</MudSelectItem>
+            </MudSelect>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Hủy</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit" Disabled="@_isSubmitting">
+            @if (_isSubmitting)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">Đang lưu</MudText>
+            }
+            else
+            {
+                <MudText>Lưu</MudText>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter]
+    public TheaterDto? Theater { get; set; }
+
+    private MudForm _form = default!;
+    private TheaterFormModel _model = new();
+    private bool _isSubmitting = false;
+
+    protected override void OnInitialized()
+    {
+        if (Theater != null)
+        {
+            _model.Name = Theater.Name;
+            _model.NumOfRows = Theater.NumOfRows;
+            _model.SeatsPerRow = Theater.SeatsPerRow;
+            _model.Type = Theater.Type;
+        }
+    }
+
+    private async Task Submit()
+    {
+        await _form.ValidateAsync();
+        if (_form.IsValid)
+        {
+            _isSubmitting = true;
+            StateHasChanged();
+            MudDialog.Close(DialogResult.Ok(_model));
+            _isSubmitting = false;
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    public class TheaterFormModel
+    {
+        [Required(ErrorMessage = "Tên rạp chiếu không được để trống")]
+        public string Name { get; set; } = string.Empty;
+        
+        [Required(ErrorMessage = "Số hàng ghế không hợp lệ")]
+        public int NumOfRows { get; set; } = 10;
+        
+        [Required(ErrorMessage = "Số ghế mỗi hàng không hợp lệ")]
+        public int SeatsPerRow { get; set; } = 15;
+        
+        public TheaterType Type { get; set; } = TheaterType.Normal;
+    }
+}

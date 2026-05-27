@@ -3,7 +3,8 @@
 @rendermode InteractiveWebAssembly
 @using Fluxor
 @using WebUI.Shared.Store.Auth
-@inject IAuthApi AuthApi
+@using WebUI.Shared.Services.Auth
+@inject AuthStateService AuthStateService
 @inject IState<AuthState> AuthState
 @inject NavigationManager NavigationManager
 
@@ -155,14 +156,14 @@
 
         try
         {
-            var result = await AuthApi.RegisterAsync(new RegisterRequest(fullName.Trim(), email.Trim(), password));
+            var result = await AuthStateService.RegisterAsync(new RegisterRequest(fullName.Trim(), email.Trim(), password));
             if (result.Succeeded)
             {
                 NavigationManager.NavigateTo("/auth/login?registered=true");
                 return;
             }
 
-            errorMessage = "Không thể tạo tài khoản với thông tin này.";
+            errorMessage = AuthStateService.ErrorMessage ?? "Không thể tạo tài khoản với thông tin này.";
         }
         catch
         {

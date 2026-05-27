@@ -1,0 +1,79 @@
+@using MudBlazor
+@using System.ComponentModel.DataAnnotations
+@using WebUI.Shared.Services.Api
+@using WebUI.Shared.Models.Movies
+
+<MudDialog>
+    <DialogContent>
+        <MudForm Model="@_model" @ref="_form" ValidationDelay="0">
+            <MudTextField @bind-Value="_model.Name"
+                          For="@(() => _model.Name)"
+                          Label="Tên thể loại"
+                          Required="true"
+                          RequiredError="Tên thể loại không được để trống"
+                          MaxLength="100" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Hủy</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit" Disabled="@_isSubmitting">
+            @if (_isSubmitting)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">Đang lưu</MudText>
+            }
+            else
+            {
+                <MudText>Lưu</MudText>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter]
+    public GenreDto? Genre { get; set; }
+
+    private MudForm _form = default!;
+    private GenreFormModel _model = new();
+    private bool _isSubmitting = false;
+
+    protected override void OnInitialized()
+    {
+        if (Genre != null)
+        {
+            _model.Name = Genre.Name;
+        }
+    }
+
+    private async Task Submit()
+    {
+        await _form.ValidateAsync();
+        if (_form.IsValid)
+        {
+            _isSubmitting = true;
+            StateHasChanged();
+            
+            // We just return the model and let the parent page handle the API call
+            // Alternatively, we can inject IGenreApi here and do it.
+            // Based on the plan: "sẽ gọi từ Dialog và trả về Result, Page sẽ phụ trách reload dữ liệu để tuân thủ SOC"
+            // Wait, the plan says: "Gọi API Service tương ứng trực tiếp từ logic của page hoặc từ bên trong dialog (sẽ gọi từ Dialog và trả về Result, Page sẽ phụ trách reload dữ liệu để tuân thủ SOC - Separation of Concerns)."
+            // "gọi từ Dialog và trả về Result" means the dialog calls the API and returns Success/Failure, and the page just reloads.
+            
+            MudDialog.Close(DialogResult.Ok(_model));
+            _isSubmitting = false;
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    public class GenreFormModel
+    {
+        [Required(ErrorMessage = "Tên thể loại không được để trống")]
+        [StringLength(100, ErrorMessage = "Tên thể loại không được vượt quá 100 ký tự")]
+        public string Name { get; set; } = string.Empty;
+    }
+}

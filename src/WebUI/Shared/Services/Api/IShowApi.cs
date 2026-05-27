@@ -49,7 +49,7 @@ public record CreateShowCommand(
     TimeSpan EndTime,
     int MovieId,
     int TheaterId,
-    ShowType Type);
+    int Type);
 
 public record UpdateShowCommand(
     int Id,
@@ -58,9 +58,9 @@ public record UpdateShowCommand(
     TimeSpan EndTime,
     int MovieId,
     int TheaterId,
-    ShowType Type,
-    ShowStatus Status);
+    int Type,
+    int Status);
 
-public record CreateTheaterCommand(string Name, int NumOfRows, int SeatsPerRow, TheaterType Type);
+public record CreateTheaterCommand(string Name, int NumOfRows, int SeatsPerRow, int Type);
 
-public record UpdateTheaterCommand(int Id, string Name, int NumOfRows, int SeatsPerRow, TheaterType Type);
+public record UpdateTheaterCommand(int Id, string Name, int NumOfRows, int SeatsPerRow, int Type);

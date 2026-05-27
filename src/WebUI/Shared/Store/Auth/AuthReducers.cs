@@ -25,6 +25,10 @@ public static class AuthReducers
     [ReducerMethod]
     public static AuthState OnLogout(AuthState state, LogoutAction action)
         => new AuthState(false, false, null, null, new List<string>());
+
+    [ReducerMethod]
+    public static AuthState OnSessionExpired(AuthState state, AuthSessionExpiredAction action)
+        => new AuthState(false, false, action.Error, null, new List<string>());
 }
 
 public class AuthFeature : Feature<AuthState>

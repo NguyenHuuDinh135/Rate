@@ -9,6 +9,6 @@ namespace backend.Application.Common.Interfaces
     {
         string GenerateAccessToken(string userId, string email, string name, IList<string> roles);
         string GenerateRefreshToken();
-        Guid? ValidateAccessToken(string token);
+        Guid? ValidateAccessToken(string token, bool validateLifetime = true);
     }
 }

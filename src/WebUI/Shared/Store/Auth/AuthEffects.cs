@@ -1,83 +1,40 @@
 using Fluxor;
-using System.Net;
-using Refit;
 using WebUI.Shared.Models.Auth;
-using WebUI.Shared.Services.Api;
-using WebUI.Shared.Services.Storage;
+using WebUI.Shared.Services.Auth;
 
 namespace WebUI.Shared.Store.Auth;
 
-public class AuthEffects(IAuthApi authApi, IPermissionApi permissionApi, ITokenStorage tokenStorage)
+public class AuthEffects(AuthStateService authStateService)
 {
     [EffectMethod]
     public async Task HandleLogin(LoginAction action, IDispatcher dispatcher)
     {
-        try
+        var user = await authStateService.LoginAsync(new LoginRequest(action.Email, action.Password));
+        if (user is null)
         {
-            var result = await authApi.LoginAsync(new LoginRequest(action.Email, action.Password));
-            
-            List<string> permissions = [];
-            try
-            {
-                permissions = await permissionApi.GetMyPermissionsAsync();
-            }
-            catch
-            {
-                // Permissions are refreshed later; login should not expose permission API details to the user.
-            }
+            dispatcher.Dispatch(new LoginFailureAction(authStateService.ErrorMessage ?? "Không thể đăng nhập lúc này. Vui lòng thử lại."));
+            return;
+        }
 
-            var userWithPerms = result with { Permissions = permissions };
-
-            dispatcher.Dispatch(new LoginSuccessAction(userWithPerms));
-        }
-        catch (ApiException ex)
-        {
-            dispatcher.Dispatch(new LoginFailureAction(MapLoginError(ex.StatusCode)));
-        }
-        catch (Exception ex)
-        {
-            _ = ex;
-            dispatcher.Dispatch(new LoginFailureAction("Không thể đăng nhập lúc này. Vui lòng thử lại."));
-        }
+        dispatcher.Dispatch(new LoginSuccessAction(ToTokenResponse(user)));
     }
 
     [EffectMethod]
     public async Task HandleLogout(LogoutAction action, IDispatcher dispatcher)
     {
-        try
-        {
-            await authApi.LogoutAsync();
-        }
-        catch
-        {
-            // Ignore error on logout call
-        }
-        finally
-        {
-            await tokenStorage.ClearTokenAsync();
-        }
+        await authStateService.LogoutAsync();
     }
 
     [EffectMethod]
     public async Task HandleInitialize(InitializeAuthAction action, IDispatcher dispatcher)
     {
-        try
+        var user = await authStateService.RestoreSessionAsync();
+        if (user is not null)
         {
-            var permissions = await permissionApi.GetMyPermissionsAsync();
-            dispatcher.Dispatch(new LoginSuccessAction(new TokenResponseDto(null, null, null, null, null, permissions)));
-        }
-        catch
-        {
-            // Not authenticated, do nothing
+            dispatcher.Dispatch(new LoginSuccessAction(ToTokenResponse(user)));
         }
     }
 
-    private static string MapLoginError(HttpStatusCode statusCode)
-        => statusCode switch
-        {
-            HttpStatusCode.Unauthorized => "Email hoặc mật khẩu không đúng.",
-            (HttpStatusCode)429 => "Bạn thao tác quá nhanh. Vui lòng thử lại sau ít phút.",
-            HttpStatusCode.BadRequest => "Thông tin đăng nhập không hợp lệ.",
-            _ => "Không thể đăng nhập lúc này. Vui lòng thử lại."
-        };
+    private static TokenResponseDto ToTokenResponse(AuthUserDto user)
+        => new(null, null, user.UserName, user.Email, null, [], user.Roles);
 }

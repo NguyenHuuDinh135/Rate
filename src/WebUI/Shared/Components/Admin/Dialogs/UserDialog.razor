@@ -1,0 +1,114 @@
+@using MudBlazor
+@using System.ComponentModel.DataAnnotations
+@using WebUI.Shared.Services.Api
+@using WebUI.Shared.Models.Auth
+
+<MudDialog>
+    <DialogContent>
+        <MudForm Model="@_model" @ref="_form" ValidationDelay="0">
+            <MudTextField @bind-Value="_model.UserName"
+                          For="@(() => _model.UserName)"
+                          Label="Tên người dùng"
+                          Required="true"
+                          RequiredError="Tên người dùng không được để trống" />
+
+            <MudTextField @bind-Value="_model.Email"
+                          For="@(() => _model.Email)"
+                          Label="Email"
+                          Required="true"
+                          RequiredError="Email không được để trống"
+                          InputType="InputType.Email"
+                          Class="mt-4" />
+
+            @if (User == null)
+            {
+                <MudTextField @bind-Value="_model.Password"
+                              For="@(() => _model.Password)"
+                              Label="Mật khẩu"
+                              Required="true"
+                              RequiredError="Mật khẩu không được để trống"
+                              InputType="InputType.Password"
+                              Class="mt-4" />
+            }
+
+            <MudSelect T="string" @bind-SelectedValues="_selectedRoles" MultiSelection="true" Label="Vai trò" Class="mt-4">
+                @foreach (var role in Roles)
+                {
+                    <MudSelectItem Value="@role.Name">@role.Name</MudSelectItem>
+                }
+            </MudSelect>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Hủy</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit" Disabled="@_isSubmitting">
+            @if (_isSubmitting)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">Đang lưu</MudText>
+            }
+            else
+            {
+                <MudText>Lưu</MudText>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter]
+    public AdminUserDto? User { get; set; }
+
+    [Parameter]
+    public List<RoleDto> Roles { get; set; } = new();
+
+    private MudForm _form = default!;
+    private UserFormModel _model = new();
+    private IReadOnlyCollection<string> _selectedRoles = new HashSet<string>();
+    private bool _isSubmitting = false;
+
+    protected override void OnInitialized()
+    {
+        if (User != null)
+        {
+            _model.UserName = User.UserName;
+            _model.Email = User.Email;
+            if (User.Roles != null)
+            {
+                _selectedRoles = new HashSet<string>(User.Roles);
+            }
+        }
+    }
+
+    private async Task Submit()
+    {
+        await _form.ValidateAsync();
+        if (_form.IsValid)
+        {
+            _model.Roles = _selectedRoles.ToList();
+            _isSubmitting = true;
+            StateHasChanged();
+            MudDialog.Close(DialogResult.Ok(_model));
+            _isSubmitting = false;
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    public class UserFormModel
+    {
+        [Required(ErrorMessage = "Tên người dùng không được để trống")]
+        public string UserName { get; set; } = string.Empty;
+        
+        [Required(ErrorMessage = "Email không được để trống")]
+        [EmailAddress(ErrorMessage = "Email không hợp lệ")]
+        public string Email { get; set; } = string.Empty;
+        
+        public string Password { get; set; } = string.Empty;
+        
+        public List<string> Roles { get; set; } = new();
+    }
+}
