@@ -2,10 +2,11 @@
 @layout AdminLayout
 @using MudBlazor
 @using WebUI.Shared.Components.Admin
+@using WebUI.Shared.Components.Admin.Dialogs
 @using WebUI.Shared.Components.UI
 @inject IBookingApi BookingApi
 @inject MudBlazor.ISnackbar Snackbar
-@inject IJSRuntime JSRuntime
+@inject IDialogService DialogService
 
 <PageTitle>Đặt vé | RATE Admin</PageTitle>
 
@@ -109,6 +110,7 @@
         finally
         {
             _isLoading = false;
+            StateHasChanged();
         }
     }
 
@@ -125,26 +127,37 @@
 
     private async Task CancelBooking(BookingDto booking)
     {
-        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Hủy vé #{booking.Id} và giải phóng ghế {booking.SeatRow}{booking.SeatNumber}?");
-        if (!ok)
+        var parameters = new DialogParameters
         {
-            return;
-        }
+            { "ContentText", $"Hủy vé #{booking.Id} và giải phóng ghế {booking.SeatRow}{booking.SeatNumber}?" },
+            { "ButtonText", "Hủy vé" }
+        };
 
-        try
+        var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>(
+            "Xác nhận hủy vé", 
+            parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true }
+        );
+
+        var result = await dialog.Result;
+
+        if (!result!.Canceled)
         {
-            await BookingApi.UpdateAsync(new UpdateBookingCommand(
-                booking.Id,
-                booking.SeatRow ?? string.Empty,
-                booking.SeatNumber ?? 0,
-                (float)booking.Price,
-                BookingStatus.Cancelled));
-            Snackbar.Add("Đã hủy đặt vé.", MudBlazor.Severity.Success);
-            await LoadBookings();
-        }
-        catch
-        {
-            Snackbar.Add("Không thể hủy đặt vé lúc này.", MudBlazor.Severity.Error);
+            try
+            {
+                await BookingApi.UpdateAsync(new UpdateBookingCommand(
+                    booking.Id,
+                    booking.SeatRow ?? string.Empty,
+                    booking.SeatNumber ?? 0,
+                    (float)booking.Price,
+                    (int)BookingStatus.Cancelled));
+                Snackbar.Add("Đã hủy đặt vé.", MudBlazor.Severity.Success);
+                await LoadBookings();
+            }
+            catch
+            {
+                Snackbar.Add("Không thể hủy đặt vé lúc này.", MudBlazor.Severity.Error);
+            }
         }
     }
 

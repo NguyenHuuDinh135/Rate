@@ -1,0 +1,123 @@
+@using MudBlazor
+@using System.ComponentModel.DataAnnotations
+@using WebUI.Shared.Services.Api
+@using WebUI.Shared.Models.Movies
+
+<MudDialog>
+    <DialogContent>
+        <MudForm Model="@_model" @ref="_form" ValidationDelay="0">
+            <MudTextField @bind-Value="_model.Title"
+                          For="@(() => _model.Title)"
+                          Label="Tên phim"
+                          Required="true"
+                          RequiredError="Tên phim không được để trống" />
+
+            <div class="grid grid-cols-2 gap-4 mt-4">
+                <MudNumericField @bind-Value="_model.Year"
+                                 For="@(() => _model.Year)"
+                                 Label="Năm sản xuất"
+                                 Required="true"
+                                 Min="1900" Max="2100" />
+
+                <MudNumericField @bind-Value="_model.Rating"
+                                 For="@(() => _model.Rating)"
+                                 Label="Đánh giá (1-10)"
+                                 Min="0" Max="10" Step="0.1M" />
+            </div>
+
+            <MudSelect T="MovieType" @bind-Value="_model.MovieType" Label="Trạng thái" Class="mt-4">
+                <MudSelectItem Value="@MovieType.NowShowing">Đang chiếu</MudSelectItem>
+                <MudSelectItem Value="@MovieType.ComingSoon">Sắp chiếu</MudSelectItem>
+                <MudSelectItem Value="@MovieType.Removed">Đã gỡ</MudSelectItem>
+            </MudSelect>
+
+            <MudTextField @bind-Value="_model.PosterUrl"
+                          For="@(() => _model.PosterUrl)"
+                          Label="Poster URL" Class="mt-4" />
+
+            <MudTextField @bind-Value="_model.TrailerUrl"
+                          For="@(() => _model.TrailerUrl)"
+                          Label="Trailer URL (YouTube)" Class="mt-4" />
+
+            <MudTextField @bind-Value="_model.Summary"
+                          For="@(() => _model.Summary)"
+                          Label="Tóm tắt phim"
+                          Lines="3" Class="mt-4" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Hủy</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit" Disabled="@_isSubmitting">
+            @if (_isSubmitting)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">Đang lưu</MudText>
+            }
+            else
+            {
+                <MudText>Lưu</MudText>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter]
+    public MovieDto? Movie { get; set; }
+
+    private MudForm _form = default!;
+    private MovieFormModel _model = new();
+    private bool _isSubmitting = false;
+
+    protected override void OnInitialized()
+    {
+        if (Movie != null)
+        {
+            _model.Title = Movie.Title;
+            _model.Summary = Movie.Summary ?? "";
+            _model.Year = Movie.Year;
+            _model.Rating = Movie.Rating;
+            _model.TrailerUrl = Movie.TrailerUrl ?? "";
+            _model.PosterUrl = Movie.PosterUrl ?? "";
+            _model.MovieType = Movie.MovieType;
+        }
+        else
+        {
+            _model.Year = DateTime.Now.Year;
+            _model.MovieType = MovieType.ComingSoon;
+        }
+    }
+
+    private async Task Submit()
+    {
+        await _form.ValidateAsync();
+        if (_form.IsValid)
+        {
+            _isSubmitting = true;
+            StateHasChanged();
+            MudDialog.Close(DialogResult.Ok(_model));
+            _isSubmitting = false;
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    public class MovieFormModel
+    {
+        [Required(ErrorMessage = "Tên phim không được để trống")]
+        public string Title { get; set; } = string.Empty;
+        
+        public string Summary { get; set; } = string.Empty;
+        
+        [Required(ErrorMessage = "Năm không hợp lệ")]
+        public int Year { get; set; }
+        
+        public decimal? Rating { get; set; }
+        public string TrailerUrl { get; set; } = string.Empty;
+        public string PosterUrl { get; set; } = string.Empty;
+        public MovieType MovieType { get; set; }
+    }
+}

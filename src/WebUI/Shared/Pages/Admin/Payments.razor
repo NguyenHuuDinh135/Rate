@@ -2,10 +2,11 @@
 @layout AdminLayout
 @using MudBlazor
 @using WebUI.Shared.Components.Admin
+@using WebUI.Shared.Components.Admin.Dialogs
 @using WebUI.Shared.Components.UI
 @inject IPaymentApi PaymentApi
 @inject MudBlazor.ISnackbar Snackbar
-@inject IJSRuntime JSRuntime
+@inject IDialogService DialogService
 
 <PageTitle>Thanh toán | RATE Admin</PageTitle>
 
@@ -125,21 +126,35 @@
 
     private async Task DeletePayment(PaymentDto payment)
     {
-        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Hoàn/hủy hóa đơn #{payment.PaymentId}?");
-        if (!ok)
+        var parameters = new DialogParameters
         {
-            return;
-        }
+            { "ContentText", $"Hoàn/hủy hóa đơn #{payment.PaymentId}?" },
+            { "ButtonText", "Hủy hóa đơn" }
+        };
 
-        try
+        var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>(
+            "Xác nhận xử lý", 
+            parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true }
+        );
+
+        var result = await dialog.Result;
+
+        if (!result!.Canceled)
         {
-            await PaymentApi.DeleteAsync(payment.PaymentId);
-            Snackbar.Add("Đã xử lý giao dịch.", MudBlazor.Severity.Success);
-            await LoadPayments();
-        }
-        catch
-        {
-            Snackbar.Add("Không thể xử lý giao dịch lúc này.", MudBlazor.Severity.Error);
+            try
+            {
+                // Assuming we want to keep the same amount but maybe change status if backend supported it. 
+                // Currently UpdatePaymentCommand only takes Amount and PaymentMethod.
+                // Let's just pass them as they are.
+                await PaymentApi.DeleteAsync(payment.PaymentId);
+                Snackbar.Add("Đã xử lý giao dịch.", MudBlazor.Severity.Success);
+                await LoadPayments();
+            }
+            catch
+            {
+                Snackbar.Add("Không thể xử lý giao dịch lúc này.", MudBlazor.Severity.Error);
+            }
         }
     }
 
