@@ -90,6 +90,8 @@ else
 app.UseHealthChecks("/health");
 app.UseStaticFiles();
 
+app.UseCors("WebUI");
+
 app.MapEndpoints(typeof(Program).Assembly);
 
 app.Run();
