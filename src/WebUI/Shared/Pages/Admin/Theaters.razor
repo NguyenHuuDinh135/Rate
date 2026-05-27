@@ -4,10 +4,13 @@
 @layout AdminLayout
 @using MudBlazor
 @using WebUI.Shared.Components.Admin
+@using WebUI.Shared.Components.Admin.Dialogs
 @using WebUI.Shared.Components.UI
+@using WebUI.Shared.Services.Api
+@using WebUI.Shared.Models.Theaters
 @inject ITheaterApi TheaterApi
 @inject MudBlazor.ISnackbar Snackbar
-@inject IJSRuntime JSRuntime
+@inject IDialogService DialogService
 
 <PageTitle>Rạp chiếu | RATE Admin</PageTitle>
 
@@ -96,6 +99,7 @@
         finally
         {
             _isLoading = false;
+            StateHasChanged();
         }
     }
 
@@ -107,29 +111,25 @@
 
     private async Task CreateTheater()
     {
-        var name = await JSRuntime.InvokeAsync<string>("prompt", "Tên rạp/phòng:", "");
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            return;
-        }
+        var dialog = await DialogService.ShowAsync<TheaterDialog>(
+            "Thêm rạp chiếu mới", 
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true }
+        );
 
-        var rowsText = await JSRuntime.InvokeAsync<string>("prompt", "Số hàng ghế:", "8");
-        var seatsText = await JSRuntime.InvokeAsync<string>("prompt", "Số ghế mỗi hàng:", "12");
-        if (!int.TryParse(rowsText, out var rows) || !int.TryParse(seatsText, out var seatsPerRow))
-        {
-            Snackbar.Add("Số hàng và số ghế phải là số hợp lệ.", MudBlazor.Severity.Warning);
-            return;
-        }
+        var result = await dialog.Result;
 
-        try
+        if (!result!.Canceled && result.Data is TheaterDialog.TheaterFormModel model)
         {
-            var result = await TheaterApi.CreateAsync(new CreateTheaterCommand(name.Trim(), rows, seatsPerRow, TheaterType.Normal));
-            Snackbar.Add(result.Succeeded ? "Đã tạo rạp mới." : "Không thể tạo rạp lúc này.", result.Succeeded ? MudBlazor.Severity.Success : MudBlazor.Severity.Error);
-            await LoadTheaters();
-        }
-        catch
-        {
-            Snackbar.Add("Không thể tạo rạp lúc này.", MudBlazor.Severity.Error);
+            try
+            {
+                var response = await TheaterApi.CreateAsync(new CreateTheaterCommand(model.Name.Trim(), model.NumOfRows, model.SeatsPerRow, (int)model.Type));
+                Snackbar.Add(response.Succeeded ? "Đã tạo rạp mới." : "Không thể tạo rạp lúc này.", response.Succeeded ? MudBlazor.Severity.Success : MudBlazor.Severity.Error);
+                await LoadTheaters();
+            }
+            catch
+            {
+                Snackbar.Add("Không thể tạo rạp lúc này.", MudBlazor.Severity.Error);
+            }
         }
     }
 
@@ -137,41 +137,62 @@
 
     private async Task EditTheater(TheaterDto theater)
     {
-        var name = await JSRuntime.InvokeAsync<string>("prompt", "Tên rạp/phòng:", theater.Name);
-        if (string.IsNullOrWhiteSpace(name))
+        var parameters = new DialogParameters
         {
-            return;
-        }
+            { "Theater", theater }
+        };
 
-        try
+        var dialog = await DialogService.ShowAsync<TheaterDialog>(
+            "Chỉnh sửa rạp chiếu", 
+            parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true }
+        );
+
+        var result = await dialog.Result;
+
+        if (!result!.Canceled && result.Data is TheaterDialog.TheaterFormModel model)
         {
-            await TheaterApi.UpdateAsync(new UpdateTheaterCommand(theater.Id, name.Trim(), theater.NumOfRows, theater.SeatsPerRow, theater.Type));
-            Snackbar.Add("Đã đồng bộ thông tin rạp.", MudBlazor.Severity.Success);
-            await LoadTheaters();
-        }
-        catch
-        {
-            Snackbar.Add("Không thể cập nhật rạp lúc này.", MudBlazor.Severity.Error);
+            try
+            {
+                await TheaterApi.UpdateAsync(new UpdateTheaterCommand(theater.Id, model.Name.Trim(), model.NumOfRows, model.SeatsPerRow, (int)model.Type));
+                Snackbar.Add("Đã cập nhật thông tin rạp.", MudBlazor.Severity.Success);
+                await LoadTheaters();
+            }
+            catch
+            {
+                Snackbar.Add("Không thể cập nhật rạp lúc này.", MudBlazor.Severity.Error);
+            }
         }
     }
 
     private async Task DeleteTheater(TheaterDto theater)
     {
-        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Xóa rạp/phòng '{theater.Name}'?");
-        if (!ok)
+        var parameters = new DialogParameters
         {
-            return;
-        }
+            { "ContentText", $"Bạn có chắc chắn muốn xóa rạp/phòng '{theater.Name}' không?" },
+            { "ButtonText", "Xóa rạp" }
+        };
 
-        try
+        var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>(
+            "Xác nhận xóa", 
+            parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true }
+        );
+
+        var result = await dialog.Result;
+
+        if (!result!.Canceled)
         {
-            await TheaterApi.DeleteAsync(theater.Id);
-            Snackbar.Add("Đã xóa rạp.", MudBlazor.Severity.Success);
-            await LoadTheaters();
-        }
-        catch
-        {
-            Snackbar.Add("Không thể xóa rạp lúc này.", MudBlazor.Severity.Error);
+            try
+            {
+                await TheaterApi.DeleteAsync(theater.Id);
+                Snackbar.Add("Đã xóa rạp.", MudBlazor.Severity.Success);
+                await LoadTheaters();
+            }
+            catch
+            {
+                Snackbar.Add("Không thể xóa rạp lúc này.", MudBlazor.Severity.Error);
+            }
         }
     }
 

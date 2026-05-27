@@ -3,12 +3,15 @@
 @layout AdminLayout
 @using MudBlazor
 @using WebUI.Shared.Components.Admin
+@using WebUI.Shared.Components.Admin.Dialogs
 @using WebUI.Shared.Components.UI
+@using WebUI.Shared.Services.Api
+@using WebUI.Shared.Models.Auth
 @inject IUserApi UserApi
 @inject IPermissionApi PermissionApi
 @inject NavigationManager NavigationManager
 @inject MudBlazor.ISnackbar Snackbar
-@inject IJSRuntime JSRuntime
+@inject IDialogService DialogService
 
 <PageTitle>Người dùng | RATE Admin</PageTitle>
 
@@ -170,6 +173,7 @@
         finally
         {
             _isLoading = false;
+            StateHasChanged();
         }
     }
 
@@ -181,30 +185,31 @@
 
     private async Task CreateUser()
     {
-        var email = await JSRuntime.InvokeAsync<string>("prompt", "Email người dùng:", "");
-        if (string.IsNullOrWhiteSpace(email))
+        var parameters = new DialogParameters
         {
-            return;
-        }
+            { "Roles", _roles }
+        };
 
-        var password = await JSRuntime.InvokeAsync<string>("prompt", "Mật khẩu tạm thời:", "Admin123!");
-        if (string.IsNullOrWhiteSpace(password))
-        {
-            return;
-        }
+        var dialog = await DialogService.ShowAsync<UserDialog>(
+            "Thêm người dùng mới", 
+            parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true }
+        );
 
-        var userName = email.Split('@', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? email;
-        var roles = _roles.Count == 0 ? new List<string>() : [_roles[0].Name];
+        var result = await dialog.Result;
 
-        try
+        if (!result!.Canceled && result.Data is UserDialog.UserFormModel model)
         {
-            var result = await UserApi.CreateAsync(new CreateAdminUserRequest(userName, email, password, roles));
-            Snackbar.Add(result.Succeeded ? "Đã tạo người dùng." : "Không thể tạo người dùng lúc này.", result.Succeeded ? MudBlazor.Severity.Success : MudBlazor.Severity.Error);
-            await LoadUsers();
-        }
-        catch
-        {
-            Snackbar.Add("Không thể tạo người dùng lúc này.", MudBlazor.Severity.Error);
+            try
+            {
+                var response = await UserApi.CreateAsync(new CreateAdminUserRequest(model.UserName, model.Email, model.Password, model.Roles));
+                Snackbar.Add(response.Succeeded ? "Đã tạo người dùng." : "Không thể tạo người dùng lúc này.", response.Succeeded ? MudBlazor.Severity.Success : MudBlazor.Severity.Error);
+                await LoadUsers();
+            }
+            catch
+            {
+                Snackbar.Add("Không thể tạo người dùng lúc này.", MudBlazor.Severity.Error);
+            }
         }
     }
 
@@ -215,47 +220,63 @@
 
     private async Task EditUser(AdminUserDto user)
     {
-        var userName = await JSRuntime.InvokeAsync<string>("prompt", "Tên người dùng:", user.UserName);
-        if (string.IsNullOrWhiteSpace(userName))
+        var parameters = new DialogParameters
         {
-            return;
-        }
+            { "User", user },
+            { "Roles", _roles }
+        };
 
-        var email = await JSRuntime.InvokeAsync<string>("prompt", "Email:", user.Email);
-        if (string.IsNullOrWhiteSpace(email))
-        {
-            return;
-        }
+        var dialog = await DialogService.ShowAsync<UserDialog>(
+            "Chỉnh sửa người dùng", 
+            parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true }
+        );
 
-        try
+        var result = await dialog.Result;
+
+        if (!result!.Canceled && result.Data is UserDialog.UserFormModel model)
         {
-            await UserApi.UpdateAsync(new UpdateAdminUserRequest(user.Id, userName, email, user.Roles));
-            Snackbar.Add("Đã cập nhật người dùng.", MudBlazor.Severity.Success);
-            await LoadUsers();
-        }
-        catch
-        {
-            Snackbar.Add("Không thể cập nhật người dùng lúc này.", MudBlazor.Severity.Error);
+            try
+            {
+                await UserApi.UpdateAsync(new UpdateAdminUserRequest(user.Id, model.UserName, model.Email, model.Roles));
+                Snackbar.Add("Đã cập nhật người dùng.", MudBlazor.Severity.Success);
+                await LoadUsers();
+            }
+            catch
+            {
+                Snackbar.Add("Không thể cập nhật người dùng lúc này.", MudBlazor.Severity.Error);
+            }
         }
     }
 
     private async Task DeleteUser(AdminUserDto user)
     {
-        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Xóa người dùng '{user.UserName}'?");
-        if (!ok)
+        var parameters = new DialogParameters
         {
-            return;
-        }
+            { "ContentText", $"Bạn có chắc chắn muốn xóa người dùng '{user.UserName}' không?" },
+            { "ButtonText", "Xóa người dùng" }
+        };
 
-        try
+        var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>(
+            "Xác nhận xóa", 
+            parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true }
+        );
+
+        var result = await dialog.Result;
+
+        if (!result!.Canceled)
         {
-            await UserApi.DeleteAsync(user.Id);
-            Snackbar.Add("Đã xóa người dùng.", MudBlazor.Severity.Success);
-            await LoadUsers();
-        }
-        catch
-        {
-            Snackbar.Add("Không thể xóa người dùng lúc này.", MudBlazor.Severity.Error);
+            try
+            {
+                await UserApi.DeleteAsync(user.Id);
+                Snackbar.Add("Đã xóa người dùng.", MudBlazor.Severity.Success);
+                await LoadUsers();
+            }
+            catch
+            {
+                Snackbar.Add("Không thể xóa người dùng lúc này.", MudBlazor.Severity.Error);
+            }
         }
     }
 

@@ -2,11 +2,14 @@
 @layout AdminLayout
 @using MudBlazor
 @using WebUI.Shared.Components.Admin
+@using WebUI.Shared.Components.Admin.Dialogs
 @using WebUI.Shared.Components.UI
+@using WebUI.Shared.Services.Api
+@using WebUI.Shared.Models.Auth
 @inject IPermissionApi PermissionApi
 @inject IUserApi UserApi
 @inject MudBlazor.ISnackbar Snackbar
-@inject IJSRuntime JSRuntime
+@inject IDialogService DialogService
 
 <PageTitle>Cài đặt | RATE Admin</PageTitle>
 
@@ -187,21 +190,25 @@
 
     private async Task CreateRole()
     {
-        var roleName = await JSRuntime.InvokeAsync<string>("prompt", "Nhập tên nhóm người dùng:", "");
-        if (string.IsNullOrWhiteSpace(roleName))
-        {
-            return;
-        }
+        var dialog = await DialogService.ShowAsync<RoleDialog>(
+            "Thêm nhóm người dùng mới", 
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true }
+        );
 
-        try
+        var result = await dialog.Result;
+
+        if (!result!.Canceled && result.Data is RoleDialog.RoleFormModel model)
         {
-            var result = await PermissionApi.CreateRoleAsync(new CreateRoleRequest(roleName));
-            Snackbar.Add(result.Succeeded ? "Đã tạo nhóm người dùng." : "Không thể tạo nhóm lúc này.", result.Succeeded ? MudBlazor.Severity.Success : MudBlazor.Severity.Error);
-            await LoadSettings();
-        }
-        catch
-        {
-            Snackbar.Add("Không thể tạo nhóm lúc này.", MudBlazor.Severity.Error);
+            try
+            {
+                var response = await PermissionApi.CreateRoleAsync(new CreateRoleRequest(model.Name));
+                Snackbar.Add(response.Succeeded ? "Đã tạo nhóm người dùng." : "Không thể tạo nhóm lúc này.", response.Succeeded ? MudBlazor.Severity.Success : MudBlazor.Severity.Error);
+                await LoadSettings();
+            }
+            catch
+            {
+                Snackbar.Add("Không thể tạo nhóm lúc này.", MudBlazor.Severity.Error);
+            }
         }
     }
 
@@ -209,22 +216,28 @@
     {
         try
         {
-            var currentResponse = await PermissionApi.GetRolePermissionsAsync(role.Name);
-            var current = currentResponse?.Body ?? [];
-            var input = await JSRuntime.InvokeAsync<string>("prompt", "Danh sách quyền, phân tách bằng dấu phẩy:", string.Join(", ", current));
-            if (input is null)
+            var current = await PermissionApi.GetRolePermissionsAsync(role.Name) ?? [];
+            var parameters = new DialogParameters
             {
-                return;
+                { "Role", role },
+                { "CurrentPermissions", current },
+                { "AvailablePermissions", _permissions }
+            };
+
+            var dialog = await DialogService.ShowAsync<RoleDialog>(
+                "Chỉnh sửa quyền nhóm", 
+                parameters,
+                new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true }
+            );
+
+            var result = await dialog.Result;
+
+            if (!result!.Canceled && result.Data is RoleDialog.RoleFormModel model)
+            {
+                await PermissionApi.UpdateRolePermissionsAsync(role.Name, new PermissionUpdateRequest(model.Permissions));
+                Snackbar.Add("Đã cập nhật quyền nhóm.", MudBlazor.Severity.Success);
+                await LoadSettings();
             }
-
-            var permissions = input
-                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList();
-
-            await PermissionApi.UpdateRolePermissionsAsync(role.Name, new PermissionUpdateRequest(permissions));
-            Snackbar.Add("Đã cập nhật quyền nhóm.", MudBlazor.Severity.Success);
-            await LoadSettings();
         }
         catch
         {
@@ -234,8 +247,21 @@
 
     private async Task DeleteRole(RoleDto role)
     {
-        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Xóa nhóm '{role.Name}'?");
-        if (ok)
+        var parameters = new DialogParameters
+        {
+            { "ContentText", $"Bạn có chắc chắn muốn xóa nhóm '{role.Name}' không?" },
+            { "ButtonText", "Xóa nhóm" }
+        };
+
+        var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>(
+            "Xác nhận xóa", 
+            parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true }
+        );
+
+        var result = await dialog.Result;
+
+        if (!result!.Canceled)
         {
             try
             {
@@ -252,45 +278,63 @@
 
     private async Task EditUser(AdminUserDto user)
     {
-        var roleInput = await JSRuntime.InvokeAsync<string>("prompt", "Vai trò, phân tách bằng dấu phẩy:", string.Join(", ", user.Roles));
-        if (roleInput is null)
+        var parameters = new DialogParameters
         {
-            return;
-        }
+            { "User", user },
+            { "Roles", _roles }
+        };
 
-        try
+        var dialog = await DialogService.ShowAsync<UserDialog>(
+            "Chỉnh sửa quyền người dùng", 
+            parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true }
+        );
+
+        var result = await dialog.Result;
+
+        if (!result!.Canceled && result.Data is UserDialog.UserFormModel model)
         {
-            var roles = roleInput
-                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList();
-            await UserApi.UpdateAsync(new UpdateAdminUserRequest(user.Id, user.UserName, user.Email, roles));
-            Snackbar.Add("Đã cập nhật vai trò người dùng.", MudBlazor.Severity.Success);
-            await LoadSettings();
-        }
-        catch
-        {
-            Snackbar.Add("Không thể cập nhật người dùng lúc này.", MudBlazor.Severity.Error);
+            try
+            {
+                await UserApi.UpdateAsync(new UpdateAdminUserRequest(user.Id, model.UserName, model.Email, model.Roles));
+                Snackbar.Add("Đã cập nhật vai trò người dùng.", MudBlazor.Severity.Success);
+                await LoadSettings();
+            }
+            catch
+            {
+                Snackbar.Add("Không thể cập nhật người dùng lúc này.", MudBlazor.Severity.Error);
+            }
         }
     }
 
     private async Task DeleteUser(AdminUserDto user)
     {
-        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Xóa người dùng '{user.UserName}'?");
-        if (!ok)
+        var parameters = new DialogParameters
         {
-            return;
-        }
+            { "ContentText", $"Bạn có chắc chắn muốn xóa người dùng '{user.UserName}' không?" },
+            { "ButtonText", "Xóa người dùng" }
+        };
 
-        try
+        var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>(
+            "Xác nhận xóa", 
+            parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true }
+        );
+
+        var result = await dialog.Result;
+
+        if (!result!.Canceled)
         {
-            await UserApi.DeleteAsync(user.Id);
-            Snackbar.Add("Đã xóa người dùng.", MudBlazor.Severity.Success);
-            await LoadSettings();
-        }
-        catch
-        {
-            Snackbar.Add("Không thể xóa người dùng lúc này.", MudBlazor.Severity.Error);
+            try
+            {
+                await UserApi.DeleteAsync(user.Id);
+                Snackbar.Add("Đã xóa người dùng.", MudBlazor.Severity.Success);
+                await LoadSettings();
+            }
+            catch
+            {
+                Snackbar.Add("Không thể xóa người dùng lúc này.", MudBlazor.Severity.Error);
+            }
         }
     }
 

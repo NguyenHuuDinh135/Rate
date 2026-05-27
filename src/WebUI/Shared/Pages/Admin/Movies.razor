@@ -1,16 +1,14 @@
 @page "/admin/movies"
 @layout AdminLayout
-@inherits Fluxor.Blazor.Web.Components.FluxorComponent
-@using Fluxor
 @using MudBlazor
 @using WebUI.Shared.Components.Admin
+@using WebUI.Shared.Components.Admin.Dialogs
 @using WebUI.Shared.Components.UI
-@using WebUI.Shared.Store.Movies
-@inject IState<MovieState> MovieState
-@inject IDispatcher Dispatcher
+@using WebUI.Shared.Services.Api
+@using WebUI.Shared.Models.Movies
 @inject IMovieApi MovieApi
 @inject MudBlazor.ISnackbar Snackbar
-@inject IJSRuntime JSRuntime
+@inject IDialogService DialogService
 
 <PageTitle>Quản lý phim | RATE Admin</PageTitle>
 
@@ -21,10 +19,10 @@
     </Actions>
 </PageHeader>
 
-<DataState IsLoading="@MovieState.Value.IsLoading"
-           Error="@MovieState.Value.Error"
-           IsEmpty="@(!MovieState.Value.Movies.Any())"
-           OnRetry="@(() => Dispatcher.Dispatch(new LoadMoviesAction()))">
+<DataState IsLoading="@_isLoading"
+           Error="@(_hasLoadIssue ? "load-failed" : null)"
+           IsEmpty="@(!_movies.Any())"
+           OnRetry="@LoadMovies">
     <DataCard>
         <div class="rate-toolbar">
             <div class="rate-toolbar__left">
@@ -75,12 +73,15 @@
 </DataState>
 
 @code {
+    private readonly List<MovieDto> _movies = [];
+    private bool _isLoading = true;
+    private bool _hasLoadIssue;
     private string _searchText = "";
     private string _typeFilter = "all";
     private int _page = 1;
     private const int _pageSize = 10;
 
-    private IEnumerable<MovieDto> FilteredMovies => MovieState.Value.Movies
+    private IEnumerable<MovieDto> FilteredMovies => _movies
         .Where(movie => string.IsNullOrWhiteSpace(_searchText) || movie.Title.Contains(_searchText, StringComparison.OrdinalIgnoreCase))
         .Where(movie => _typeFilter switch
         {
@@ -94,12 +95,29 @@
         .Skip((_page - 1) * _pageSize)
         .Take(_pageSize);
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        base.OnInitialized();
-        if (MovieState.Value.Movies.Count == 0)
+        await LoadMovies();
+    }
+
+    private async Task LoadMovies()
+    {
+        _isLoading = true;
+        _hasLoadIssue = false;
+
+        try
         {
-            Dispatcher.Dispatch(new LoadMoviesAction());
+            _movies.Clear();
+            _movies.AddRange(await MovieApi.GetAllAsync() ?? []);
+        }
+        catch
+        {
+            _hasLoadIssue = true;
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
         }
     }
 
@@ -111,28 +129,33 @@
 
     private async Task CreateMovie()
     {
-        var title = await JSRuntime.InvokeAsync<string>("prompt", "Tên phim:", "");
-        if (string.IsNullOrWhiteSpace(title))
-        {
-            return;
-        }
+        var dialog = await DialogService.ShowAsync<AdminMovieDialog>(
+            "Thêm phim mới", 
+            new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true }
+        );
 
-        try
+        var result = await dialog.Result;
+
+        if (!result!.Canceled && result.Data is AdminMovieDialog.MovieFormModel model)
         {
-            var result = await MovieApi.CreateAsync(new CreateMovieCommand(
-                title,
-                "",
-                DateTime.Now.Year,
-                null,
-                "",
-                "",
-                MovieType.ComingSoon));
-            Snackbar.Add(result.Succeeded ? "Đã tạo phim." : "Không thể tạo phim lúc này.", result.Succeeded ? MudBlazor.Severity.Success : MudBlazor.Severity.Error);
-            Dispatcher.Dispatch(new LoadMoviesAction());
-        }
-        catch
-        {
-            Snackbar.Add("Không thể tạo phim lúc này.", MudBlazor.Severity.Error);
+            try
+            {
+                var response = await MovieApi.CreateAsync(new CreateMovieCommand(
+                    model.Title,
+                    model.Summary,
+                    model.Year,
+                    model.Rating,
+                    model.TrailerUrl,
+                    model.PosterUrl,
+                    (int)model.MovieType));
+                
+                Snackbar.Add(response.Succeeded ? "Đã tạo phim." : "Không thể tạo phim lúc này.", response.Succeeded ? MudBlazor.Severity.Success : MudBlazor.Severity.Error);
+                await LoadMovies();
+            }
+            catch
+            {
+                Snackbar.Add("Không thể tạo phim lúc này.", MudBlazor.Severity.Error);
+            }
         }
     }
 
@@ -143,49 +166,71 @@
 
     private async Task EditMovie(MovieDto movie)
     {
-        var title = await JSRuntime.InvokeAsync<string>("prompt", "Tên phim:", movie.Title);
-        if (string.IsNullOrWhiteSpace(title))
+        var parameters = new DialogParameters
         {
-            return;
-        }
+            { "Movie", movie }
+        };
 
-        try
+        var dialog = await DialogService.ShowAsync<AdminMovieDialog>(
+            "Chỉnh sửa phim", 
+            parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true }
+        );
+
+        var result = await dialog.Result;
+
+        if (!result!.Canceled && result.Data is AdminMovieDialog.MovieFormModel model)
         {
-            await MovieApi.UpdateAsync(new UpdateMovieCommand(
-                movie.Id,
-                title,
-                movie.Summary,
-                movie.Year,
-                movie.Rating,
-                movie.TrailerUrl,
-                movie.PosterUrl,
-                movie.MovieType));
-            Snackbar.Add("Đã cập nhật phim.", MudBlazor.Severity.Success);
-            Dispatcher.Dispatch(new LoadMoviesAction());
-        }
-        catch
-        {
-            Snackbar.Add("Không thể cập nhật phim lúc này.", MudBlazor.Severity.Error);
+            try
+            {
+                await MovieApi.UpdateAsync(new UpdateMovieCommand(
+                    movie.Id,
+                    model.Title,
+                    model.Summary,
+                    model.Year,
+                    model.Rating,
+                    model.TrailerUrl,
+                    model.PosterUrl,
+                    (int)model.MovieType));
+                
+                Snackbar.Add("Đã cập nhật phim.", MudBlazor.Severity.Success);
+                await LoadMovies();
+            }
+            catch
+            {
+                Snackbar.Add("Không thể cập nhật phim lúc này.", MudBlazor.Severity.Error);
+            }
         }
     }
 
     private async Task DeleteMovie(MovieDto movie)
     {
-        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Xóa phim '{movie.Title}'?");
-        if (!ok)
+        var parameters = new DialogParameters
         {
-            return;
-        }
+            { "ContentText", $"Bạn có chắc chắn muốn xóa phim '{movie.Title}' không?" },
+            { "ButtonText", "Xóa phim" }
+        };
 
-        try
+        var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>(
+            "Xác nhận xóa", 
+            parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true }
+        );
+
+        var result = await dialog.Result;
+
+        if (!result!.Canceled)
         {
-            await MovieApi.DeleteAsync(movie.Id);
-            Snackbar.Add("Đã xóa phim.", MudBlazor.Severity.Success);
-            Dispatcher.Dispatch(new LoadMoviesAction());
-        }
-        catch
-        {
-            Snackbar.Add("Không thể xóa phim lúc này.", MudBlazor.Severity.Error);
+            try
+            {
+                await MovieApi.DeleteAsync(movie.Id);
+                Snackbar.Add("Đã xóa phim.", MudBlazor.Severity.Success);
+                await LoadMovies();
+            }
+            catch
+            {
+                Snackbar.Add("Không thể xóa phim lúc này.", MudBlazor.Severity.Error);
+            }
         }
     }
 

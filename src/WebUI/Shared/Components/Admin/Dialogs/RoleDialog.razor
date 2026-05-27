@@ -1,0 +1,91 @@
+@using MudBlazor
+@using System.ComponentModel.DataAnnotations
+@using WebUI.Shared.Services.Api
+@using WebUI.Shared.Models.Auth
+
+<MudDialog>
+    <DialogContent>
+        <MudForm Model="@_model" @ref="_form" ValidationDelay="0">
+            @if (Role == null)
+            {
+                <MudTextField @bind-Value="_model.Name"
+                              For="@(() => _model.Name)"
+                              Label="Tên nhóm người dùng"
+                              Required="true"
+                              RequiredError="Tên nhóm không được để trống" />
+            }
+            else
+            {
+                <MudSelect T="string" @bind-SelectedValues="_selectedPermissions" MultiSelection="true" Label="Danh sách quyền" Class="mt-4">
+                    @foreach (var permission in AvailablePermissions)
+                    {
+                        <MudSelectItem Value="@permission">@permission</MudSelectItem>
+                    }
+                </MudSelect>
+            }
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Hủy</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit" Disabled="@_isSubmitting">
+            @if (_isSubmitting)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">Đang lưu</MudText>
+            }
+            else
+            {
+                <MudText>Lưu</MudText>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter]
+    public RoleDto? Role { get; set; }
+
+    [Parameter]
+    public List<string> CurrentPermissions { get; set; } = new();
+
+    [Parameter]
+    public List<string> AvailablePermissions { get; set; } = new();
+
+    private MudForm _form = default!;
+    private RoleFormModel _model = new();
+    private IReadOnlyCollection<string> _selectedPermissions = new HashSet<string>();
+    private bool _isSubmitting = false;
+
+    protected override void OnInitialized()
+    {
+        if (Role != null)
+        {
+            _model.Name = Role.Name;
+            _selectedPermissions = new HashSet<string>(CurrentPermissions);
+        }
+    }
+
+    private async Task Submit()
+    {
+        await _form.ValidateAsync();
+        if (_form.IsValid)
+        {
+            _model.Permissions = _selectedPermissions.ToList();
+            _isSubmitting = true;
+            StateHasChanged();
+            MudDialog.Close(DialogResult.Ok(_model));
+            _isSubmitting = false;
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    public class RoleFormModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public List<string> Permissions { get; set; } = new();
+    }
+}

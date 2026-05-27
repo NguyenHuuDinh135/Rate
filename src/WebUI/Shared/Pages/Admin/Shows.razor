@@ -3,12 +3,16 @@
 @layout AdminLayout
 @using MudBlazor
 @using WebUI.Shared.Components.Admin
+@using WebUI.Shared.Components.Admin.Dialogs
 @using WebUI.Shared.Components.UI
+@using WebUI.Shared.Services.Api
+@using WebUI.Shared.Models.Theaters
+@using WebUI.Shared.Models.Common
 @inject IShowApi ShowApi
 @inject IMovieApi MovieApi
 @inject ITheaterApi TheaterApi
 @inject MudBlazor.ISnackbar Snackbar
-@inject IJSRuntime JSRuntime
+@inject IDialogService DialogService
 
 <PageTitle>Suất chiếu | RATE Admin</PageTitle>
 
@@ -118,6 +122,7 @@
         finally
         {
             _isLoading = false;
+            StateHasChanged();
         }
     }
 
@@ -135,96 +140,122 @@
             return;
         }
 
-        var movieIdText = await JSRuntime.InvokeAsync<string>("prompt", "Movie ID:", _movieNames.Keys.First().ToString());
-        var theaterIdText = await JSRuntime.InvokeAsync<string>("prompt", "Theater ID:", _theaterNames.Keys.First().ToString());
-        var dateText = await JSRuntime.InvokeAsync<string>("prompt", "Ngày chiếu (yyyy-MM-dd):", DateTime.Today.ToString("yyyy-MM-dd"));
-        var startText = await JSRuntime.InvokeAsync<string>("prompt", "Giờ bắt đầu (HH:mm):", "19:00");
-        var endText = await JSRuntime.InvokeAsync<string>("prompt", "Giờ kết thúc (HH:mm):", "21:00");
+        var parameters = new DialogParameters
+        {
+            { "Movies", _movieNames },
+            { "Theaters", _theaterNames }
+        };
 
-        if (!int.TryParse(movieIdText, out var movieId)
-            || !int.TryParse(theaterIdText, out var theaterId)
-            || !DateTime.TryParse(dateText, out var date)
-            || !TimeSpan.TryParse(startText, out var start)
-            || !TimeSpan.TryParse(endText, out var end))
-        {
-            Snackbar.Add("Thông tin suất chiếu không hợp lệ.", MudBlazor.Severity.Warning);
-            return;
-        }
+        var dialog = await DialogService.ShowAsync<ShowDialog>(
+            "Thêm suất chiếu mới", 
+            parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true }
+        );
 
-        try
+        var result = await dialog.Result;
+
+        if (!result!.Canceled && result.Data is ShowDialog.ShowFormModel model)
         {
-            var result = await ShowApi.CreateAsync(new CreateShowCommand(
-                date,
-                start,
-                end,
-                movieId,
-                theaterId,
-                ShowType.TwoD));
-            Snackbar.Add(result.Succeeded ? "Đã tạo suất chiếu mới." : "Không thể tạo suất chiếu lúc này.", result.Succeeded ? MudBlazor.Severity.Success : MudBlazor.Severity.Error);
-            await LoadShows();
-        }
-        catch
-        {
-            Snackbar.Add("Không thể tạo suất chiếu lúc này.", MudBlazor.Severity.Error);
+            try
+            {
+                var response = await ShowApi.CreateAsync(new CreateShowCommand(
+                    model.Date!.Value,
+                    model.StartTime!.Value,
+                    model.EndTime!.Value,
+                    model.MovieId,
+                    model.TheaterId,
+                    (int)model.Type));
+                
+                Snackbar.Add(response.Succeeded ? "Đã tạo suất chiếu mới." : "Không thể tạo suất chiếu lúc này.", response.Succeeded ? MudBlazor.Severity.Success : MudBlazor.Severity.Error);
+                await LoadShows();
+            }
+            catch
+            {
+                Snackbar.Add("Không thể tạo suất chiếu lúc này.", MudBlazor.Severity.Error);
+            }
         }
     }
 
     private async Task EditShow(ShowDto show)
     {
-        var dateText = await JSRuntime.InvokeAsync<string>("prompt", "Ngày chiếu (yyyy-MM-dd):", DateInputValue(show.Date));
-        var startText = await JSRuntime.InvokeAsync<string>("prompt", "Giờ bắt đầu (HH:mm):", show.StartTime);
-        var endText = await JSRuntime.InvokeAsync<string>("prompt", "Giờ kết thúc (HH:mm):", show.EndTime);
-        if (!DateTime.TryParse(dateText, out var date)
-            || !TimeSpan.TryParse(startText, out var start)
-            || !TimeSpan.TryParse(endText, out var end))
+        var parameters = new DialogParameters
         {
-            Snackbar.Add("Thông tin suất chiếu không hợp lệ.", MudBlazor.Severity.Warning);
-            return;
-        }
+            { "Show", show },
+            { "Movies", _movieNames },
+            { "Theaters", _theaterNames }
+        };
 
-        try
+        var dialog = await DialogService.ShowAsync<ShowDialog>(
+            "Chỉnh sửa suất chiếu", 
+            parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseButton = true }
+        );
+
+        var result = await dialog.Result;
+
+        if (!result!.Canceled && result.Data is ShowDialog.ShowFormModel model)
         {
-            await ShowApi.UpdateAsync(new UpdateShowCommand(
-                show.Id,
-                date,
-                start,
-                end,
-                show.MovieId,
-                show.TheaterId,
-                show.Type,
-                show.Status));
-            Snackbar.Add("Đã đồng bộ suất chiếu.", MudBlazor.Severity.Success);
-            await LoadShows();
-        }
-        catch
-        {
-            Snackbar.Add("Không thể cập nhật suất chiếu lúc này.", MudBlazor.Severity.Error);
+            try
+            {
+                await ShowApi.UpdateAsync(new UpdateShowCommand(
+                    show.Id,
+                    model.Date!.Value,
+                    model.StartTime!.Value,
+                    model.EndTime!.Value,
+                    model.MovieId,
+                    model.TheaterId,
+                    (int)model.Type,
+                    (int)model.Status));
+                
+                Snackbar.Add("Đã đồng bộ suất chiếu.", MudBlazor.Severity.Success);
+                await LoadShows();
+            }
+            catch
+            {
+                Snackbar.Add("Không thể cập nhật suất chiếu lúc này.", MudBlazor.Severity.Error);
+            }
         }
     }
 
     private async Task DeleteShow(ShowDto show)
     {
-        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Xóa suất chiếu #{show.Id}?");
-        if (!ok)
+        var parameters = new DialogParameters
         {
-            return;
-        }
+            { "ContentText", $"Bạn có chắc chắn muốn xóa suất chiếu #{show.Id} không?" },
+            { "ButtonText", "Xóa suất chiếu" }
+        };
 
-        try
+        var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>(
+            "Xác nhận xóa", 
+            parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true }
+        );
+
+        var result = await dialog.Result;
+
+        if (!result!.Canceled)
         {
-            await ShowApi.DeleteAsync(show.Id);
-            Snackbar.Add("Đã xóa suất chiếu.", MudBlazor.Severity.Success);
-            await LoadShows();
-        }
-        catch
-        {
-            Snackbar.Add("Không thể xóa suất chiếu lúc này.", MudBlazor.Severity.Error);
+            try
+            {
+                await ShowApi.DeleteAsync(show.Id);
+                Snackbar.Add("Đã xóa suất chiếu.", MudBlazor.Severity.Success);
+                await LoadShows();
+            }
+            catch
+            {
+                Snackbar.Add("Không thể xóa suất chiếu lúc này.", MudBlazor.Severity.Error);
+            }
         }
     }
 
     private string MovieTitle(int movieId) => _movieNames.TryGetValue(movieId, out var title) ? title : $"Phim #{movieId}";
     private string TheaterName(int theaterId) => _theaterNames.TryGetValue(theaterId, out var name) ? name : $"Rạp #{theaterId}";
-    private static string ShowTypeLabel(ShowType type) => type == ShowType.ThreeD ? "3D" : "2D";
+    private static string ShowTypeLabel(ShowType type) => type switch
+    {
+        ShowType.TwoD => "2D",
+        ShowType.ThreeD => "3D",
+        _ => "Không rõ"
+    };
 
     private static string FormatDate(string value)
     {

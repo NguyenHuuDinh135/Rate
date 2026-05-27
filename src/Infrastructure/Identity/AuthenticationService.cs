@@ -52,7 +52,8 @@ public sealed class AuthenticationService(
             AccessToken = accessToken,
             RefreshToken = refreshToken,
             UserId = user.Id,
-            Email = user.Email ?? string.Empty
+            Email = user.Email ?? string.Empty,
+            Roles = roles.ToList()
         };
     }
 
@@ -95,13 +96,14 @@ public sealed class AuthenticationService(
             AccessToken = accessToken,
             RefreshToken = refreshToken,
             UserId = user.Id,
-            Email = user.Email ?? string.Empty
+            Email = user.Email ?? string.Empty,
+            Roles = roles.ToList()
         };
     }
 
     public async Task<AuthTokenResult?> RefreshAsync(string accessToken, string refreshToken, CancellationToken cancellationToken = default)
     {
-        var userId = jwtService.ValidateAccessToken(accessToken)?.ToString();
+        var userId = jwtService.ValidateAccessToken(accessToken, validateLifetime: false)?.ToString();
         if (string.IsNullOrWhiteSpace(userId))
         {
             return null;
@@ -138,7 +140,8 @@ public sealed class AuthenticationService(
             AccessToken = newAccessToken,
             RefreshToken = newRefreshToken,
             UserId = user.Id,
-            Email = user.Email ?? string.Empty
+            Email = user.Email ?? string.Empty,
+            Roles = roles.ToList()
         };
     }
 
@@ -199,4 +202,3 @@ public sealed class AuthenticationService(
         return result.Succeeded;
     }
 }
-

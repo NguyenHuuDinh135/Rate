@@ -58,7 +58,7 @@ namespace backend.Infrastructure.Jwt
             return Convert.ToBase64String(ramdomBytes);
         }
 
-        public Guid? ValidateAccessToken(string token)
+        public Guid? ValidateAccessToken(string token, bool validateLifetime = true)
         {
             if (string.IsNullOrEmpty(token))
                 return null;
@@ -75,7 +75,7 @@ namespace backend.Infrastructure.Jwt
                     ValidIssuer = _jwtSettings.Issuer,
                     ValidateAudience = true,
                     ValidAudience = _jwtSettings.Audience,
-                    ValidateLifetime = true,
+                    ValidateLifetime = validateLifetime,
                     ClockSkew = TimeSpan.Zero
                 };
 

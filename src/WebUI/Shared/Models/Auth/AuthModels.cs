@@ -10,7 +10,10 @@ public record TokenResponseDto(
     string? Username,
     string? Email,
     int? ExpiresIn,
-    List<string>? Permissions);
+    List<string>? Permissions,
+    List<string>? Roles = null);
+
+public record AuthUserDto(string Id, string UserName, string Email, List<string> Roles);
 
 public record UserProfileDto(string Id, string UserName, string Email, List<string> Permissions);
 

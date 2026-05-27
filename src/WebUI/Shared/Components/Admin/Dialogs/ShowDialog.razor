@@ -1,0 +1,125 @@
+@using MudBlazor
+@using System.ComponentModel.DataAnnotations
+@using WebUI.Shared.Services.Api
+@using WebUI.Shared.Models.Theaters
+@using WebUI.Shared.Models.Movies
+
+<MudDialog>
+    <DialogContent>
+        <MudForm Model="@_model" @ref="_form" ValidationDelay="0">
+            <MudSelect T="int" @bind-Value="_model.MovieId" Label="Phim" Required="true" RequiredError="Vui lòng chọn phim" Class="mt-4">
+                @foreach (var movie in Movies)
+                {
+                    <MudSelectItem Value="@movie.Key">@movie.Value</MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudSelect T="int" @bind-Value="_model.TheaterId" Label="Rạp/Phòng chiếu" Required="true" RequiredError="Vui lòng chọn phòng chiếu" Class="mt-4">
+                @foreach (var theater in Theaters)
+                {
+                    <MudSelectItem Value="@theater.Key">@theater.Value</MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudDatePicker @bind-Date="_model.Date" Label="Ngày chiếu" Required="true" RequiredError="Vui lòng chọn ngày chiếu" Class="mt-4" />
+
+            <div class="grid grid-cols-2 gap-4 mt-4">
+                <MudTimePicker @bind-Time="_model.StartTime" Label="Giờ bắt đầu" Required="true" RequiredError="Vui lòng chọn giờ bắt đầu" />
+                <MudTimePicker @bind-Time="_model.EndTime" Label="Giờ kết thúc" Required="true" RequiredError="Vui lòng chọn giờ kết thúc" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mt-4">
+                <MudSelect T="ShowType" @bind-Value="_model.Type" Label="Loại suất chiếu">
+                    <MudSelectItem Value="@ShowType.TwoD">2D</MudSelectItem>
+                    <MudSelectItem Value="@ShowType.ThreeD">3D</MudSelectItem>
+                </MudSelect>
+
+                @if (Show != null)
+                {
+                    <MudSelect T="ShowStatus" @bind-Value="_model.Status" Label="Trạng thái">
+                        <MudSelectItem Value="@ShowStatus.Free">Còn ghế</MudSelectItem>
+                        <MudSelectItem Value="@ShowStatus.AlmostFull">Sắp đầy</MudSelectItem>
+                        <MudSelectItem Value="@ShowStatus.Full">Đã đầy</MudSelectItem>
+                    </MudSelect>
+                }
+            </div>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Hủy</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit" Disabled="@_isSubmitting">
+            @if (_isSubmitting)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">Đang lưu</MudText>
+            }
+            else
+            {
+                <MudText>Lưu</MudText>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter]
+    public ShowDto? Show { get; set; }
+
+    [Parameter]
+    public Dictionary<int, string> Movies { get; set; } = new();
+
+    [Parameter]
+    public Dictionary<int, string> Theaters { get; set; } = new();
+
+    private MudForm _form = default!;
+    private ShowFormModel _model = new();
+    private bool _isSubmitting = false;
+
+    protected override void OnInitialized()
+    {
+        if (Show != null)
+        {
+            _model.MovieId = Show.MovieId;
+            _model.TheaterId = Show.TheaterId;
+            _model.Date = DateTime.TryParse(Show.Date, out var d) ? d : DateTime.Today;
+            _model.StartTime = TimeSpan.TryParse(Show.StartTime, out var st) ? st : TimeSpan.Zero;
+            _model.EndTime = TimeSpan.TryParse(Show.EndTime, out var et) ? et : TimeSpan.Zero;
+            _model.Type = Show.Type;
+            _model.Status = Show.Status;
+        }
+        else
+        {
+            _model.Date = DateTime.Today;
+            if (Movies.Any()) _model.MovieId = Movies.Keys.First();
+            if (Theaters.Any()) _model.TheaterId = Theaters.Keys.First();
+        }
+    }
+
+    private async Task Submit()
+    {
+        await _form.ValidateAsync();
+        if (_form.IsValid)
+        {
+            _isSubmitting = true;
+            StateHasChanged();
+            MudDialog.Close(DialogResult.Ok(_model));
+            _isSubmitting = false;
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    public class ShowFormModel
+    {
+        public int MovieId { get; set; }
+        public int TheaterId { get; set; }
+        public DateTime? Date { get; set; }
+        public TimeSpan? StartTime { get; set; }
+        public TimeSpan? EndTime { get; set; }
+        public ShowType Type { get; set; } = ShowType.TwoD;
+        public ShowStatus Status { get; set; } = ShowStatus.Free;
+    }
+}

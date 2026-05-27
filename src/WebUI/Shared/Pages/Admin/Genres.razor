@@ -2,10 +2,13 @@
 @layout AdminLayout
 @using MudBlazor
 @using WebUI.Shared.Components.Admin
+@using WebUI.Shared.Components.Admin.Dialogs
 @using WebUI.Shared.Components.UI
+@using WebUI.Shared.Services.Api
+@using WebUI.Shared.Models.Movies
 @inject IGenreApi GenreApi
 @inject MudBlazor.ISnackbar Snackbar
-@inject IJSRuntime JSRuntime
+@inject IDialogService DialogService
 
 <PageTitle>Thể loại | RATE Admin</PageTitle>
 
@@ -83,6 +86,7 @@
         finally
         {
             _isLoading = false;
+            StateHasChanged();
         }
     }
 
@@ -94,60 +98,72 @@
 
     private async Task OpenGenreDialog(GenreDto? genre)
     {
-        var isNew = genre is null;
-        var currentName = genre?.Name ?? "";
-        var value = await JSRuntime.InvokeAsync<string>("prompt", isNew ? "Nhập tên thể loại mới:" : "Chỉnh sửa tên thể loại:", currentName);
-
-        if (value is null)
+        var parameters = new DialogParameters();
+        if (genre != null)
         {
-            return;
+            parameters.Add("Genre", genre);
         }
 
-        value = value.Trim();
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            Snackbar.Add("Tên thể loại không được để trống.", MudBlazor.Severity.Warning);
-            return;
-        }
+        var dialog = await DialogService.ShowAsync<GenreDialog>(
+            genre == null ? "Thêm thể loại mới" : "Chỉnh sửa thể loại", 
+            parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true }
+        );
 
-        try
+        var result = await dialog.Result;
+
+        if (!result!.Canceled && result.Data is GenreDialog.GenreFormModel model)
         {
-            if (isNew)
+            try
             {
-                await GenreApi.CreateAsync(new CreateGenreCommand(value));
-                Snackbar.Add("Đã thêm thể loại.", MudBlazor.Severity.Success);
-            }
-            else
-            {
-                await GenreApi.UpdateAsync(new UpdateGenreCommand(genre!.Id, value));
-                Snackbar.Add("Đã cập nhật thể loại.", MudBlazor.Severity.Success);
-            }
+                if (genre == null)
+                {
+                    await GenreApi.CreateAsync(new CreateGenreCommand(model.Name));
+                    Snackbar.Add("Đã thêm thể loại.", MudBlazor.Severity.Success);
+                }
+                else
+                {
+                    await GenreApi.UpdateAsync(new UpdateGenreCommand(genre.Id, model.Name));
+                    Snackbar.Add("Đã cập nhật thể loại.", MudBlazor.Severity.Success);
+                }
 
-            await LoadGenres();
-        }
-        catch
-        {
-            Snackbar.Add("Không thể lưu thể loại lúc này.", MudBlazor.Severity.Error);
+                await LoadGenres();
+            }
+            catch
+            {
+                Snackbar.Add("Không thể lưu thể loại lúc này.", MudBlazor.Severity.Error);
+            }
         }
     }
 
     private async Task ConfirmDeleteGenre(GenreDto genre)
     {
-        var ok = await JSRuntime.InvokeAsync<bool>("confirm", $"Xóa thể loại '{genre.Name}'?");
-        if (!ok)
+        var parameters = new DialogParameters
         {
-            return;
-        }
+            { "ContentText", $"Bạn có chắc chắn muốn xóa thể loại '{genre.Name}' không?" },
+            { "ButtonText", "Xóa thể loại" }
+        };
 
-        try
+        var dialog = await DialogService.ShowAsync<ConfirmDeleteDialog>(
+            "Xác nhận xóa", 
+            parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true, CloseButton = true }
+        );
+
+        var result = await dialog.Result;
+
+        if (!result!.Canceled)
         {
-            await GenreApi.DeleteAsync(genre.Id);
-            Snackbar.Add("Đã xóa thể loại.", MudBlazor.Severity.Success);
-            await LoadGenres();
-        }
-        catch
-        {
-            Snackbar.Add("Không thể xóa thể loại lúc này.", MudBlazor.Severity.Error);
+            try
+            {
+                await GenreApi.DeleteAsync(genre.Id);
+                Snackbar.Add("Đã xóa thể loại.", MudBlazor.Severity.Success);
+                await LoadGenres();
+            }
+            catch
+            {
+                Snackbar.Add("Không thể xóa thể loại lúc này.", MudBlazor.Severity.Error);
+            }
         }
     }
 }

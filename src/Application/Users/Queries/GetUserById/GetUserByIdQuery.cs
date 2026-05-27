@@ -12,6 +12,9 @@ public sealed class GetUserByIdQueryHandler(IIdentityService identityService)
     {
         var userName = await identityService.GetUserNameAsync(request.UserId);
         if (userName is null) return null;
-        return new UserDto(request.UserId, userName, userName);
+        
+        var roles = await identityService.GetRolesAsync(request.UserId);
+        
+        return new UserDto(request.UserId, userName, userName, roles.ToList());
     }
 }

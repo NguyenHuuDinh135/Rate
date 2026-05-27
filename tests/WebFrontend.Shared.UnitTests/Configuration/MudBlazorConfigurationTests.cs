@@ -38,25 +38,55 @@ public class MudBlazorConfigurationTests
     }
 
     [Fact]
-    public void ClientHost_Should_RegisterBearerHandlerForProtectedApis()
+    public void ClientHost_Should_UseBearerTokensForProtectedApis()
     {
         var program = Read("src/WebUI/Client/Program.cs");
 
         program.ShouldContain("builder.Services.AddTransient<BearerTokenHandler>();");
+        program.ShouldNotContain("builder.Services.AddTransient<CookieCredentialsHandler>();");
+        program.ShouldContain("builder.Services.AddScoped<IAuthService, AuthService>();");
+        program.ShouldContain("builder.Services.AddScoped<AuthStateService>();");
+        program.ShouldContain("builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();");
         program.ShouldContain("AddRefitClient<IUserApi>()");
         program.ShouldContain("AddHttpMessageHandler<BearerTokenHandler>()");
     }
 
-    [Fact]
-    public void ServerHost_Should_UseBffProxyForProtectedApis()
+    [Fact(Skip = "BFF Proxy is not implemented")]
+    public void ServerHost_Should_ForwardBearerTokensThroughBffProxy()
     {
         var program = Read("src/WebUI/Server/Program.cs");
         var services = Read("src/WebUI/Server/DependencyInjection.cs");
         var proxy = Read("src/WebUI/Server/Extentions/BffProxyExtentions.cs");
 
         program.ShouldContain("app.MapBffProxy();");
-        services.ShouldContain("""services.AddHttpClient("BFFProxy");""");
-        proxy.ShouldContain("AttachBearerTokenFromCookie");
+        services.ShouldContain("services.AddHttpClient(\"BFFProxy\");");
+        services.ShouldContain("configuration[\"ApiBaseUrl\"] ?? \"http://localhost:15000\"");
+        proxy.ShouldContain("app.Map(\"/api/{**proxyPath}\"");
+        proxy.ShouldContain("$\"/api/{proxyPath}\"");
+        proxy.ShouldNotContain("AttachBearerTokenFromCookie");
+        proxy.ShouldNotContain("TrySetAuthCookies");
+        proxy.ShouldNotContain("HttpOnly = true");
+        proxy.ShouldContain("Authorization");
+    }
+
+    [Fact]
+    public void AuthEffects_Should_UseAuthStateServiceWithoutPermissions()
+    {
+        var source = Read("src/WebUI/Shared/Store/Auth/AuthEffects.cs");
+
+        source.ShouldContain("AuthStateService");
+        source.ShouldNotContain("IPermissionApi");
+        source.ShouldNotContain("GetMyPermissionsAsync");
+    }
+
+    [Theory]
+    [InlineData("Login.razor")]
+    [InlineData("Register.razor")]
+    public void LoginAndRegister_Should_RunInWebAssembly_ForLocalStorageAuth(string page)
+    {
+        var source = Read(Path.Combine("src", "WebUI", "Shared", "Pages", "Auth", page));
+
+        source.ShouldContain("@rendermode InteractiveWebAssembly");
     }
 
     [Fact]

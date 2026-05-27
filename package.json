@@ -1,9 +1,10 @@
 {
   "devDependencies": {
-    "tailwindcss": "^4.3.0"
+    "tailwindcss": "^4.3.0",
+    "@tailwindcss/cli": "^4.3.0"
   },
   "scripts": {
-    "tw:watch": "tailwindcss -i ./Styles/input.css -o ./wwwroot/app.css --watch",
-    "tw:build": "tailwindcss -i ./Styles/input.css -o ./wwwroot/app.css --minify"
-}
+    "tw:watch": "tailwindcss -i ./src/WebUI/Server/wwwroot/input.css -o ./src/WebUI/Server/wwwroot/app.css --watch",
+    "tw:build": "tailwindcss -i ./src/WebUI/Server/wwwroot/input.css -o ./src/WebUI/Server/wwwroot/app.css --minify"
+  }
 }
