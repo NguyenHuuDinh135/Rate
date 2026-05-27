@@ -1,11 +1,16 @@
 @using Fluxor
 @using WebUI.Shared.Store.Auth
+@using WebUI.Shared.Store.Movies
+@using WebUI.Shared.Models.Movies
+@using WebUI.Shared.Services.Api
 @using Microsoft.FluentUI.AspNetCore.Components
 @using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
 @inherits LayoutComponentBase
 @inject IState<AuthState> AuthState
+@inject IState<MovieState> MovieState
 @inject IDispatcher Dispatcher
 @inject NavigationManager NavigationManager
+@inject IGenreApi GenreApi
 
 <div class="min-h-screen flex flex-col bg-slate-50 text-slate-950 font-sans transition-colors dark:bg-slate-950 dark:text-slate-100">
     @* --- PREMIUM STICKY NAVBAR (GLASSMORPHISM) --- *@
@@ -17,35 +22,107 @@
                 <div class="w-10 h-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:bg-accent/20 group-hover:border-accent/40 transition-all duration-300">
                     <FluentIcon Value="@(new Size24.MoviesAndTv())" Color="Color.Accent" class="w-6 h-6" />
                 </div>
-                <span class="text-2xl font-black tracking-tighter text-slate-950 group-hover:text-accent transition-colors duration-300 dark:text-white">RATE</span>
+                <span class="text-2xl font-black tracking-tighter text-slate-950 group-hover:text-accent transition-colors duration-300 dark:text-white hidden sm:block">RATE</span>
             </a>
 
             @* Desktop Navigation Menus (Perfect Spacing & Baseline Alignment) *@
             <nav class="hidden md:flex items-center gap-8 text-sm font-black tracking-widest uppercase text-slate-500 dark:text-slate-400">
-                <a href="/" class="hover:text-slate-950 dark:hover:text-white transition-colors duration-300 relative py-2 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-accent hover:after:w-full after:transition-all after:duration-300">Phim đang chiếu</a>
+                <div class="relative group">
+                    <a href="/movies" class="hover:text-slate-950 dark:hover:text-white transition-colors duration-300 relative py-2 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-accent group-hover:after:w-full after:transition-all after:duration-300 font-black text-sm uppercase tracking-widest flex items-center gap-1.5 cursor-pointer bg-transparent border-none text-slate-500 dark:text-slate-400 no-underline">
+                        <span>Thể loại</span>
+                        <span class="text-[10px] transform group-hover:rotate-180 transition-transform duration-300">▼</span>
+                    </a>
+                    <div class="absolute left-0 mt-2 w-48 bg-white/95 dark:bg-slate-950/95 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl hidden group-hover:block transition-all duration-300 z-50 backdrop-blur-md py-2 text-left">
+                        @if (genres.Any())
+                        {
+                            @foreach (var genre in genres)
+                            {
+                                <a href="/movies/genre/@genre.Name" class="block px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-accent dark:hover:text-accent hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors uppercase tracking-wider">
+                                    @genre.Name
+                                </a>
+                            }
+                        }
+                        else
+                        {
+                            <span class="block px-4 py-2 text-xs text-slate-400">Đang tải...</span>
+                        }
+                    </div>
+                </div>
                 <a href="/theaters" class="hover:text-slate-950 dark:hover:text-white transition-colors duration-300 relative py-2 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-accent hover:after:w-full after:transition-all after:duration-300">Hệ thống rạp</a>
                 <a href="/about" class="hover:text-slate-950 dark:hover:text-white transition-colors duration-300 relative py-2 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-accent hover:after:w-full after:transition-all after:duration-300">Giới thiệu</a>
             </nav>
 
             @* Actions Area (Login, Register, Profile) *@
-            <div class="flex items-center gap-4">
-                <ThemeToggle Class="hidden sm:inline-flex" />
+            <div class="flex items-center gap-2 sm:gap-3 flex-nowrap shrink-0">
+                @* Beautiful Search Input with Autocomplete *@
+                <div class="relative w-36 sm:w-52 md:w-60 flex items-center">
+                    <input @bind="SearchText"
+                           @bind:event="oninput"
+                           @onfocus="HandleSearchFocus"
+                           @onblur="HandleSearchBlur"
+                           @onkeyup="HandleSearchKeyUp"
+                           class="w-full bg-slate-200/70 text-black dark:bg-slate-900 dark:text-white text-xs font-black rounded-xl py-2 pl-4 pr-10 border border-slate-300 dark:border-slate-800/80 placeholder-slate-600 dark:placeholder-slate-400 focus:ring-1 focus:ring-accent focus:border-accent focus:outline-none transition-all duration-300"
+                           placeholder="Tìm kiếm..." />
+                    <button @onclick="NavigateToSearch" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-600 hover:text-accent transition-colors bg-transparent border-none text-xs cursor-pointer focus:outline-none">🔍</button>
+
+                    @* Autocomplete Dropdown - Positioned directly below the search input *@
+                    @if (isSearchFocused && !string.IsNullOrWhiteSpace(SearchText))
+                    {
+                        <div class="absolute left-0 right-0 md:left-auto md:right-0 w-full md:w-[28rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-[200] overflow-hidden py-1 text-left animate-in fade-in slide-in-from-top-2 duration-300" style="top: 60px;">
+                            <div class="max-h-[28rem] overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60">
+                                @if (filteredSearchMovies.Any())
+                                {
+                                    @foreach (var movie in filteredSearchMovies.Take(5))
+                                    {
+                                        <a href="/movies/@movie.Id" @onclick="ClearSearch" class="flex items-start gap-4 px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-850/80 transition-all duration-300 group">
+                                            @* Fixed Card Image with Zoom effect *@
+                                            <div class="w-16 h-24 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shrink-0 shadow-sm">
+                                                <img src="@movie.PosterUrl" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                            </div>
+                                            
+                                            @* High-Contrast Text Content with flex-1 and min-w-0 for perfect wrapping *@
+                                            <div class="flex-grow min-w-0 flex flex-col justify-start">
+                                                <span class="text-sm font-black text-slate-900 dark:text-slate-100 truncate group-hover:text-accent transition-colors duration-300 leading-snug">
+                                                    @movie.Title
+                                                </span>
+                                                <span class="text-xs text-slate-600 dark:text-slate-400 font-bold mt-1 leading-none">
+                                                    @movie.Year • @string.Join(", ", movie.Genres.Select(g => g.Name))
+                                                </span>
+                                                <p class="text-[10px] text-slate-400 dark:text-slate-500 line-clamp-2 mt-2 leading-relaxed font-medium">
+                                                    @movie.Summary
+                                                </p>
+                                            </div>
+                                        </a>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="px-5 py-8 text-xs text-slate-450 dark:text-slate-500 font-bold text-center">
+                                        Không tìm thấy phim nào phù hợp
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <ThemeToggle Class="inline-flex" />
                 @if (AuthState.Value.IsAuthenticated)
                 {
-                    <a href="/profile" class="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 transition-all duration-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-700 dark:hover:bg-slate-800/80 dark:hover:text-white">
+                    <a href="/profile" class="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 transition-all duration-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-700 dark:hover:bg-slate-800/80 dark:hover:text-white whitespace-nowrap">
                         <FluentIcon Value="@(new Size20.Person())" Color="Color.Neutral" class="w-5 h-5 text-slate-400" />
                         <span class="text-xs font-black tracking-wider uppercase hidden sm:inline">@AuthState.Value.User?.Username</span>
                     </a>
-                    <button @onclick="HandleLogout" class="h-10 px-4 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-accent transition-colors duration-300 cursor-pointer dark:text-slate-400">
+                    <button @onclick="HandleLogout" class="h-10 px-3 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-accent transition-colors duration-300 cursor-pointer dark:text-slate-400 whitespace-nowrap">
                         Đăng xuất
                     </button>
                 }
                 else
                 {
-                    <a href="/auth/login" class="px-4 py-2.5 text-xs font-black uppercase tracking-widest text-slate-600 hover:text-slate-950 transition-colors duration-300 dark:text-slate-300 dark:hover:text-white">
+                    <a href="/auth/login" class="px-3 py-2 text-xs font-black uppercase tracking-widest text-slate-600 hover:text-slate-950 transition-colors duration-300 dark:text-slate-300 dark:hover:text-white whitespace-nowrap">
                         Đăng nhập
                     </a>
-                    <a href="/auth/register" class="px-5 py-2.5 bg-accent hover:bg-accent-hover text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-lg shadow-accent/20 hover:shadow-accent/40 hover:scale-[1.03] transition-all duration-300 active:scale-95">
+                    <a href="/auth/register" class="px-3 py-2 text-xs font-black uppercase tracking-widest text-slate-600 hover:text-slate-950 transition-colors duration-300 dark:text-slate-300 dark:hover:text-white whitespace-nowrap">
                         Đăng ký
                     </a>
                 }
@@ -96,10 +173,93 @@
 <FluentTooltipProvider />
 
 @code {
+    private List<GenreDto> genres = new()
+    {
+        new() { Id = 1, Name = "Hành động" },
+        new() { Id = 2, Name = "Viễn tưởng" },
+        new() { Id = 3, Name = "Kinh dị" },
+        new() { Id = 4, Name = "Hài hước" },
+        new() { Id = 5, Name = "Tâm lý" }
+    };
+    private string SearchText { get; set; } = string.Empty;
+    private bool isSearchFocused = false;
+
+    private List<MovieDto> filteredSearchMovies => string.IsNullOrWhiteSpace(SearchText) 
+        ? new() 
+        : MovieState.Value.Movies
+            .Where(m => m.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase) || 
+                        m.Summary.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
         Dispatcher.Dispatch(new InitializeAuthAction());
+
+        if (MovieState.Value.Movies.Count == 0 && !MovieState.Value.IsLoading)
+        {
+            Dispatcher.Dispatch(new LoadMoviesAction());
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var response = await GenreApi.GetAllAsync();
+            genres = response.Body ?? new();
+        }
+        catch
+        {
+            // Fallback genres if API is unavailable or slow
+            genres = new List<GenreDto>
+            {
+                new() { Id = 1, Name = "Hành động" },
+                new() { Id = 2, Name = "Viễn tưởng" },
+                new() { Id = 3, Name = "Kinh dị" },
+                new() { Id = 4, Name = "Hài hước" },
+                new() { Id = 5, Name = "Tâm lý" }
+            };
+        }
+    }
+
+    private void HandleSearchKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            NavigateToSearch();
+        }
+    }
+
+    private void NavigateToSearch()
+    {
+        if (string.IsNullOrWhiteSpace(SearchText))
+        {
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            NavigationManager.NavigateTo($"/?search={Uri.EscapeDataString(SearchText.Trim())}");
+        }
+        isSearchFocused = false;
+    }
+
+    private async Task HandleSearchBlur()
+    {
+        await Task.Delay(200);
+        isSearchFocused = false;
+        StateHasChanged();
+    }
+
+    private void HandleSearchFocus()
+    {
+        isSearchFocused = true;
+    }
+
+    private void ClearSearch()
+    {
+        SearchText = string.Empty;
+        isSearchFocused = false;
     }
 
     private void HandleLogout()
