@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: [
     "./src/WebUI/Shared/**/*.razor",
     "./src/WebUI/Client/**/*.razor",
