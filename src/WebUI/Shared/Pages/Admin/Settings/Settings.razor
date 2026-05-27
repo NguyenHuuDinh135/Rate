@@ -165,13 +165,15 @@
         try
         {
             _roles.Clear();
-            _roles.AddRange(await PermissionApi.GetAllRolesAsync() ?? []);
+            var rolesResponse = await PermissionApi.GetAllRolesAsync();
+            _roles.AddRange(rolesResponse?.Body ?? []);
 
             _permissions.Clear();
-            _permissions.AddRange(await PermissionApi.GetAllPermissionsAsync() ?? []);
+            var permsResponse = await PermissionApi.GetAllPermissionsAsync();
+            _permissions.AddRange(permsResponse?.Body ?? []);
 
             _users.Clear();
-            _users.AddRange(await UserApi.GetAllAsync() ?? []);
+            _users.AddRange((await UserApi.GetAllAsync()).Body ?? []);
         }
         catch
         {
@@ -207,7 +209,8 @@
     {
         try
         {
-            var current = await PermissionApi.GetRolePermissionsAsync(role.Name) ?? [];
+            var currentResponse = await PermissionApi.GetRolePermissionsAsync(role.Name);
+            var current = currentResponse?.Body ?? [];
             var input = await JSRuntime.InvokeAsync<string>("prompt", "Danh sách quyền, phân tách bằng dấu phẩy:", string.Join(", ", current));
             if (input is null)
             {

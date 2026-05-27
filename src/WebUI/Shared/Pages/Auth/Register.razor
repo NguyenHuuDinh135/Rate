@@ -156,7 +156,7 @@
         try
         {
             var result = await AuthApi.RegisterAsync(new RegisterRequest(fullName.Trim(), email.Trim(), password));
-            if (result.Succeeded)
+            if (result.Body?.Succeeded == true)
             {
                 NavigationManager.NavigateTo("/auth/login?registered=true");
                 return;

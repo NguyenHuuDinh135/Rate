@@ -162,15 +162,17 @@
         try
         {
             isLoading = true;
-            payment = await PaymentApi.GetByIdAsync(Id);
+            var response = await PaymentApi.GetByIdAsync(Id);
+            payment = response.Body;
 
             if (payment != null)
             {
                 // Fetch bookings dynamically to display seats
                 var userBookingsRes = await BookingApi.GetByUserAsync(payment.UserId ?? "");
-                if (userBookingsRes != null)
+                var userBookings = userBookingsRes?.Body;
+                if (userBookings != null)
                 {
-                    seats = userBookingsRes
+                    seats = userBookings
                         .Where(b => b.ShowId == payment.ShowId)
                         .Select(b => $"{b.SeatRow}{b.SeatNumber}")
                         .ToList();

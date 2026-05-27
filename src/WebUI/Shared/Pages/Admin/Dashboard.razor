@@ -129,10 +129,22 @@ else
             var response = await MovieApi.GetAllAsync();
             _movies.AddRange(response.Body);
         });
-        await LoadSafely(async () => _shows.AddRange(await ShowApi.GetAllAsync()));
-        await LoadSafely(async () => _bookings.AddRange(await BookingApi.GetAllAsync() ?? []));
-        await LoadSafely(async () => _payments.AddRange(await PaymentApi.GetAllAsync() ?? []));
-        await LoadSafely(async () => _activities.AddRange(await UserApi.GetActivityAsync() ?? []));
+        await LoadSafely(async () => 
+        {
+            var response = await ShowApi.GetAllAsync();
+            _shows.AddRange(response.Body);
+        });
+        await LoadSafely(async () => 
+        {
+            var response = await BookingApi.GetAllAsync();
+            _bookings.AddRange(response?.Body ?? []);
+        });
+        await LoadSafely(async () => 
+        {
+            var response = await PaymentApi.GetAllAsync();
+            _payments.AddRange(response?.Body ?? []);
+        });
+        await LoadSafely(async () => _activities.AddRange((await UserApi.GetActivityAsync()).Body ?? []));
 
         _isLoading = false;
     }

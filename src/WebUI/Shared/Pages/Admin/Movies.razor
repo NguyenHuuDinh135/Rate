@@ -1,5 +1,6 @@
 @page "/admin/movies"
 @layout AdminLayout
+@inherits Fluxor.Blazor.Web.Components.FluxorComponent
 @using Fluxor
 @using MudBlazor
 @using WebUI.Shared.Components.Admin
@@ -95,6 +96,7 @@
 
     protected override void OnInitialized()
     {
+        base.OnInitialized();
         if (MovieState.Value.Movies.Count == 0)
         {
             Dispatcher.Dispatch(new LoadMoviesAction());

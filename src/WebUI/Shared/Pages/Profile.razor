@@ -101,7 +101,8 @@
     {
         try
         {
-            payments = await PaymentApi.GetAllAsync() ?? new List<PaymentDto>();
+            var response = await PaymentApi.GetAllAsync();
+            payments = response?.Body ?? new List<PaymentDto>();
         }
         catch (Exception) { }
         finally

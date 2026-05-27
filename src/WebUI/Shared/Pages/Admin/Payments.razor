@@ -100,7 +100,8 @@
         try
         {
             _payments.Clear();
-            _payments.AddRange(await PaymentApi.GetAllAsync() ?? []);
+            var response = await PaymentApi.GetAllAsync();
+            _payments.AddRange(response?.Body ?? []);
         }
         catch
         {

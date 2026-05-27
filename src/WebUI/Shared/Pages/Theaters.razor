@@ -111,7 +111,8 @@
         try
         {
             isLoading = true;
-            theaters = await TheaterApi.GetAllAsync();
+            var response = await TheaterApi.GetAllAsync();
+            theaters = response.Body;
         }
         catch (Exception ex)
         {

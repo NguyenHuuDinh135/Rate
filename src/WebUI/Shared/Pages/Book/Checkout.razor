@@ -1,4 +1,5 @@
 @page "/book/checkout/{MovieId:int}"
+@inherits Fluxor.Blazor.Web.Components.FluxorComponent
 @using Fluxor
 @using WebUI.Shared.Store.Bookings
 @using WebUI.Shared.Store.Movies
@@ -155,6 +156,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        await base.OnInitializedAsync();
         if (!BookingState.Value.SelectedSeats.Any() || BookingState.Value.SelectedShowtimeId == null || BookingState.Value.SelectedTheaterId == null)
         {
             NavigationManager.NavigateTo($"/book/showtimes/{MovieId}");
@@ -173,8 +175,11 @@ else
             isLoading = true;
             
             // Load Theater & Show & Movie
-            theater = await TheaterApi.GetByIdAsync(BookingState.Value.SelectedTheaterId.Value);
-            var shows = await ShowApi.GetByMovieAsync(MovieId);
+            var theaterResponse = await TheaterApi.GetByIdAsync(BookingState.Value.SelectedTheaterId.Value);
+            theater = theaterResponse.Body;
+
+            var showsResponse = await ShowApi.GetByMovieAsync(MovieId);
+            var shows = showsResponse.Body;
             show = shows.FirstOrDefault(s => s.Id == BookingState.Value.SelectedShowtimeId.Value);
             movie = MovieState.Value.SelectedMovie;
         }

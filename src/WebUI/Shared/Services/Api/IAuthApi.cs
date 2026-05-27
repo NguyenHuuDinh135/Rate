@@ -7,13 +7,13 @@ namespace WebUI.Shared.Services.Api;
 public interface IAuthApi
 {
     [Post("/api/auth/login")]
-    Task<TokenResponseDto> LoginAsync([Body] LoginRequest payload);
+    Task<WebUI.Shared.Models.Common.ApiResponse<TokenResponseDto>> LoginAsync([Body] LoginRequest payload);
 
     [Post("/api/auth/register")]
-    Task<OperationResultDto> RegisterAsync([Body] RegisterRequest payload);
+    Task<WebUI.Shared.Models.Common.ApiResponse<OperationResultDto>> RegisterAsync([Body] RegisterRequest payload);
 
     [Post("/api/auth/refresh")]
-    Task<TokenResponseDto> RefreshTokenAsync();
+    Task<WebUI.Shared.Models.Common.ApiResponse<TokenResponseDto>> RefreshTokenAsync();
 
     [Post("/api/auth/logout")]
     Task LogoutAsync();

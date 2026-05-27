@@ -145,9 +145,11 @@ public static class BffProxyExtensions
     {
         try
         {
-            var tokenResult = JsonSerializer.Deserialize<WebUI.Shared.Models.Auth.TokenResponseDto>(
+            var apiResponse = JsonSerializer.Deserialize<WebUI.Shared.Models.Common.ApiResponse<WebUI.Shared.Models.Auth.TokenResponseDto>>(
                 responseBodyString,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            var tokenResult = apiResponse?.Body;
 
             if (tokenResult is null || string.IsNullOrWhiteSpace(tokenResult.AccessToken))
                 return;

@@ -7,13 +7,13 @@ namespace WebUI.Shared.Services.Api;
 public interface IShowApi
 {
     [Get("/api/shows/all")]
-    Task<List<ShowDto>> GetAllAsync();
+    Task<WebUI.Shared.Models.Common.ApiResponse<List<ShowDto>>> GetAllAsync();
 
     [Get("/api/shows/id/{id}")]
-    Task<ShowDto> GetByIdAsync(int id);
+    Task<WebUI.Shared.Models.Common.ApiResponse<ShowDto>> GetByIdAsync(int id);
 
-    [Get("/api/shows/movies/{movieId}")]
-    Task<List<ShowDto>> GetByMovieAsync(int movieId);
+    [Get("/api/shows/filters")]
+    Task<WebUI.Shared.Models.Common.ApiResponse<List<ShowDto>>> GetByMovieAsync(int? movieId, DateTime? date = null);
 
     [Post("/api/shows/create")]
     Task<OperationResultDto<int>> CreateAsync([Body] CreateShowCommand payload);
@@ -28,10 +28,10 @@ public interface IShowApi
 public interface ITheaterApi
 {
     [Get("/api/theaters")]
-    Task<List<TheaterDto>> GetAllAsync();
+    Task<WebUI.Shared.Models.Common.ApiResponse<List<TheaterDto>>> GetAllAsync();
 
     [Get("/api/theaters/id/{id}")]
-    Task<TheaterDto> GetByIdAsync(int id);
+    Task<WebUI.Shared.Models.Common.ApiResponse<TheaterDto>> GetByIdAsync(int id);
 
     [Post("/api/theaters")]
     Task<OperationResultDto<int>> CreateAsync([Body] CreateTheaterCommand payload);

@@ -14,12 +14,14 @@ public class AuthEffects(IAuthApi authApi, IPermissionApi permissionApi, ITokenS
     {
         try
         {
-            var result = await authApi.LoginAsync(new LoginRequest(action.Email, action.Password));
+            var loginResponse = await authApi.LoginAsync(new LoginRequest(action.Email, action.Password));
+            var result = loginResponse.Body;
             
             List<string> permissions = [];
             try
             {
-                permissions = await permissionApi.GetMyPermissionsAsync();
+                var permsResponse = await permissionApi.GetMyPermissionsAsync();
+                permissions = permsResponse.Body;
             }
             catch
             {
@@ -63,7 +65,14 @@ public class AuthEffects(IAuthApi authApi, IPermissionApi permissionApi, ITokenS
     {
         try
         {
-            var permissions = await permissionApi.GetMyPermissionsAsync();
+            var token = await tokenStorage.GetTokenAsync();
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                return;
+            }
+
+            var response = await permissionApi.GetMyPermissionsAsync();
+            var permissions = response.Body;
             dispatcher.Dispatch(new LoginSuccessAction(new TokenResponseDto(null, null, null, null, null, permissions)));
         }
         catch
