@@ -58,10 +58,14 @@ namespace backend.Web.Endpoints
 
         private static void SetTokenCookies(HttpContext httpContext, AuthTokenResult result)
         {
+            var isDevelopment = httpContext.RequestServices
+                .GetRequiredService<IHostEnvironment>()
+                .IsDevelopment();
+            var secureCookie = httpContext.Request.IsHttps || !isDevelopment;
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true, // Force secure in production/local if using HTTPS
+                Secure = secureCookie,
                 SameSite = SameSiteMode.Lax,
                 Path = "/"
             };

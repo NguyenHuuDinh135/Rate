@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using backend.Application.Common.Interfaces;
 using backend.Application.Common.Models;
 
@@ -32,7 +28,7 @@ namespace backend.Application.Auth.Commands.Register
 
             if (!result.Result.Succeeded)
             {
-                throw new Exception(string.Join(Environment.NewLine, result.Result.Errors));
+                return Result.Failure(result.Result.Errors);
             }
 
             return Result.Success();

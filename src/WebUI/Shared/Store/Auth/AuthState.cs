@@ -14,3 +14,4 @@ public record LoginSuccessAction(TokenResponseDto User);
 public record LoginFailureAction(string Error);
 public record LogoutAction();
 public record InitializeAuthAction();
+public record AuthSessionExpiredAction(string Error);
