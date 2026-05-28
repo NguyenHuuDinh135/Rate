@@ -230,7 +230,7 @@ else
             var payCmd = new CreatePaymentCommand(
                 (decimal)BookingState.Value.TotalPrice,
                 DateTime.Now.ToString("O"),
-                selectedPaymentMethod.ToString().ToLower(),
+                (int)selectedPaymentMethod,
                 AuthState.Value.User!.Username!,
                 show!.Id,
                 bookingIds

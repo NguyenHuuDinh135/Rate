@@ -16,6 +16,9 @@ public static class DependencyInjection
 
         services.AddMudServices();
 
+        services.AddHttpClient("BFFProxy");
+        services.AddHttpClient("BFFProxy").ConfigureHttpClient(c => c.BaseAddress = new Uri(configuration["ApiBaseUrl"] ?? "http://localhost:15000"));
+
         services.AddScoped<IDeviceService, WebDeviceService>();
         services.AddScoped<IAdminThemeService, AdminThemeService>();
 

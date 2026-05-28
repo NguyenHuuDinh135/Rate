@@ -10,7 +10,7 @@ public interface IAuthApi
     Task<WebUI.Shared.Models.Common.ApiResponse<TokenResponseDto>> LoginAsync([Body] LoginRequest payload);
 
     [Post("/api/auth/register")]
-    Task<WebUI.Shared.Models.Common.ApiResponse<OperationResultDto>> RegisterAsync([Body] RegisterRequest payload);
+    Task<OperationResultDto> RegisterAsync([Body] RegisterRequest payload);
 
     [Post("/api/auth/refresh")]
     Task<WebUI.Shared.Models.Common.ApiResponse<TokenResponseDto>> RefreshTokenAsync();

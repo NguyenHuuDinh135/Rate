@@ -1,5 +1,6 @@
 using WebUI.Server;
 using WebUI.Server.Components;
+using WebUI.Server.Extentions;
 using WebUI.Shared.Layout;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +27,8 @@ app.UseAntiforgery();
 app.UseStaticFiles();
 
 app.MapStaticAssets();
+
+app.MapBffProxy();
 
 app.MapRazorComponents<App>()
     .AddInteractiveWebAssemblyRenderMode()

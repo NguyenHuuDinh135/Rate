@@ -56,6 +56,7 @@ builder.Services.AddRefitClient<IBookingApi>(refitSettings).ConfigureHttpClient(
 builder.Services.AddRefitClient<IPaymentApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl)).AddHttpMessageHandler<BearerTokenHandler>();
 builder.Services.AddRefitClient<IPersonApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl)).AddHttpMessageHandler<BearerTokenHandler>();
 builder.Services.AddRefitClient<IPermissionApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl)).AddHttpMessageHandler<BearerTokenHandler>();
+// AddRefitClient<IUserApi>()
 builder.Services.AddRefitClient<IUserApi>(refitSettings).ConfigureHttpClient(c => c.BaseAddress = new Uri(apiBaseUrl)).AddHttpMessageHandler<BearerTokenHandler>();
 
 await builder.Build().RunAsync();

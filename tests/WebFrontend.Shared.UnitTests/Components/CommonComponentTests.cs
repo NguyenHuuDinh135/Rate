@@ -20,6 +20,7 @@ public class CommonComponentTests : BunitContext
     {
         JSInterop.Mode = JSRuntimeMode.Loose;
         Services.AddFluentUIComponents();
+        Services.AddSingleton(new Mock<IActionSubscriber>().Object);
     }
 
     [Fact]

@@ -2,7 +2,7 @@
 @using MudBlazor
 @using WebUI.Shared.Components.Admin
 @using WebUI.Shared.Store.Auth
-@inherits LayoutComponentBase
+@inherits Fluxor.Blazor.Web.Components.FluxorLayout
 @implements IDisposable
 @inject IState<AuthState> AuthState
 @inject NavigationManager NavigationManager
@@ -35,6 +35,7 @@
 
     protected override void OnInitialized()
     {
+        base.OnInitialized();
         ThemeService.ThemeChanged += HandleThemeChanged;
 
         if (!AuthState.Value.IsAuthenticated)

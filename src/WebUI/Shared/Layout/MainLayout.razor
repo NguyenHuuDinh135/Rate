@@ -5,7 +5,7 @@
 @using WebUI.Shared.Services.Api
 @using Microsoft.FluentUI.AspNetCore.Components
 @using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
-@inherits LayoutComponentBase
+@inherits Fluxor.Blazor.Web.Components.FluxorLayout
 @inject IState<AuthState> AuthState
 @inject IState<MovieState> MovieState
 @inject IDispatcher Dispatcher
@@ -204,6 +204,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await base.OnInitializedAsync();
         try
         {
             var response = await GenreApi.GetAllAsync();

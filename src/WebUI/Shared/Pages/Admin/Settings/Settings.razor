@@ -216,7 +216,8 @@
     {
         try
         {
-            var current = await PermissionApi.GetRolePermissionsAsync(role.Name) ?? [];
+            var response = await PermissionApi.GetRolePermissionsAsync(role.Name);
+            var current = response.Body ?? [];
             var parameters = new DialogParameters
             {
                 { "Role", role },

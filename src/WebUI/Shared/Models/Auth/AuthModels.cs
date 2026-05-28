@@ -14,6 +14,7 @@ public record TokenResponseDto(
     List<string>? Roles = null);
 
 public record AuthUserDto(string Id, string UserName, string Email, List<string> Roles);
+// public record AuthUserDto(string Id, string UserName, string Email);
 
 public record UserProfileDto(string Id, string UserName, string Email, List<string> Permissions);
 
