@@ -31,20 +31,27 @@ window.animateHeroText = () => {
 
 window.rateTheme = {
     key: "rate-theme",
-    apply(isDarkMode) {
+    apply(isDarkMode, animate = false) {
         const root = document.documentElement;
-        root.classList.toggle("dark", isDarkMode);
-        root.dataset.theme = isDarkMode ? "dark" : "light";
+        if (animate && document.startViewTransition) {
+            document.startViewTransition(() => {
+                root.classList.toggle("dark", isDarkMode);
+                root.dataset.theme = isDarkMode ? "dark" : "light";
+            });
+        } else {
+            root.classList.toggle("dark", isDarkMode);
+            root.dataset.theme = isDarkMode ? "dark" : "light";
+        }
     },
     init(defaultDarkMode) {
         const stored = window.localStorage.getItem(this.key);
         const isDarkMode = stored !== "light";
-        this.apply(isDarkMode);
+        this.apply(isDarkMode, false);
         return isDarkMode;
     },
     set(isDarkMode) {
         window.localStorage.setItem(this.key, isDarkMode ? "dark" : "light");
-        this.apply(isDarkMode);
+        this.apply(isDarkMode, true);
     }
 };
 

@@ -36,3 +36,5 @@ public record UserActivityDto(int Id, string UserName, string Action, string Typ
 public record ForgotPasswordRequest(string Email);
 public record ForgotPasswordResponse(string Message);
 public record ResetPasswordRequest(string Email, string ResetToken, string NewPassword);
+public record ChangePasswordRequest(string CurrentPassword, string NewPassword);
+public record UpdateMeRequest(string UserName, string Email);

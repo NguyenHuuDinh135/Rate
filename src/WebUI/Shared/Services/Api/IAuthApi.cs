@@ -23,4 +23,7 @@ public interface IAuthApi
 
     [Post("/api/auth/reset-password")]
     Task<OperationResultDto> ResetPasswordAsync([Body] ResetPasswordRequest payload);
+
+    [Post("/api/auth/change-password")]
+    Task<OperationResultDto> ChangePasswordAsync([Body] ChangePasswordRequest payload);
 }

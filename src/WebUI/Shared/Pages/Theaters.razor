@@ -9,12 +9,12 @@
 
 <PageTitle>Hệ thống Rạp chiếu | RATE</PageTitle>
 
-<div class="min-h-screen bg-slate-50 pt-24 pb-20">
+<div class="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-20">
     <div class="container mx-auto max-w-6xl px-4 flex flex-col gap-12">
         
         @* Header Section *@
         <div class="flex flex-col gap-4">
-            <h1 class="text-4xl font-black tracking-tight text-slate-900 flex items-center gap-4">
+            <h1 class="text-4xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-4">
                 <div class="w-12 h-12 bg-accent rounded-2xl flex items-center justify-center text-white shadow-lg shadow-accent/20">
                     <FluentIcon Value="@(new Size24.Home())" />
                 </div>
@@ -30,22 +30,22 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 py-10">
                 @for (int i = 0; i < 6; i++)
                 {
-                    <div class="flex flex-col gap-4 animate-pulse bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                        <div class="h-40 bg-slate-100 rounded-3xl w-full"></div>
-                        <div class="h-6 bg-slate-100 rounded w-3/4"></div>
-                        <div class="h-4 bg-slate-100 rounded w-1/2"></div>
+                    <div class="flex flex-col gap-4 animate-pulse bg-white dark:bg-slate-900 p-6 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm">
+                        <div class="h-40 bg-slate-100 dark:bg-slate-800 rounded-3xl w-full"></div>
+                        <div class="h-6 bg-slate-100 dark:bg-slate-800 rounded w-3/4"></div>
+                        <div class="h-4 bg-slate-100 dark:bg-slate-800 rounded w-1/2"></div>
                     </div>
                 }
             </div>
         }
         else if (!theaters.Any())
         {
-            <div class="flex flex-col items-center justify-center py-24 bg-white rounded-[3rem] border border-slate-100 shadow-sm space-y-6">
-                <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-200">
+            <div class="flex flex-col items-center justify-center py-24 bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-100 dark:border-slate-800 shadow-sm space-y-6">
+                <div class="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-200 dark:text-slate-700">
                     <FluentIcon Value="@(new Size48.Home())" />
                 </div>
                 <div class="text-center">
-                    <h3 class="text-xl font-black text-slate-900">Không tìm thấy rạp nào</h3>
+                    <h3 class="text-xl font-black text-slate-900 dark:text-white">Không tìm thấy rạp nào</h3>
                     <p class="text-slate-400 font-medium mt-1">Dữ liệu rạp hiện tại đang trống. Vui lòng quay lại sau!</p>
                 </div>
                 <FluentAnchor Href="/" Appearance="Appearance.Accent" class="h-12 px-8 rounded-xl font-black shadow-lg shadow-accent/20">Quay lại Trang chủ</FluentAnchor>
@@ -57,40 +57,46 @@
                 @foreach (var theater in theaters)
                 {
                     var totalSeats = (theater.NumOfRows * theater.SeatsPerRow) - (theater.Missing?.Count ?? 0);
-                    <div class="group relative bg-white border border-slate-100 rounded-[2.5rem] overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 p-6 flex flex-col justify-between">
+                    var isRoyal = theater.Type == TheaterType.Royal;
+                    
+                    <div class="group relative bg-white dark:bg-slate-900 border @(isRoyal ? "border-amber-500/20 dark:border-amber-500/10 dark:hover:border-amber-500/40 shadow-amber-500/[0.02]" : "border-slate-100 dark:border-slate-800 dark:hover:border-accent/40") rounded-[2.5rem] overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-1.5 p-6 flex flex-col justify-between">
                         
-                        @* Image/Banner *@
-                        <div class="relative h-44 overflow-hidden rounded-3xl bg-slate-900 mb-6">
-                            <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2070&auto=format&fit=crop" 
-                                 class="w-full h-full object-cover opacity-60 transition-transform duration-750 group-hover:scale-105" alt="@theater.Name" />
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                        @* Image/Banner - Clarity elevated with 80% opacity and smooth zoom *@
+                        <div class="relative h-48 overflow-hidden rounded-3xl bg-slate-950 mb-6">
+                            <img src="@GetTheaterImage(theater.Name)" 
+                                 class="w-full h-full object-cover opacity-80 transition-transform duration-1000 group-hover:scale-105 select-none" alt="@theater.Name" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
                             
                             <div class="absolute bottom-4 left-4 right-4 text-white">
-                                <FluentBadge Appearance="Appearance.Accent" class="mb-2 font-black">@theater.Type</FluentBadge>
-                                <h3 class="text-xl font-black leading-tight">@theater.Name</h3>
+                                <FluentBadge Appearance="@(isRoyal ? Appearance.Accent : Appearance.Neutral)" class="mb-2 font-black px-2.5 py-0.5 rounded-lg">
+                                    @TranslateTheaterType(theater.Type)
+                                </FluentBadge>
+                                <h3 class="text-xl font-black leading-tight drop-shadow-md">@GetTheaterDisplayName(theater.Name)</h3>
                             </div>
                         </div>
 
                         @* Content Details *@
                         <div class="space-y-6 flex-1 flex flex-col justify-between">
                             <div class="space-y-4">
-                                <div class="flex items-center gap-3 text-slate-500 font-bold text-sm">
-                                    <FluentIcon Value="@(new Size20.Map())" Color="Color.Accent" />
-                                    <span class="truncate">Tầng 5, Vincom Plaza, Hà Nội</span>
+                                <div class="flex items-start gap-3 text-slate-500 dark:text-slate-400 font-bold text-sm">
+                                    <div class="shrink-0 mt-0.5">
+                                        <FluentIcon Value="@(new Size20.Map())" Color="Color.Accent" />
+                                    </div>
+                                    <span class="leading-relaxed">@GetTheaterAddress(theater.Name)</span>
                                 </div>
-                                <div class="flex items-center gap-3 text-slate-500 font-bold text-sm">
+                                <div class="flex items-center gap-3 text-slate-500 dark:text-slate-400 font-bold text-sm">
                                     <FluentIcon Value="@(new Size20.People())" Color="Color.Accent" />
-                                    <span>Quy mô: @theater.NumOfRows Hàng x @theater.SeatsPerRow Cột</span>
+                                    <span>Quy mô: @theater.NumOfRows Hàng x @theater.SeatsPerRow Ghế/Hàng</span>
                                 </div>
-                                <div class="flex items-center gap-3 text-slate-500 font-bold text-sm">
-                                    <FluentIcon Value="@(new Size20.Calendar())" Color="Color.Accent" />
-                                    <span>Tổng số ghế: @totalSeats ghế trống</span>
+                                <div class="flex items-center gap-3 text-slate-500 dark:text-slate-400 font-bold text-sm">
+                                    <FluentIcon Value="@(new Size20.TicketDiagonal())" Color="Color.Accent" />
+                                    <span>Sức chứa: <strong class="text-slate-800 dark:text-slate-200">@totalSeats</strong> ghế</span>
                                 </div>
                             </div>
 
-                            <div class="pt-6 border-t border-slate-100 flex items-center justify-between mt-6">
-                                <span class="text-xs text-slate-400 font-bold">Giờ mở cửa: 08:30 - 23:30</span>
-                                <FluentButton Appearance="Appearance.Outline" class="h-10 px-6 rounded-xl font-bold border-slate-200 text-slate-700 hover:bg-slate-50" OnClick="@(() => GoToMovies())">
+                            <div class="pt-6 border-t border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mt-6">
+                                <span class="text-xs text-slate-400 dark:text-slate-500 font-bold">Giờ mở cửa: 08:30 - 23:30</span>
+                                <FluentButton Appearance="Appearance.Outline" class="h-10 px-6 rounded-xl font-bold border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 self-stretch sm:self-auto" OnClick="@(() => GoToMovies())">
                                     Xem Lịch Chiếu
                                 </FluentButton>
                             </div>
@@ -127,5 +133,54 @@
     private void GoToMovies()
     {
         NavigationManager.NavigateTo("/");
+    }
+
+    private string GetTheaterDisplayName(string name)
+    {
+        return name.ToUpper() switch
+        {
+            "A" => "RATE Nguyễn Du",
+            "B" => "RATE Royal Landmark 81",
+            "C" => "RATE Hà Đông",
+            "D" => "RATE IMAX Metropolis",
+            "E" => "RATE Đà Nẵng Plaza",
+            _ => $"RATE Cinema Room {name}"
+        };
+    }
+
+    private string GetTheaterAddress(string name)
+    {
+        return name.ToUpper() switch
+        {
+            "A" => "116 Nguyễn Du, Bến Thành, Quận 1, TP. Hồ Chí Minh",
+            "B" => "Tầng 5, Vincom Landmark 81, Bình Thạnh, TP. Hồ Chí Minh",
+            "C" => "Tầng 4, Melinh Plaza, Hà Đông, Hà Nội",
+            "D" => "Tầng 3, Vincom Metropolis, Liễu Giai, Hà Nội",
+            "E" => "Tầng 4, Vincom Plaza Ngô Quyền, Sơn Trà, Đà Nẵng",
+            _ => "Hệ thống trung tâm thương mại RATE"
+        };
+    }
+
+    private string GetTheaterImage(string name)
+    {
+        return name.ToUpper() switch
+        {
+            "A" => "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=1200&auto=format&fit=crop",
+            "B" => "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1200&auto=format&fit=crop",
+            "C" => "https://images.unsplash.com/photo-1595769816263-9b910be24d5f?q=80&w=1200&auto=format&fit=crop",
+            "D" => "https://images.unsplash.com/photo-1478720568477-152d9b164e26?q=80&w=1200&auto=format&fit=crop",
+            "E" => "https://images.unsplash.com/photo-1585647347483-22b66260dfff?q=80&w=1200&auto=format&fit=crop",
+            _ => "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1200&auto=format&fit=crop"
+        };
+    }
+
+    private string TranslateTheaterType(TheaterType type)
+    {
+        return type switch
+        {
+            TheaterType.Royal => "ROYAL VIP",
+            TheaterType.Normal => "STANDARD",
+            _ => type.ToString().ToUpper()
+        };
     }
 }

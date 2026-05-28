@@ -14,6 +14,9 @@ public interface IPersonApi
     [Get("/api/persons/movies/{movieId}")]
     Task<WebUI.Shared.Models.Common.ApiResponse<List<PersonDto>>> GetByMovieAsync(int movieId);
 
+    [Get("/api/persons/id/{id}/movies")]
+    Task<WebUI.Shared.Models.Common.ApiResponse<List<MovieDto>>> GetMoviesAsync(int id);
+
     [Post("/api/persons/create")]
     Task<int> CreateAsync([Body] PersonDto person);
 

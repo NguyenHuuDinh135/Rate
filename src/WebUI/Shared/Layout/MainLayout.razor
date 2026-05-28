@@ -13,12 +13,20 @@
 @inject IGenreApi GenreApi
 
 <div class="min-h-screen flex flex-col bg-slate-50 text-slate-950 font-sans transition-colors dark:bg-slate-950 dark:text-slate-100">
+    <style>
+        header a, nav a, .mobile-nav a {
+            text-decoration: none !important;
+        }
+        header a:hover, nav a:hover, .mobile-nav a:hover {
+            text-decoration: none !important;
+        }
+    </style>
     @* --- PREMIUM STICKY NAVBAR (GLASSMORPHISM) --- *@
-    <header class="sticky top-0 z-50 border-b border-slate-200 bg-white/85 shadow-sm backdrop-blur-md transition-all duration-300 dark:border-slate-900 dark:bg-slate-950/80 dark:shadow-xl">
+    <header class="sticky top-0 z-50 bg-white/85 shadow-sm backdrop-blur-md transition-all duration-300 dark:bg-slate-950/80 dark:shadow-xl">
         <div class="container mx-auto max-w-7xl flex items-center justify-between h-20 px-4 sm:px-6 lg:px-8">
             
             @* Logo Brand *@
-            <a href="/" class="flex items-center gap-2 group transition-transform duration-300 active:scale-95">
+            <a href="/" class="flex items-center gap-2 group transition-transform duration-300 active:scale-95 no-underline">
                 <div class="w-10 h-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:bg-accent/20 group-hover:border-accent/40 transition-all duration-300">
                     <FluentIcon Value="@(new Size24.MoviesAndTv())" Color="Color.Accent" class="w-6 h-6" />
                 </div>
@@ -28,7 +36,7 @@
             @* Desktop Navigation Menus (Perfect Spacing & Baseline Alignment) *@
             <nav class="hidden md:flex items-center gap-8 text-sm font-black tracking-widest uppercase text-slate-500 dark:text-slate-400">
                 <div class="relative group">
-                    <a href="/movies" class="hover:text-slate-950 dark:hover:text-white transition-colors duration-300 relative py-2 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-accent group-hover:after:w-full after:transition-all after:duration-300 font-black text-sm uppercase tracking-widest flex items-center gap-1.5 cursor-pointer bg-transparent border-none text-slate-500 dark:text-slate-400 no-underline">
+                    <a href="/movies" class="hover:text-slate-950 dark:hover:text-white transition-colors duration-300 relative py-2 font-black text-sm uppercase tracking-widest flex items-center gap-1.5 cursor-pointer bg-transparent border-none text-slate-500 dark:text-slate-400 no-underline">
                         <span>Thể loại</span>
                         <span class="text-[10px] transform group-hover:rotate-180 transition-transform duration-300">▼</span>
                     </a>
@@ -37,7 +45,7 @@
                         {
                             @foreach (var genre in genres)
                             {
-                                <a href="/movies/genre/@genre.Name" class="block px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-accent dark:hover:text-accent hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors uppercase tracking-wider">
+                                <a href="/movies/genre/@genre.Name" class="block px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-accent dark:hover:text-accent hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors uppercase tracking-wider no-underline">
                                     @genre.Name
                                 </a>
                             }
@@ -48,8 +56,8 @@
                         }
                     </div>
                 </div>
-                <a href="/theaters" class="hover:text-slate-950 dark:hover:text-white transition-colors duration-300 relative py-2 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-accent hover:after:w-full after:transition-all after:duration-300">Hệ thống rạp</a>
-                <a href="/about" class="hover:text-slate-950 dark:hover:text-white transition-colors duration-300 relative py-2 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-accent hover:after:w-full after:transition-all after:duration-300">Giới thiệu</a>
+                <a href="/theaters" class="hover:text-slate-950 dark:hover:text-white transition-colors duration-300 relative py-2 no-underline">Hệ thống rạp</a>
+                <a href="/about" class="hover:text-slate-950 dark:hover:text-white transition-colors duration-300 relative py-2 no-underline">Giới thiệu</a>
             </nav>
 
             @* Actions Area (Login, Register, Profile) *@
@@ -74,7 +82,7 @@
                                 {
                                     @foreach (var movie in filteredSearchMovies.Take(5))
                                     {
-                                        <a href="/movies/@movie.Id" @onclick="ClearSearch" class="flex items-start gap-4 px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-850/80 transition-all duration-300 group">
+                                        <a href="/movies/@movie.Id" @onclick="ClearSearch" class="flex items-start gap-4 px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-850/80 transition-all duration-300 group no-underline">
                                             @* Fixed Card Image with Zoom effect *@
                                             <div class="w-16 h-24 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shrink-0 shadow-sm">
                                                 <img src="@movie.PosterUrl" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
@@ -105,13 +113,12 @@
                         </div>
                     }
                 </div>
-
                 <ThemeToggle Class="inline-flex" />
+
                 @if (AuthState.Value.IsAuthenticated)
                 {
-                    <a href="/profile" class="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 transition-all duration-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-700 dark:hover:bg-slate-800/80 dark:hover:text-white whitespace-nowrap">
-                        <FluentIcon Value="@(new Size20.Person())" Color="Color.Neutral" class="w-5 h-5 text-slate-400" />
-                        <span class="text-xs font-black tracking-wider uppercase hidden sm:inline">@AuthState.Value.User?.Username</span>
+                    <a href="/profile" class="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 transition-all duration-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-700 dark:hover:bg-slate-800/80 dark:hover:text-white whitespace-nowrap no-underline">
+                        <span class="text-xs font-black tracking-wider uppercase">@AuthState.Value.User?.Username</span>
                     </a>
                     <button @onclick="HandleLogout" class="h-10 px-3 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-accent transition-colors duration-300 cursor-pointer dark:text-slate-400 whitespace-nowrap">
                         Đăng xuất
@@ -119,10 +126,10 @@
                 }
                 else
                 {
-                    <a href="/auth/login" class="px-3 py-2 text-xs font-black uppercase tracking-widest text-slate-600 hover:text-slate-950 transition-colors duration-300 dark:text-slate-300 dark:hover:text-white whitespace-nowrap">
+                    <a href="/auth/login" class="px-3 py-2 text-xs font-black uppercase tracking-widest text-slate-600 hover:text-slate-950 transition-colors duration-300 dark:text-slate-300 dark:hover:text-white whitespace-nowrap no-underline">
                         Đăng nhập
                     </a>
-                    <a href="/auth/register" class="px-3 py-2 text-xs font-black uppercase tracking-widest text-slate-600 hover:text-slate-950 transition-colors duration-300 dark:text-slate-300 dark:hover:text-white whitespace-nowrap">
+                    <a href="/auth/register" class="px-3 py-2 text-xs font-black uppercase tracking-widest text-slate-600 hover:text-slate-950 transition-colors duration-300 dark:text-slate-300 dark:hover:text-white whitespace-nowrap no-underline">
                         Đăng ký
                     </a>
                 }
@@ -148,20 +155,20 @@
     </footer>
 
     @* --- MOBILE BOTTOM NAVIGATION (PERFECT RESPONSIVE ALIGNMENT) --- *@
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 border-t border-slate-200 bg-white/90 backdrop-blur-md flex justify-around items-center px-4 z-50 shadow-2xl dark:border-slate-900 dark:bg-slate-950/90">
-        <a href="/" class="flex flex-col items-center justify-center gap-1 text-slate-500 hover:text-accent transition-colors duration-300 py-1 w-16 dark:text-slate-400">
+    <nav class="md:hidden mobile-nav fixed bottom-0 left-0 right-0 h-16 border-t border-slate-200 bg-white/90 backdrop-blur-md flex justify-around items-center px-4 z-50 shadow-2xl dark:border-slate-900 dark:bg-slate-950/90">
+        <a href="/" class="flex flex-col items-center justify-center gap-1 text-slate-500 hover:text-accent transition-colors duration-300 py-1 w-16 dark:text-slate-400 no-underline">
             <FluentIcon Value="@(new Size24.Home())" Color="Color.Neutral" class="w-5 h-5" />
             <span class="text-[9px] font-black uppercase tracking-wider">Home</span>
         </a>
-        <a href="/movies" class="flex flex-col items-center justify-center gap-1 text-slate-500 hover:text-accent transition-colors duration-300 py-1 w-16 dark:text-slate-400">
+        <a href="/movies" class="flex flex-col items-center justify-center gap-1 text-slate-500 hover:text-accent transition-colors duration-300 py-1 w-16 dark:text-slate-400 no-underline">
             <FluentIcon Value="@(new Size24.MoviesAndTv())" Color="Color.Neutral" class="w-5 h-5" />
             <span class="text-[9px] font-black uppercase tracking-wider">Phim</span>
         </a>
-        <a href="/tickets" class="flex flex-col items-center justify-center gap-1 text-slate-500 hover:text-accent transition-colors duration-300 py-1 w-16 dark:text-slate-400">
+        <a href="/tickets" class="flex flex-col items-center justify-center gap-1 text-slate-500 hover:text-accent transition-colors duration-300 py-1 w-16 dark:text-slate-400 no-underline">
             <FluentIcon Value="@(new Size24.Receipt())" Color="Color.Neutral" class="w-5 h-5" />
             <span class="text-[9px] font-black uppercase tracking-wider">Vé</span>
         </a>
-        <a href="/profile" class="flex flex-col items-center justify-center gap-1 text-slate-500 hover:text-accent transition-colors duration-300 py-1 w-16 dark:text-slate-400">
+        <a href="/profile" class="flex flex-col items-center justify-center gap-1 text-slate-500 hover:text-accent transition-colors duration-300 py-1 w-16 dark:text-slate-400 no-underline">
             <FluentIcon Value="@(new Size24.Person())" Color="Color.Neutral" class="w-5 h-5" />
             <span class="text-[9px] font-black uppercase tracking-wider">Hồ sơ</span>
         </a>

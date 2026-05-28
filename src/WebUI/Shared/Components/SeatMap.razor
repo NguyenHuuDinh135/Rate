@@ -16,7 +16,7 @@
             {
                 var rowChar = (char)('A' + i);
                 <div class="flex gap-2 items-center justify-center">
-                    <span class="w-6 text-center text-[10px] text-muted-foreground font-bold">@rowChar</span>
+                    <span class="w-6 text-center text-[10px] text-slate-500 dark:text-slate-400 font-bold">@rowChar</span>
                     
                     @for (int j = 1; j <= Theater.SeatsPerRow; j++)
                     {
@@ -41,7 +41,7 @@
                         }
                     }
 
-                    <span class="w-6 text-center text-[10px] text-muted-foreground font-bold">@rowChar</span>
+                    <span class="w-6 text-center text-[10px] text-slate-500 dark:text-slate-400 font-bold">@rowChar</span>
                 </div>
             }
         </div>
@@ -50,16 +50,16 @@
     @* Legend *@
     <div class="flex flex-wrap justify-center gap-6 text-[10px] uppercase tracking-wider font-bold w-full max-w-2xl border-t border-border pt-8 mt-4">
         <div class="flex items-center gap-2">
-            <div class="w-4 h-4 rounded-md bg-white border border-border shadow-sm"></div>
-            <span class="text-muted-foreground">Còn trống</span>
+            <div class="w-4 h-4 rounded-md bg-white dark:bg-slate-800 border border-border shadow-sm"></div>
+            <span class="text-slate-500 dark:text-slate-400">Còn trống</span>
         </div>
         <div class="flex items-center gap-2">
             <div class="w-4 h-4 rounded-md bg-accent shadow-lg shadow-accent/40 border-accent"></div>
-            <span class="text-foreground">Đang chọn</span>
+            <span class="text-slate-900 dark:text-white">Đang chọn</span>
         </div>
         <div class="flex items-center gap-2">
-            <div class="w-4 h-4 rounded-md bg-slate-200 border-transparent"></div>
-            <span class="text-muted-foreground opacity-50">Đã đặt / Khóa</span>
+            <div class="w-4 h-4 rounded-md bg-slate-200 dark:bg-slate-700 border-transparent"></div>
+            <span class="text-slate-500 dark:text-slate-400 opacity-50">Đã đặt / Khóa</span>
         </div>
     </div>
 </div>
@@ -75,11 +75,11 @@
         var baseClass = "seat-btn group w-6 h-6 md:w-8 md:h-8 rounded-t-lg rounded-b-sm flex items-center justify-center text-[9px] font-black border ";
         
         if (isBlocked || isOccupied)
-            return baseClass + "bg-slate-200 text-slate-400 cursor-not-allowed border-transparent opacity-40";
+            return baseClass + "bg-slate-200 dark:bg-slate-700 text-slate-400 cursor-not-allowed border-transparent opacity-40";
         
         if (isSelected)
             return baseClass + "bg-accent text-white shadow-xl shadow-accent/40 z-10 border-accent scale-110";
             
-        return baseClass + "bg-white hover:bg-accent/10 hover:border-accent/50 cursor-pointer text-accent/0 hover:text-accent/60 border-border shadow-sm";
+        return baseClass + "bg-white dark:bg-slate-800 hover:bg-accent/10 hover:border-accent/50 cursor-pointer text-accent/0 hover:text-accent/60 border-border shadow-sm";
     }
 }

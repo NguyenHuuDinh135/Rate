@@ -47,5 +47,20 @@
     color: #E2E8F0;
     font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
   }
+
+  /* Robustly remove underlines globally from all links, buttons, and web components */
+  a, 
+  fluent-anchor, 
+  .fluent-anchor, 
+  [role="link"] {
+    text-decoration: none !important;
+  }
+  
+  a:hover, 
+  fluent-anchor:hover, 
+  .fluent-anchor:hover, 
+  [role="link"]:hover {
+    text-decoration: none !important;
+  }
 }
 

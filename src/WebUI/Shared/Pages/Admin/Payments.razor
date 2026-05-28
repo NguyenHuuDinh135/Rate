@@ -30,10 +30,8 @@
                 <SearchBox @bind-Value="_searchText" Placeholder="Tìm mã hóa đơn, khách hàng, phim..." />
                 <MudSelect T="string" @bind-Value="_methodFilter" Variant="MudBlazor.Variant.Outlined" Margin="MudBlazor.Margin.Dense" Dense="true" Class="min-w-40">
                     <MudSelectItem T="string" Value="@("all")">Tất cả phương thức</MudSelectItem>
-                    <MudSelectItem T="string" Value="@("Cash")">Cash</MudSelectItem>
-                    <MudSelectItem T="string" Value="@("Card")">Card</MudSelectItem>
-                    <MudSelectItem T="string" Value="@("Momo")">Momo</MudSelectItem>
-                    <MudSelectItem T="string" Value="@("VnPay")">VnPay</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("0")">Tiền mặt</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("1")">MoMo</MudSelectItem>
                 </MudSelect>
             </div>
             <Badge Tone="primary">@FilteredPayments.Count() giao dịch</Badge>
@@ -54,7 +52,7 @@
                 <MudTd DataLabel="Khách hàng">@DisplayText(payment.UserId)</MudTd>
                 <MudTd DataLabel="Phim">@DisplayText(payment.Movie?.Title)</MudTd>
                 <MudTd DataLabel="Số tiền"><strong>@FormatCurrency(payment.Amount)</strong></MudTd>
-                <MudTd DataLabel="Phương thức"><Badge Tone="info">@payment.PaymentMethod</Badge></MudTd>
+                <MudTd DataLabel="Phương thức"><Badge Tone="info">@(payment.PaymentMethod == 1 ? "MOMO" : "TIỀN MẶT")</Badge></MudTd>
                 <MudTd DataLabel="Thời gian">@FormatDateTime(payment.PaymentDatetime)</MudTd>
                 <MudTd DataLabel="Hành động" Class="text-right">
                     <IconButton Icon="@MudBlazor.Icons.Material.Outlined.Visibility" Title="Xem giao dịch" OnClick="@(() => ViewPayment(payment))" />
@@ -82,7 +80,7 @@
             || DisplayText(payment.UserId).Contains(_searchText, StringComparison.OrdinalIgnoreCase)
             || DisplayText(payment.Movie?.Title).Contains(_searchText, StringComparison.OrdinalIgnoreCase))
         .Where(payment => _methodFilter == "all"
-            || string.Equals(payment.PaymentMethod, _methodFilter, StringComparison.OrdinalIgnoreCase));
+            || payment.PaymentMethod.ToString() == _methodFilter);
 
     private IEnumerable<PaymentDto> PagedPayments => FilteredPayments
         .Skip((_page - 1) * _pageSize)

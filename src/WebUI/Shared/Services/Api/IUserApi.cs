@@ -9,6 +9,9 @@ public interface IUserApi
     [Get("/api/users/me")]
     Task<AuthUserDto> GetMeAsync();
 
+    [Put("/api/users/me")]
+    Task<OperationResultDto> UpdateMeAsync([Body] UpdateMeRequest payload);
+
     [Get("/api/users/all")]
     Task<WebUI.Shared.Models.Common.ApiResponse<List<AdminUserDto>>> GetAllAsync();
 

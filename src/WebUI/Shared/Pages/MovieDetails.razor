@@ -21,6 +21,7 @@
 @inject Microsoft.FluentUI.AspNetCore.Components.IDialogService DialogService
 @inject IToastService ToastService
 @inject NavigationManager NavigationManager
+@inject IPersonApi PersonApi
 
 @if (MovieState.Value.IsLoading && MovieState.Value.SelectedMovie == null)
 {
@@ -59,10 +60,10 @@ else if (MovieState.Value.SelectedMovie != null)
                 </div>
 
                 @* Sticky Booking Button (Netflix Red styled) *@
-                <button class="w-full py-5 bg-accent hover:bg-accent-hover text-white text-sm font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-accent/25 hover:shadow-accent/45 hover:scale-[1.02] transition-all duration-300 active:scale-95 cursor-pointer flex items-center justify-center gap-2" 
+                <button class="w-full py-5 bg-[#e50914] hover:bg-[#b20710] !text-white text-sm font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-[#e50914]/25 hover:shadow-[#e50914]/45 hover:scale-[1.02] transition-all duration-300 active:scale-95 cursor-pointer flex items-center justify-center gap-2 border-none" 
                         @onclick="@NavigateToBooking">
-                    <FluentIcon Value="@(new Size20.Play())" Color="Color.Fill" class="w-5 h-5 flex items-center justify-center text-white" />
-                    <span>ĐẶT VÉ NGAY</span>
+                    <FluentIcon Value="@(new Size20.Play())" Color="Color.Custom" CustomColor="#ffffff" class="w-5 h-5 flex items-center justify-center text-white" />
+                    <span class="!text-white font-black">ĐẶT VÉ NGAY</span>
                 </button>
             </div>
 
@@ -72,21 +73,21 @@ else if (MovieState.Value.SelectedMovie != null)
                     <div class="flex flex-wrap items-center gap-2">
                         @foreach (var genre in movie.Genres)
                         {
-                            <span class="px-4 py-1.5 bg-accent/10 text-accent text-[10px] font-black rounded-full uppercase tracking-widest border border-accent/20">@genre.Name</span>
+                            <span class="px-5 py-2 bg-accent/10 text-accent text-xs sm:text-sm font-extrabold rounded-full uppercase tracking-widest border border-accent/20">@genre.Name</span>
                         }
                     </div>
 
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter leading-tight text-white">@movie.Title</h1>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter leading-tight text-slate-900 dark:text-white">@movie.Title</h1>
                     
                     @* Details Meta Bar *@
-                    <div class="flex flex-wrap items-center gap-6 text-slate-400 font-bold text-xs sm:text-sm">
+                    <div class="flex flex-wrap items-center gap-6 text-slate-500 dark:text-slate-400 font-bold text-xs sm:text-sm">
                         <div class="flex items-center gap-2">
                             <FluentIcon Value="@(new Size20.Calendar())" Color="Color.Neutral" class="w-5 h-5 text-slate-400" />
                             <span>@movie.Year</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <FluentIcon Value="@(new Size20.Star())" Color="Color.Warning" class="w-5 h-5" />
-                            <span class="text-white text-base sm:text-lg font-black">@movie.Rating</span>
+                            <span class="text-slate-900 dark:text-white text-base sm:text-lg font-black">@movie.Rating</span>
                             <span class="opacity-50">/ 10</span>
                         </div>
                         <div class="flex items-center gap-2">
@@ -95,14 +96,63 @@ else if (MovieState.Value.SelectedMovie != null)
                         </div>
                     </div>
 
-                    <p class="text-base sm:text-lg leading-relaxed text-slate-300 font-medium">@movie.Summary</p>
+                    <p class="text-lg sm:text-xl md:text-[21px] leading-relaxed text-slate-700 dark:text-slate-300 font-medium">@movie.Summary</p>
+                </div>
+
+                @* Actors / Cast Section *@
+                <div class="pt-8 border-t border-slate-100 dark:border-slate-800/80 space-y-6">
+                    <h3 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-3">
+                        👥 Diễn viên chính
+                    </h3>
+                    
+                    @if (isActorsLoading)
+                    {
+                        <div class="flex gap-6 overflow-x-auto pb-4">
+                            @for (int i = 0; i < 4; i++)
+                            {
+                                <div class="flex flex-col items-center text-center gap-3 min-w-[120px] animate-pulse">
+                                    <div class="w-24 h-24 rounded-full bg-slate-200 dark:bg-slate-800"></div>
+                                    <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded w-16"></div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else if (actors.Any())
+                    {
+                        <div class="flex gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-800">
+                            @foreach (var actor in actors)
+                            {
+                                <div class="flex flex-col items-center text-center gap-3 min-w-[120px] group cursor-pointer"
+                                     @onclick="@(() => NavigationManager.NavigateTo($"/actors/{actor.Id}"))">
+                                    <div class="w-24 h-24 rounded-full overflow-hidden border-2 border-slate-100 dark:border-slate-800 shadow-md group-hover:scale-105 group-hover:border-accent transition-all duration-300 relative bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
+                                        @if (!string.IsNullOrEmpty(actor.PictureUrl))
+                                        {
+                                            <img src="@actor.PictureUrl" class="w-full h-full object-cover" alt="@actor.FullName" onerror="this.style.opacity='0';" />
+                                        }
+                                        else
+                                        {
+                                            <span class="text-2xl select-none">👤</span>
+                                        }
+                                    </div>
+                                    <div class="space-y-0.5">
+                                        <p class="text-xs font-black text-slate-900 dark:text-white group-hover:text-accent transition-colors line-clamp-1">@actor.FullName</p>
+                                        <p class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider line-clamp-1">@(!string.IsNullOrEmpty(actor.Role) ? actor.Role : "Diễn viên")</p>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-slate-500 dark:text-slate-400 font-medium text-sm">Thông tin dàn diễn viên đang được cập nhật.</p>
+                    }
                 </div>
 
                 @* Quick Action Ticket Section *@
                 <div class="pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-6">
                     <div class="text-left">
-                        <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-white mb-2">Đã sẵn sàng trải nghiệm?</h2>
-                        <p class="text-slate-400 font-medium text-sm sm:text-base">Đặt vé ngay bây giờ để chọn được vị trí ngồi đẹp nhất tại rạp chiếu.</p>
+                        <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white mb-2">Đã sẵn sàng trải nghiệm?</h2>
+                        <p class="text-slate-500 dark:text-slate-400 font-medium text-sm sm:text-base">Đặt vé ngay bây giờ để chọn được vị trí ngồi đẹp nhất tại rạp chiếu.</p>
                     </div>
                     <button class="w-full sm:w-auto px-8 py-4.5 bg-accent hover:bg-accent-hover text-white text-sm font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-accent/20 hover:scale-[1.02] transition-all duration-300 active:scale-95 cursor-pointer flex items-center justify-center gap-2"
                             @onclick="@NavigateToBooking">
@@ -118,9 +168,28 @@ else if (MovieState.Value.SelectedMovie != null)
 @code {
     [Parameter] public int Id { get; set; }
 
-    protected override void OnParametersSet()
+    private List<PersonDto> actors = new();
+    private bool isActorsLoading = true;
+
+    protected override async Task OnParametersSetAsync()
     {
+        await base.OnParametersSetAsync();
         Dispatcher.Dispatch(new LoadMovieByIdAction(Id));
+        
+        try
+        {
+            isActorsLoading = true;
+            var response = await PersonApi.GetByMovieAsync(Id);
+            actors = response?.Body ?? new List<PersonDto>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error loading actors: " + ex.Message);
+        }
+        finally
+        {
+            isActorsLoading = false;
+        }
     }
 
     private void NavigateToBooking()

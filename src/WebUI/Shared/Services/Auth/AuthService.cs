@@ -65,7 +65,7 @@ public sealed class AuthService(
         {
             return await userApi.GetMeAsync();
         }
-        catch (ApiException ex) when (ex.StatusCode is HttpStatusCode.Unauthorized)
+        catch (System.Exception)
         {
             return null;
         }

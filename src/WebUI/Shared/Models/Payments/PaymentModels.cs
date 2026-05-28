@@ -1,15 +1,14 @@
 using System.Text.Json.Serialization;
 using WebUI.Shared.Models.Common;
+using WebUI.Shared.Models.Movies;
 
 namespace WebUI.Shared.Models.Payments;
 
 public record CreatePaymentCommand(
-    decimal Amount,
-    string PaymentDatetime,
-    int PaymentMethod,
+    int Amount,
+    int Method,
     string UserId,
-    int ShowId,
-    List<int> Bookings);
+    int ShowId);
 
 public record UpdatePaymentCommand(int Id, decimal Amount, int PaymentMethod);
 
@@ -25,7 +24,7 @@ public class PaymentDto
     public string PaymentDatetime { get; set; } = "";
 
     [JsonPropertyName("method")]
-    public string PaymentMethod { get; set; } = "";
+    public int PaymentMethod { get; set; }
 
     [JsonPropertyName("userId")]
     public string? UserId { get; set; }
@@ -44,5 +43,11 @@ public class PaymentMovieDto
 
     [JsonPropertyName("posterUrl")]
     public string PosterUrl { get; set; } = "";
+
+    [JsonPropertyName("year")]
+    public int? Year { get; set; }
+
+    [JsonPropertyName("genres")]
+    public List<GenreDto>? Genres { get; set; }
 }
 

@@ -29,13 +29,13 @@ else
 
     <div class="flex flex-col gap-8 pb-24">
         @* Header Mini *@
-        <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
+        <div class="flex items-center gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
             <FluentButton Appearance="Appearance.Stealth" OnClick="@GoBack">
                 <FluentIcon Value="@(new Size24.ArrowLeft())" />
             </FluentButton>
             <div>
                 <h1 class="text-xl font-black tracking-tight">@movie.Title</h1>
-                <p class="text-sm text-slate-500 font-medium">Chọn ngày & suất chiếu</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">Chọn ngày & suất chiếu</p>
             </div>
         </div>
 
@@ -46,7 +46,7 @@ else
                 var date = DateTime.Parse(dateStr);
                 var isSelected = date.Date == selectedDate.Date;
                 <button @onclick="() => HandleDateSelected(date)"
-                        class="flex flex-col items-center justify-center min-w-[70px] h-20 rounded-2xl border-2 transition-all @(isSelected ? "border-accent bg-accent text-white shadow-lg shadow-accent/30" : "border-slate-200 bg-white text-slate-600 hover:border-accent/50")">
+                        class="flex flex-col items-center justify-center min-w-[70px] h-20 rounded-2xl border-2 transition-all @(isSelected ? "border-accent bg-accent text-white shadow-lg shadow-accent/30" : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:border-accent/50 dark:hover:border-accent/50")">
                     <span class="text-[10px] uppercase font-bold opacity-80">@date.ToString("ddd")</span>
                     <span class="text-2xl font-black leading-none my-1">@date.Day</span>
                     <span class="text-[10px] font-bold opacity-80">Thg @date.Month</span>
@@ -67,12 +67,12 @@ else
                 @foreach (var group in groupedShows)
                 {
                     var theater = theaters.FirstOrDefault(t => t.Id == group.Key);
-                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
                         <div class="flex items-center gap-3 mb-6">
                             <FluentIcon Value="@(new Size24.Location())" Color="Color.Accent" />
                             <div>
                                 <h3 class="text-lg font-black">@(theater?.Name ?? "Đang tải rạp...")</h3>
-                                <p class="text-xs text-slate-400 font-medium">Loại rạp: @(theater?.Type.ToString() ?? "")</p>
+                                <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Loại rạp: @(theater?.Type.ToString() ?? "")</p>
                             </div>
                         </div>
 
@@ -80,7 +80,7 @@ else
                             @foreach (var show in group.OrderBy(s => s.StartTime))
                             {
                                 <button @onclick="() => SelectShowtime(theater!.Id, show.Id)"
-                                        class="bg-slate-50 hover:bg-accent/10 hover:text-accent border border-slate-200 hover:border-accent text-slate-700 px-6 py-3 rounded-xl font-bold transition-colors flex flex-col items-center gap-1">
+                                        class="bg-slate-50 dark:bg-slate-950 hover:bg-accent/10 dark:hover:bg-accent/10 hover:text-accent border border-slate-200 dark:border-slate-800 hover:border-accent dark:hover:border-accent text-slate-700 dark:text-slate-300 px-6 py-3 rounded-xl font-bold transition-colors flex flex-col items-center gap-1">
                                     <span class="text-lg">@show.StartTime.Substring(0, 5)</span>
                                     <span class="text-[10px] uppercase text-slate-400">@show.Type</span>
                                 </button>
@@ -91,7 +91,7 @@ else
             }
             else
             {
-                <div class="p-12 border-2 border-dashed border-slate-200 rounded-3xl text-center text-slate-400 font-bold">
+                <div class="p-12 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl text-center text-slate-400 dark:text-slate-500 font-bold">
                     <FluentIcon Value="@(new Size32.CalendarClock())" class="mx-auto mb-4 opacity-20" />
                     <p>Không có suất chiếu nào cho ngày này.</p>
                 </div>
