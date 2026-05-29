@@ -1,0 +1,74 @@
+@using MudBlazor
+@using WebUI.Shared.Models.Payments
+@using WebUI.Shared.Models.Common
+
+<MudDialog>
+    <TitleContent>
+        <div class="flex items-center gap-2">
+            <MudIcon Icon="@(IsEditMode ? Icons.Material.Outlined.Edit : Icons.Material.Outlined.Info)" Color="Color.Primary" />
+            <MudText Typo="Typo.h6">@(IsEditMode ? "Chỉnh sửa giao dịch" : "Chi tiết giao dịch")</MudText>
+        </div>
+    </TitleContent>
+    <DialogContent>
+        <MudForm @ref="_form">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 py-2">
+                <MudTextField T="string" Label="Mã giao dịch" Value="@($"#{Payment.PaymentId}")" ReadOnly="true" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                <MudTextField T="string" Label="Thời gian" Value="@FormatDateTime(Payment.PaymentDatetime)" ReadOnly="true" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                
+                <MudTextField T="string" Label="Khách hàng (ID)" Value="@Payment.UserId" ReadOnly="true" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                <MudTextField T="string" Label="Phim" Value="@(Payment.Movie?.Title ?? "-")" ReadOnly="true" Variant="Variant.Outlined" Margin="Margin.Dense" />
+
+                @if (IsEditMode)
+                {
+                    <MudNumericField T="decimal" Label="Số tiền (VNĐ)" @bind-Value="Payment.Amount" Required="true" Min="0" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    <MudSelect T="int" Label="Phương thức thanh toán" @bind-Value="Payment.PaymentMethod" Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true">
+                        @foreach (PaymentMethod method in Enum.GetValues<PaymentMethod>())
+                        {
+                            <MudSelectItem T="int" Value="@((int)method)">@method.ToString()</MudSelectItem>
+                        }
+                    </MudSelect>
+                }
+                else
+                {
+                    <MudTextField T="string" Label="Số tiền" Value="@FormatCurrency(Payment.Amount)" ReadOnly="true" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    <MudTextField T="string" Label="Phương thức" Value="@(((PaymentMethod)Payment.PaymentMethod).ToString())" ReadOnly="true" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                }
+            </div>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Đóng</MudButton>
+        @if (IsEditMode)
+        {
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit">Lưu thay đổi</MudButton>
+        }
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public PaymentDto Payment { get; set; } = new();
+    [Parameter] public bool IsEditMode { get; set; }
+
+    private MudForm _form = default!;
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task Submit()
+    {
+        await _form.ValidateAsync();
+        if (_form.IsValid)
+        {
+            MudDialog.Close(DialogResult.Ok(Payment));
+        }
+    }
+
+    private static string FormatCurrency(decimal amount) => $"{amount:N0} đ";
+
+    private static string FormatDateTime(string value)
+    {
+        return DateTime.TryParse(value, out var date) ? date.ToString("HH:mm, dd/MM/yyyy") : value;
+    }
+}

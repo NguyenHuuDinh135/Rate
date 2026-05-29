@@ -1,5 +1,7 @@
+@using WebUI.Shared.Services.Auth
 @inject NavigationManager NavigationManager
 @inject IAdminThemeService ThemeService
+@inject IAuthService AuthService
 @implements IDisposable
 
 <header class="rate-admin-topbar">
@@ -18,6 +20,13 @@
     </div>
     <div class="rate-admin-topbar__right">
         <ThemeToggle Class="h-8 w-8" />
+        <MudIconButton Icon="@MudBlazor.Icons.Material.Outlined.Logout"
+                       Variant="MudBlazor.Variant.Text"
+                       Color="MudBlazor.Color.Error"
+                       Size="MudBlazor.Size.Small"
+                       OnClick="@HandleLogout"
+                       title="Đăng xuất"
+                       Class="ml-2" />
     </div>
 </header>
 
@@ -39,6 +48,12 @@
     private void HandleThemeChanged()
     {
         InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleLogout()
+    {
+        await AuthService.LogoutAsync();
+        NavigationManager.NavigateTo("/auth/login", forceLoad: true);
     }
 
     private static string ResolveTitle(string path)
