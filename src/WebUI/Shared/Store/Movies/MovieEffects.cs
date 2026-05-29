@@ -1,23 +1,24 @@
 using Fluxor;
+using Microsoft.Extensions.Logging;
 using WebUI.Shared.Services.Api;
 
 namespace WebUI.Shared.Store.Movies;
 
-public class MovieEffects(IMovieApi movieApi)
+public class MovieEffects(IMovieApi movieApi, ILogger<MovieEffects> logger)
 {
     [EffectMethod]
     public async Task HandleLoadMovies(LoadMoviesAction action, IDispatcher dispatcher)
     {
         try
         {
-            System.Console.WriteLine("[MovieEffects] Start loading movies via IMovieApi.GetAllAsync()...");
+            logger.LogDebug("Loading movies via {ApiMethod}.", nameof(IMovieApi.GetAllAsync));
             var response = await movieApi.GetAllAsync();
-            System.Console.WriteLine($"[MovieEffects] Loaded movies successfully. Body Count = {response.Body?.Count ?? 0}");
+            logger.LogDebug("Loaded {MovieCount} movies.", response.Body?.Count ?? 0);
             dispatcher.Dispatch(new LoadMoviesSuccessAction(response.Body ?? new()));
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
-            System.Console.WriteLine($"[MovieEffects] Exception caught in HandleLoadMovies: {ex.Message}\n{ex.StackTrace}");
+            logger.LogError(ex, "Failed to load movies.");
             dispatcher.Dispatch(new LoadMoviesFailureAction(ex.Message));
         }
     }

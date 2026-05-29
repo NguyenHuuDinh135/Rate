@@ -13,18 +13,18 @@
 @inject IToastService ToastService
 @inject NavigationManager NavigationManager
 
-<div class="min-h-screen bg-slate-50 pt-24 pb-20 px-4">
+<div class="min-h-screen bg-slate-50 dark:bg-[#131313] transition-colors duration-300 pt-24 pb-20 px-4">
     <div class="container mx-auto max-w-6xl">
         @if (showSettings)
         {
             <div class="space-y-8 animate-in fade-in slide-in-from-bottom-4">
                 <div class="flex items-center gap-4">
                     <FluentButton Appearance="Appearance.Stealth" IconStart="@(new Size24.ArrowLeft())" OnClick="@(() => showSettings = false)">Quay lại hồ sơ</FluentButton>
-                    <h2 class="text-3xl font-black tracking-tight text-slate-900">Cài đặt tài khoản</h2>
+                    <h2 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Cài đặt tài khoản</h2>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <FluentCard class="p-8 rounded-[2rem] shadow-sm border border-slate-100 bg-white">
+                    <FluentCard class="p-8 rounded-[2rem] shadow-sm border border-slate-100 dark:border-white/10 bg-white dark:bg-[#1e1e1e] text-slate-900 dark:text-white">
                         <h3 class="text-xl font-bold mb-6">Thông tin cá nhân</h3>
                         <div class="space-y-4">
                             <FluentTextField @bind-Value="editUsername" Label="Tên hiển thị" class="w-full" />
@@ -33,7 +33,7 @@
                         </div>
                     </FluentCard>
                     
-                    <FluentCard class="p-8 rounded-[2rem] shadow-sm border border-slate-100 bg-white">
+                    <FluentCard class="p-8 rounded-[2rem] shadow-sm border border-slate-100 dark:border-white/10 bg-white dark:bg-[#1e1e1e] text-slate-900 dark:text-white">
                         <h3 class="text-xl font-bold mb-6">Đổi mật khẩu</h3>
                         <div class="space-y-4">
                             <FluentTextField @bind-Value="currentPassword" TextFieldType="TextFieldType.Password" Label="Mật khẩu hiện tại" class="w-full" />
@@ -50,29 +50,29 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in slide-in-from-bottom-4">
                 @* User Profile Card *@
                 <div class="lg:col-span-4 space-y-6">
-                    <FluentCard class="p-0 rounded-[3rem] shadow-xl border-none bg-white overflow-hidden">
+                    <FluentCard class="p-0 rounded-[3rem] shadow-xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#1e1e1e] overflow-hidden">
                         <div class="h-32 bg-slate-900 relative">
                             <div class="absolute inset-0 bg-gradient-to-br from-accent/40 to-transparent opacity-50"></div>
                         </div>
                         <div class="p-10 pt-0 text-center relative">
-                            <div class="w-32 h-32 rounded-[2.5rem] bg-white border-[6px] border-white shadow-2xl mx-auto -mt-16 mb-6 flex items-center justify-center overflow-hidden">
+                            <div class="w-32 h-32 rounded-[2.5rem] bg-white dark:bg-[#1e1e1e] border-[6px] border-white dark:border-[#1e1e1e] shadow-2xl mx-auto -mt-16 mb-6 flex items-center justify-center overflow-hidden">
                                 <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=@(currentUser?.UserName ?? AuthState.Value.User?.Username ?? "User")" class="w-full h-full object-cover" alt="Avatar" />
                             </div>
-                            <h2 class="text-3xl font-black text-slate-900 tracking-tight">@(currentUser?.UserName ?? AuthState.Value.User?.Username)</h2>
-                            <p class="text-slate-400 font-bold text-sm mt-1">@(currentUser?.Email ?? AuthState.Value.User?.Email)</p>
+                            <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">@DisplayName</h2>
+                            <p class="text-slate-400 font-bold text-sm mt-1">@DisplayEmail</p>
 
                             <div class="grid grid-cols-2 gap-4 mt-10">
-                                <div class="p-4 bg-slate-50 rounded-3xl border border-slate-100">
+                                <div class="p-4 bg-slate-50 dark:bg-[#202020] rounded-3xl border border-slate-100 dark:border-white/10">
                                     <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Tổng chi</p>
                                     <p class="text-xl font-black text-accent">@(totalSpent.ToString("N0")) đ</p>
                                 </div>
-                                <div class="p-4 bg-slate-50 rounded-3xl border border-slate-100">
+                                <div class="p-4 bg-slate-50 dark:bg-[#202020] rounded-3xl border border-slate-100 dark:border-white/10">
                                     <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Số vé</p>
-                                    <p class="text-xl font-black text-slate-900">@(payments.Count)</p>
+                                    <p class="text-xl font-black text-slate-900 dark:text-white">@(payments.Count)</p>
                                 </div>
                             </div>
 
-                            <div class="mt-10 pt-10 border-t border-slate-100 flex flex-col gap-3">
+                            <div class="mt-10 pt-10 border-t border-slate-100 dark:border-white/10 flex flex-col gap-3">
                                 <FluentButton Appearance="Appearance.Stealth" IconStart="@(new Size20.Settings())" class="w-full h-12 rounded-xl font-bold" OnClick="@(() => showSettings = true)">Cài đặt tài khoản</FluentButton>
                                 <FluentButton Appearance="Appearance.Neutral" IconStart="@(new Size20.SignOut())" class="w-full h-12 rounded-xl font-bold text-error" OnClick="@HandleLogout">Đăng xuất</FluentButton>
                             </div>
@@ -83,7 +83,7 @@
                 @* History Section *@
                 <div class="lg:col-span-8 space-y-8">
                     <div class="flex items-center justify-between">
-                        <h2 class="text-3xl font-black tracking-tight text-slate-900">Giao dịch gần đây</h2>
+                        <h2 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Giao dịch gần đây</h2>
                         <FluentBadge Appearance="Appearance.Lightweight" class="h-8 px-4 font-bold">@(payments.Count) Đơn hàng</FluentBadge>
                     </div>
 
@@ -99,18 +99,18 @@
                         {
                             @foreach (var payment in payments)
                             {
-                                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex items-center justify-between group hover:shadow-md transition-shadow cursor-pointer">
+                                <div class="bg-white dark:bg-[#1e1e1e] p-6 rounded-[2rem] shadow-sm border border-slate-100 dark:border-white/10 flex items-center justify-between group hover:shadow-md transition-shadow cursor-pointer">
                                     <div class="flex items-center gap-6">
-                                        <div class="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-300">
+                                        <div class="w-16 h-16 rounded-2xl bg-slate-50 dark:bg-[#202020] flex items-center justify-center text-slate-300">
                                             <FluentIcon Value="@(new Size24.MoviesAndTv())" />
                                         </div>
                                         <div>
-                                            <h4 class="font-black text-slate-900">@(payment.Movie?.Title ?? "Vé xem phim")</h4>
+                                            <h4 class="font-black text-slate-900 dark:text-white">@(payment.Movie?.Title ?? "Vé xem phim")</h4>
                                             <p class="text-xs text-slate-400 font-bold">@(FormatDate(payment.PaymentDatetime)) • @(payment.PaymentMethod == 1 ? "MOMO" : "TIỀN MẶT")</p>
                                         </div>
                                     </div>
                                     <div class="text-right">
-                                        <p class="font-black text-xl text-slate-900">@payment.Amount.ToString("N0") đ</p>
+                                        <p class="font-black text-xl text-slate-900 dark:text-white">@payment.Amount.ToString("N0") đ</p>
                                         <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Hoàn tất</span>
                                     </div>
                                 </div>
@@ -118,7 +118,7 @@
                         }
                         else
                         {
-                            <div class="p-20 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-100">
+                            <div class="p-20 text-center bg-white dark:bg-[#1e1e1e] rounded-[3rem] border-2 border-dashed border-slate-100 dark:border-white/10">
                                 <p class="text-slate-300 font-bold">Chưa có lịch sử giao dịch.</p>
                             </div>
                         }
@@ -143,6 +143,8 @@
     private string confirmPassword = "";
     private bool isUpdatingProfile = false;
     private bool isChangingPassword = false;
+    private string DisplayName => currentUser?.UserName ?? AuthState.Value.User?.Username ?? "Hồ sơ của tôi";
+    private string DisplayEmail => currentUser?.Email ?? AuthState.Value.User?.Email ?? "Đăng nhập để đồng bộ vé và giao dịch.";
 
     protected override async Task OnInitializedAsync()
     {

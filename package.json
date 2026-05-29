@@ -1,9 +1,12 @@
 {
   "devDependencies": {
-    "tailwindcss": "^4.3.0",
-    "@tailwindcss/cli": "^4.3.0"
+    "@playwright/test": "^1.60.0",
+    "@tailwindcss/cli": "^4.3.0",
+    "tailwindcss": "^4.3.0"
   },
   "scripts": {
+    "audit:ux": "playwright test tests/e2e/ux-screenshot-audit.spec.ts",
+    "test:e2e": "playwright test",
     "tw:watch": "tailwindcss -i ./src/WebUI/Server/wwwroot/input.css -o ./src/WebUI/Server/wwwroot/app.css --watch",
     "tw:build": "tailwindcss -i ./src/WebUI/Server/wwwroot/input.css -o ./src/WebUI/Server/wwwroot/app.css --minify"
   }

@@ -22,7 +22,7 @@
   <Folder Name="/4. Presentation (Backend)/">
     <Project Path="src/Web/Web.csproj" />
   </Folder>
-  <Folder Name="/5. Presentation (Frontend &amp; Mobile)/">
+  <Folder Name="/5. Presentation (Frontend)/">
     <Project Path="src/WebUI/Shared/WebUI.Shared.csproj" />
     <Project Path="src/WebUI/Server/WebUI.Server.csproj" />
     <Project Path="src/WebUI/Client/WebUI.Client.csproj" />

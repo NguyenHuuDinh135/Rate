@@ -1,5 +1,4 @@
 using backend.Application.Auth.Commands.Register;
-using backend.Application.Common.Interfaces;
 using backend.Application.Common.Models;
 using Moq;
 using NUnit.Framework;
@@ -17,9 +16,7 @@ public class RegisterCommandTests
             .Setup(x => x.CreateUserAsync("Test User", "test@example.com", "weak"))
             .ReturnsAsync((Result.Failure(["Password requires a digit."]), string.Empty));
 
-        var handler = new RegisterCommand(
-            new Mock<IApplicationDbContext>().Object,
-            identityService.Object);
+        var handler = new RegisterCommand(identityService.Object);
 
         var result = await handler.Handle(
             new RegisterRequest

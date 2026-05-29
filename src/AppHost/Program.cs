@@ -38,9 +38,4 @@ builder.AddProject<Projects.WebUI_Server>("frontend")
     .WithReference(web)
     .WaitFor(web);
 
-// Mobile App (MAUI Blazor Hybrid Client)
-builder.AddProject("mobile-app", "../MobileApp/MobileApp.csproj")
-    .WithReference(web)
-    .WaitFor(web);
-
 builder.Build().Run();

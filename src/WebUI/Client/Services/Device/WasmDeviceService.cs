@@ -24,9 +24,4 @@ public class WasmDeviceService : IDeviceService
             return "Unknown";
         }
     }
-
-    public bool IsMobileDevice()
-    {
-        return false;
-    }
 }

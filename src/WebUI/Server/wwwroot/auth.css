@@ -5,11 +5,28 @@ html[data-theme="light"] .rate-auth-shell {
     color: #0f172a;
 }
 
+html:not([data-theme]) .rate-auth-shell,
 html[data-theme="dark"] .rate-auth-shell {
     background:
         radial-gradient(circle at top left, rgba(239, 68, 68, 0.14), transparent 30rem),
         #020617;
     color: #f8fafc;
+}
+
+html:not([data-theme]) .rate-auth-shell h1,
+html:not([data-theme]) .rate-auth-shell label,
+html:not([data-theme]) .rate-auth-shell p,
+html:not([data-theme]) .rate-auth-shell a,
+html[data-theme="dark"] .rate-auth-shell h1,
+html[data-theme="dark"] .rate-auth-shell label,
+html[data-theme="dark"] .rate-auth-shell p,
+html[data-theme="dark"] .rate-auth-shell a {
+    color: inherit;
+}
+
+html[data-theme="light"] .rate-auth-shell h1,
+html[data-theme="light"] .rate-auth-shell label {
+    color: #0f172a;
 }
 
 html[data-theme="light"] .rate-auth-card {

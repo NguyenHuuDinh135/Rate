@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Cinema auditorium</title>
+  <desc id="desc">A stylized cinema auditorium with a large screen and rows of red seats.</desc>
+  <defs>
+    <linearGradient id="screen" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="0.55" stop-color="#cbd5e1"/>
+      <stop offset="1" stop-color="#64748b"/>
+    </linearGradient>
+    <linearGradient id="room" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#020617"/>
+      <stop offset="0.58" stop-color="#111827"/>
+      <stop offset="1" stop-color="#000000"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="28%" r="55%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.42"/>
+      <stop offset="0.55" stop-color="#ef4444" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#room)"/>
+  <rect width="1600" height="900" fill="url(#glow)"/>
+  <path d="M190 110h1220l-94 420H284z" fill="#0f172a" stroke="#334155" stroke-width="8"/>
+  <path d="M260 160h1080l-64 310H324z" fill="url(#screen)"/>
+  <path d="M324 470h952l40 60H284z" fill="#020617" opacity=".86"/>
+  <g opacity=".55">
+    <path d="M0 120 255 530h-95L0 275z" fill="#475569"/>
+    <path d="M1600 120 1345 530h95l160-255z" fill="#475569"/>
+  </g>
+  <g fill="#7f1d1d">
+    <path d="M110 680c62-38 136-38 198 0v84H110z"/>
+    <path d="M350 650c68-42 152-42 220 0v108H350z"/>
+    <path d="M640 630c76-48 184-48 260 0v122H640z"/>
+    <path d="M970 650c68-42 152-42 220 0v108H970z"/>
+    <path d="M1288 680c62-38 136-38 198 0v84h-198z"/>
+    <path d="M0 780c110-58 240-58 350 0v120H0z"/>
+    <path d="M430 760c126-66 294-66 420 0v140H430z"/>
+    <path d="M950 760c126-66 294-66 420 0v140H950z"/>
+  </g>
+  <g fill="#ef4444" opacity=".78">
+    <rect x="110" y="680" width="198" height="16" rx="8"/>
+    <rect x="350" y="650" width="220" height="16" rx="8"/>
+    <rect x="640" y="630" width="260" height="16" rx="8"/>
+    <rect x="970" y="650" width="220" height="16" rx="8"/>
+    <rect x="1288" y="680" width="198" height="16" rx="8"/>
+  </g>
+</svg>

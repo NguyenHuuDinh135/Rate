@@ -66,9 +66,17 @@ public sealed class AuthStateService(
         }
         catch (ApiException ex)
         {
-            ErrorMessage = ex.StatusCode is HttpStatusCode.BadRequest
-                ? "Thông tin đăng ký không hợp lệ hoặc email đã được sử dụng."
-                : "Không thể tạo tài khoản lúc này. Vui lòng thử lại.";
+            var content = await ex.GetContentAsAsync<OperationResultDto>();
+            if (content?.Errors?.Length > 0)
+            {
+                ErrorMessage = string.Join("\n", content.Errors);
+            }
+            else
+            {
+                ErrorMessage = ex.StatusCode is HttpStatusCode.BadRequest
+                    ? "Thông tin đăng ký không hợp lệ hoặc email đã được sử dụng."
+                    : "Không thể tạo tài khoản lúc này. Vui lòng thử lại.";
+            }
             NotifyChanged();
             return new OperationResultDto(false, [ErrorMessage!]);
         }

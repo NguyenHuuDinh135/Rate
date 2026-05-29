@@ -1,6 +1,6 @@
 # Rate - Modern Full-stack Monorepo (.NET 10 & Aspire)
 
-Rate là một hệ sinh thái ứng dụng hiện đại, được xây dựng theo kiến trúc Monorepo tối ưu, cho phép chia sẻ mã nguồn tối đa giữa Web, Mobile và Backend. Dự án sử dụng những công nghệ tiên tiến nhất trong hệ sinh thái Microsoft năm 2026.
+Rate là một hệ sinh thái ứng dụng hiện đại, được xây dựng theo kiến trúc Monorepo tối ưu cho Web và Backend. Dự án sử dụng những công nghệ tiên tiến nhất trong hệ sinh thái Microsoft năm 2026.
 
 ## 🚀 Technology Stack
 
@@ -11,10 +11,9 @@ Rate là một hệ sinh thái ứng dụng hiện đại, được xây dựng 
 - **API**: Minimal APIs (Type-safe, High performance).
 - **Persistence**: EF Core + PostgreSQL + Dapper.
 
-### Frontend (Web & Mobile)
-- **Shared UI**: Razor Class Library (`WebFrontend.Shared`) chứa 100% components dùng chung.
+### Frontend Web
+- **Shared UI**: Razor Class Library (`WebFrontend.Shared`) chứa components và logic dùng chung cho Blazor hosts.
 - **Web**: Blazor Web App (Interactive Auto mode - SSR + WASM).
-- **Mobile**: .NET MAUI Blazor Hybrid (iOS, Android, Windows, macOS).
 - **UI Component**: Microsoft Fluent UI Blazor v4.
 - **Styling**: Tailwind CSS v4.
 - **State Management**: Fluxor (Redux pattern).
@@ -33,8 +32,7 @@ Rate/
 │   ├── Web/                    # Minimal API Project
 │   ├── WebFrontend/            # Blazor Server Host
 │   ├── WebFrontend.Client/     # Blazor WebAssembly Client
-│   ├── WebFrontend.Shared/     # Shared Razor Components & Logic (Web & Mobile)
-│   └── MobileApp/              # .NET MAUI Mobile App Container
+│   └── WebFrontend.Shared/     # Shared Razor Components & Logic
 ├── tests/                      # Unit, Integration & Functional Tests
 └── Rate.slnx                   # Modern Visual Studio Solution file
 ```
@@ -59,7 +57,7 @@ Rate/
    ```
 
 3. **Develop UI**:
-   Mọi thay đổi giao diện nên thực hiện trong `src/WebFrontend.Shared`. Tailwind v4 sẽ tự động biên dịch CSS khi bạn build project Web hoặc Mobile.
+   Mọi thay đổi giao diện nên thực hiện trong `src/WebFrontend.Shared`. Tailwind v4 sẽ tự động biên dịch CSS khi bạn build project Web.
 
 ## 🤖 AI-Powered Development
 Dự án này được tối ưu hóa cho phát triển bằng AI agent (như Gemini CLI). 

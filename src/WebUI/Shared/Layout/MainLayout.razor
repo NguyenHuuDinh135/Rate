@@ -23,7 +23,7 @@
     </style>
     @* --- PREMIUM STICKY NAVBAR (GLASSMORPHISM) --- *@
     <header class="sticky top-0 z-50 bg-white/85 shadow-sm backdrop-blur-md transition-all duration-300 dark:bg-slate-950/80 dark:shadow-xl">
-        <div class="container mx-auto max-w-7xl flex items-center justify-between h-20 px-4 sm:px-6 lg:px-8">
+        <div class="container mx-auto max-w-7xl flex items-center justify-between gap-3 h-20 px-4 sm:px-6 lg:px-8">
             
             @* Logo Brand *@
             <a href="/" class="flex items-center gap-2 group transition-transform duration-300 active:scale-95 no-underline">
@@ -61,9 +61,9 @@
             </nav>
 
             @* Actions Area (Login, Register, Profile) *@
-            <div class="flex items-center gap-2 sm:gap-3 flex-nowrap shrink-0">
+            <div class="flex min-w-0 flex-1 items-center justify-end gap-2 sm:gap-3 md:flex-none">
                 @* Beautiful Search Input with Autocomplete *@
-                <div class="relative w-36 sm:w-52 md:w-60 flex items-center">
+                <div class="relative flex min-w-0 flex-1 items-center sm:max-w-52 md:w-60 md:flex-none md:max-w-none">
                     <input @bind="SearchText"
                            @bind:event="oninput"
                            @onfocus="HandleSearchFocus"
@@ -71,7 +71,12 @@
                            @onkeyup="HandleSearchKeyUp"
                            class="w-full bg-slate-200/70 text-black dark:bg-slate-900 dark:text-white text-xs font-black rounded-xl py-2 pl-4 pr-10 border border-slate-300 dark:border-slate-800/80 placeholder-slate-600 dark:placeholder-slate-400 focus:ring-1 focus:ring-accent focus:border-accent focus:outline-none transition-all duration-300"
                            placeholder="Tìm kiếm..." />
-                    <button @onclick="NavigateToSearch" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-600 hover:text-accent transition-colors bg-transparent border-none text-xs cursor-pointer focus:outline-none">🔍</button>
+                    <button @onclick="NavigateToSearch"
+                            class="absolute right-1 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-slate-600 hover:text-accent transition-colors bg-transparent border-none text-xs cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                            aria-label="Tìm kiếm"
+                            title="Tìm kiếm">
+                        🔍
+                    </button>
 
                     @* Autocomplete Dropdown - Positioned directly below the search input *@
                     @if (isSearchFocused && !string.IsNullOrWhiteSpace(SearchText))
@@ -117,19 +122,19 @@
 
                 @if (AuthState.Value.IsAuthenticated)
                 {
-                    <a href="/profile" class="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 transition-all duration-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-700 dark:hover:bg-slate-800/80 dark:hover:text-white whitespace-nowrap no-underline">
+                    <a href="/profile" class="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 transition-all duration-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-700 dark:hover:bg-slate-800/80 dark:hover:text-white whitespace-nowrap no-underline">
                         <span class="text-xs font-black tracking-wider uppercase">@AuthState.Value.User?.Username</span>
                     </a>
-                    <button @onclick="HandleLogout" class="h-10 px-3 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-accent transition-colors duration-300 cursor-pointer dark:text-slate-400 whitespace-nowrap">
+                    <button @onclick="HandleLogout" class="hidden h-10 px-3 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-accent transition-colors duration-300 cursor-pointer dark:text-slate-400 whitespace-nowrap sm:inline-flex sm:items-center">
                         Đăng xuất
                     </button>
                 }
                 else
                 {
-                    <a href="/auth/login" class="px-3 py-2 text-xs font-black uppercase tracking-widest text-slate-600 hover:text-slate-950 transition-colors duration-300 dark:text-slate-300 dark:hover:text-white whitespace-nowrap no-underline">
+                    <a href="/auth/login" class="hidden px-3 py-2 text-xs font-black uppercase tracking-widest text-slate-600 hover:text-slate-950 transition-colors duration-300 dark:text-slate-300 dark:hover:text-white whitespace-nowrap no-underline sm:inline-flex">
                         Đăng nhập
                     </a>
-                    <a href="/auth/register" class="px-3 py-2 text-xs font-black uppercase tracking-widest text-slate-600 hover:text-slate-950 transition-colors duration-300 dark:text-slate-300 dark:hover:text-white whitespace-nowrap no-underline">
+                    <a href="/auth/register" class="hidden px-3 py-2 text-xs font-black uppercase tracking-widest text-slate-600 hover:text-slate-950 transition-colors duration-300 dark:text-slate-300 dark:hover:text-white whitespace-nowrap no-underline sm:inline-flex">
                         Đăng ký
                     </a>
                 }
@@ -138,7 +143,7 @@
     </header>
 
     @* --- MAIN PAGE WRAPPER --- *@
-    <main class="flex-grow container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    <main class="flex-grow container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 pb-24 md:py-12">
         @Body
     </main>
 
@@ -164,7 +169,7 @@
             <FluentIcon Value="@(new Size24.MoviesAndTv())" Color="Color.Neutral" class="w-5 h-5" />
             <span class="text-[9px] font-black uppercase tracking-wider">Phim</span>
         </a>
-        <a href="/tickets" class="flex flex-col items-center justify-center gap-1 text-slate-500 hover:text-accent transition-colors duration-300 py-1 w-16 dark:text-slate-400 no-underline">
+        <a href="/my-tickets" class="flex flex-col items-center justify-center gap-1 text-slate-500 hover:text-accent transition-colors duration-300 py-1 w-16 dark:text-slate-400 no-underline">
             <FluentIcon Value="@(new Size24.Receipt())" Color="Color.Neutral" class="w-5 h-5" />
             <span class="text-[9px] font-black uppercase tracking-wider">Vé</span>
         </a>

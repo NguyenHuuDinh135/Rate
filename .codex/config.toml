@@ -1,0 +1,67 @@
+#:schema https://developers.openai.com/codex/config-schema.json
+
+# Project-local ECC baseline for Rate.
+# Keep credentials and personal overrides in ~/.codex/config.toml.
+
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+web_search = "live"
+
+persistent_instructions = "Follow AGENTS.md. Prefer project-local .agents/skills when a task matches them. Do not print secret values."
+
+[mcp_servers.github]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-github"]
+startup_timeout_sec = 30
+
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp@latest"]
+startup_timeout_sec = 30
+
+[mcp_servers.exa]
+url = "https://mcp.exa.ai/mcp"
+
+[mcp_servers.memory]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-memory"]
+startup_timeout_sec = 30
+
+[mcp_servers.playwright]
+command = "npx"
+args = ["-y", "@playwright/mcp@latest", "--extension"]
+startup_timeout_sec = 30
+
+[mcp_servers.sequential-thinking]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+startup_timeout_sec = 30
+
+[features]
+multi_agent = true
+
+[agents]
+max_threads = 6
+max_depth = 1
+
+[agents.explorer]
+description = "Read-only codebase explorer for evidence gathering."
+config_file = "agents/explorer.toml"
+
+[agents.reviewer]
+description = "Correctness, security, and missing-test reviewer."
+config_file = "agents/reviewer.toml"
+
+[agents.docs_researcher]
+description = "Primary-source documentation verifier."
+config_file = "agents/docs-researcher.toml"
+
+[profiles.strict]
+approval_policy = "on-request"
+sandbox_mode = "read-only"
+web_search = "cached"
+
+[profiles.local-dev]
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+web_search = "live"

@@ -1,0 +1,9 @@
+model = "gpt-5.4"
+model_reasoning_effort = "medium"
+sandbox_mode = "read-only"
+
+developer_instructions = """
+Verify APIs, framework behavior, and release-note claims against primary documentation before changes land.
+For this repo, prefer Microsoft docs for .NET, ASP.NET Core, EF Core, Aspire, MAUI, Blazor, Azure, and Semantic Kernel.
+Cite exact docs or local file paths that support each claim.
+"""

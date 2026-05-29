@@ -1,37 +1,26 @@
 using backend.Application.Common.Interfaces;
 using backend.Application.Common.Models;
 
-namespace backend.Application.Auth.Commands.Register
+namespace backend.Application.Auth.Commands.Register;
+
+public record RegisterRequest : IRequest<Result>
 {
-    public record RegisterRequest : IRequest<Result>
+    public string FullName { get; init; } = string.Empty;
+    public string Email { get; init; } = string.Empty;
+    public string Password { get; init; } = string.Empty;
+}
+
+public class RegisterCommand(IIdentityService identityService) : IRequestHandler<RegisterRequest, Result>
+{
+    public async Task<Result> Handle(RegisterRequest request, CancellationToken cancellationToken)
     {
-        public string FullName { get; init; } = string.Empty;
-        public string Email { get; init; } = string.Empty;
-        public string Password { get; init; } = string.Empty;
-    }
-    public class RegisterCommand : IRequestHandler<RegisterRequest, Result>
-    {
-        public readonly IApplicationDbContext _dbContext;
-        public readonly IIdentityService _identityService;
-        public RegisterCommand(IApplicationDbContext dbContext, IIdentityService identityService)
-        {
-            _dbContext = dbContext;
-            _identityService = identityService;
-        }
+        var (result, _) = await identityService.CreateUserAsync(
+            request.FullName,
+            request.Email,
+            request.Password);
 
-        public async Task<Result> Handle(RegisterRequest request, CancellationToken cancellationToken)
-        {
-            var result = await _identityService.CreateUserAsync(
-                request.FullName,
-                request.Email,
-                request.Password);
-
-            if (!result.Result.Succeeded)
-            {
-                return Result.Failure(result.Result.Errors);
-            }
-
-            return Result.Success();
-        }
+        return result.Succeeded
+            ? Result.Success()
+            : Result.Failure(result.Errors);
     }
 }

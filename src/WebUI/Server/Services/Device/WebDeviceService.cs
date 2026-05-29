@@ -26,9 +26,4 @@ public class WebDeviceService : IDeviceService
             return "Unknown";
         }
     }
-
-    public bool IsMobileDevice()
-    {
-        return false; // Web application
-    }
 }

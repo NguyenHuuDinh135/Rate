@@ -30,6 +30,7 @@ public class PageTests : BunitContext
 
         var mockDispatcher = new Mock<IDispatcher>();
         Services.AddSingleton(mockDispatcher.Object);
+        Services.AddSingleton(new Mock<IActionSubscriber>().Object);
 
         // API Mocks
         Services.AddSingleton(new Mock<IMovieApi>().Object);
@@ -37,6 +38,9 @@ public class PageTests : BunitContext
         Services.AddSingleton(new Mock<IShowApi>().Object);
         Services.AddSingleton(new Mock<ITheaterApi>().Object);
         Services.AddSingleton(new Mock<IBookingApi>().Object);
+        Services.AddSingleton(new Mock<IAuthApi>().Object);
+        Services.AddSingleton(new Mock<IUserApi>().Object);
+        Services.AddSingleton(new Mock<IToastService>().Object);
     }
 
     [Fact]
@@ -58,6 +62,12 @@ public class PageTests : BunitContext
             new Models.Auth.TokenResponseDto("tk", null, "dinhnh", "dinh@rate.com", 3600, new List<string>()), 
             new List<string>()));
         Services.AddSingleton(mockAuth.Object);
+
+        var mockUserApi = new Mock<IUserApi>();
+        mockUserApi
+            .Setup(api => api.GetMeAsync())
+            .ReturnsAsync(new Models.Auth.AuthUserDto("user-1", "dinhnh", "dinh@rate.com", new List<string>()));
+        Services.AddSingleton(mockUserApi.Object);
 
         var cut = Render<Profile>();
 

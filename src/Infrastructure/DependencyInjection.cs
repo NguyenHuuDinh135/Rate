@@ -189,10 +189,11 @@ public static class DependencyInjection
             .AddIdentityCore<ApplicationUser>(
                 options =>{
                     options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-                    options.Password.RequireUppercase = true;
-                    options.Password.RequireLowercase = true;
-                    options.Password.RequireDigit = true;
-                    options.Password.RequireNonAlphanumeric = true;
+                    options.User.RequireUniqueEmail = true;
+                    options.Password.RequireUppercase = false;
+                    options.Password.RequireLowercase = false;
+                    options.Password.RequireDigit = false;
+                    options.Password.RequireNonAlphanumeric = false;
                     options.Password.RequiredLength = 6;
                 }
             )
