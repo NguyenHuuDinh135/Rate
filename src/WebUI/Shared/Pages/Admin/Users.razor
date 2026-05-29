@@ -1,5 +1,4 @@
 @page "/admin/users"
-@page "/admin/activity"
 @layout AdminLayout
 @using MudBlazor
 @using WebUI.Shared.Components.Admin
@@ -15,7 +14,7 @@
 
 <PageTitle>Người dùng | RATE Admin</PageTitle>
 
-<PageHeader Title="@PageTitleText"
+<PageHeader Title="Người dùng"
             Description="Quản lý tài khoản quản trị, vai trò và hoạt động gần đây của người dùng.">
     <Actions>
         <PrimaryButton Icon="@MudBlazor.Icons.Material.Outlined.PersonAdd" OnClick="@CreateUser">Thêm người dùng</PrimaryButton>
@@ -123,10 +122,7 @@
     private bool _hasLoadIssue;
     private string _searchText = "";
     private int _page = 1;
-    private const int _pageSize = 10;
-
-    private bool IsActivityPage => NavigationManager.ToBaseRelativePath(NavigationManager.Uri).StartsWith("admin/activity", StringComparison.OrdinalIgnoreCase);
-    private string PageTitleText => IsActivityPage ? "Hoạt động người dùng" : "Người dùng";
+    private int _pageSize = 10;
 
     private IEnumerable<AdminUserDto> FilteredUsers => _users
         .Where(user => string.IsNullOrWhiteSpace(_searchText)

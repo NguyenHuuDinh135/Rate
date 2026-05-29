@@ -71,7 +71,7 @@
                                 </div>
                                 <div>
                                     <h4 class="font-black text-slate-900">@payment.Movie?.Title</h4>
-                                    <p class="text-xs text-slate-400 font-bold">18/12/2025 • @payment.PaymentMethod.ToUpper()</p>
+                                    <p class="text-xs text-slate-400 font-bold">18/12/2025 • @(((PaymentMethod)payment.PaymentMethod).ToString().ToUpper())</p>
                                 </div>
                             </div>
                             <div class="text-right">
