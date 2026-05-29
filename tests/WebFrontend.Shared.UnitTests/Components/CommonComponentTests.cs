@@ -56,7 +56,7 @@ public class CommonComponentTests : BunitContext
         var payment = new PaymentDto { 
             PaymentId = 1, 
             Amount = 190000, 
-            PaymentMethod = "card",
+            PaymentMethod = (int)WebUI.Shared.Models.Common.PaymentMethod.Card,
             Movie = new PaymentMovieDto { Title = "Interstellar", PosterUrl = "" }
         };
 

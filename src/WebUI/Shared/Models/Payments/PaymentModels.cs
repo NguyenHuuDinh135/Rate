@@ -25,7 +25,7 @@ public class PaymentDto
     public string PaymentDatetime { get; set; } = "";
 
     [JsonPropertyName("method")]
-    public string PaymentMethod { get; set; } = "";
+    public int PaymentMethod { get; set; }
 
     [JsonPropertyName("userId")]
     public string? UserId { get; set; }
