@@ -4,7 +4,7 @@
 @using WebUI.Shared.Store.Auth
 @inherits Fluxor.Blazor.Web.Components.FluxorLayout
 @implements IDisposable
-@inject IState<AuthState> AuthState
+@inject WebUI.Shared.Services.Auth.AuthStateService AuthStateService
 @inject NavigationManager NavigationManager
 @inject IAdminThemeService ThemeService
 
@@ -15,7 +15,7 @@
                Elevation="0"
                Width="244px"
                Class="rate-admin-drawer">
-        <AdminSidebar UserName="@AuthState.Value.User?.Username" />
+        <AdminSidebar UserName="@AuthStateService.CurrentUser?.UserName" />
     </MudDrawer>
 
     <MudMainContent Class="rate-admin-main">
@@ -38,14 +38,13 @@
         base.OnInitialized();
         ThemeService.ThemeChanged += HandleThemeChanged;
 
-        if (!AuthState.Value.IsAuthenticated)
+        if (!AuthStateService.IsAuthenticated)
         {
              NavigationManager.NavigateTo("/auth/login");
              return;
         }
 
-        var roles = AuthState.Value.User?.Roles ?? new List<string>();
-        if (!roles.Contains("admin", StringComparer.OrdinalIgnoreCase))
+        if (!AuthStateService.IsInRole("admin"))
         {
             NavigationManager.NavigateTo("/unauthorized");
         }
