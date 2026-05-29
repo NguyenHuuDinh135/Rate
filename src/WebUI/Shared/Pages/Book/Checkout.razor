@@ -115,7 +115,7 @@ else if (theater != null && show != null && movie != null)
                     <div class="relative group">
                         <div class="absolute -inset-4 bg-gradient-to-tr from-[#A50064] to-[#ff0099] rounded-[2.5rem] opacity-20 blur-xl group-hover:opacity-30 transition duration-500"></div>
                         <div class="relative bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm inline-block">
-                            <img src="https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=@(paymentId)&choe=UTF-8" 
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=@(paymentId)" 
                                  class="w-48 h-48 cursor-pointer" 
                                  @onclick="SimulateScanSuccess"
                                  alt="MoMo QR Code" />
