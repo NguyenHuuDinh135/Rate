@@ -7,16 +7,16 @@ namespace WebUI.Shared.Services.Api;
 public interface IPermissionApi
 {
     [Get("/api/permissions/me")]
-    Task<List<string>> GetMyPermissionsAsync();
+    Task<WebUI.Shared.Models.Common.ApiResponse<List<string>>> GetMyPermissionsAsync();
 
     [Get("/api/permissions/all")]
-    Task<List<string>> GetAllPermissionsAsync();
+    Task<WebUI.Shared.Models.Common.ApiResponse<List<string>>> GetAllPermissionsAsync();
 
     [Get("/api/permissions/roles/all")]
-    Task<List<RoleDto>> GetAllRolesAsync();
+    Task<WebUI.Shared.Models.Common.ApiResponse<List<RoleDto>>> GetAllRolesAsync();
 
     [Get("/api/permissions/roles/{roleName}")]
-    Task<List<string>> GetRolePermissionsAsync(string roleName);
+    Task<WebUI.Shared.Models.Common.ApiResponse<List<string>>> GetRolePermissionsAsync(string roleName);
 
     [Put("/api/permissions/roles/{roleName}")]
     Task UpdateRolePermissionsAsync(string roleName, [Body] PermissionUpdateRequest payload);

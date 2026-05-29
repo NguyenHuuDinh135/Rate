@@ -101,7 +101,8 @@
         try
         {
             _bookings.Clear();
-            _bookings.AddRange(await BookingApi.GetAllAsync() ?? []);
+            var response = await BookingApi.GetAllAsync();
+            _bookings.AddRange(response?.Body ?? []);
         }
         catch
         {

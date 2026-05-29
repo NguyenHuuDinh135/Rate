@@ -19,7 +19,7 @@ public class BookingEndpoints : IEndpointGroup
         group.MapGet("/all", GetAll).RequireAuthorization();
         group.MapGet("/id/{id:int}", GetById).RequireAuthorization();
         group.MapGet("/users/{userId}", GetByUser).RequireAuthorization();
-        group.MapGet("/shows/{showId:int}", GetByShow).RequireAuthorization();
+        group.MapGet("/shows/{showId:int}", GetByShow).AllowAnonymous();
         group.MapPost("/create", Create).RequireAuthorization();
         group.MapPut("/update", Update).RequireAuthorization();
         group.MapDelete("/delete/{id:int}", Delete).RequireAuthorization();

@@ -100,14 +100,17 @@
             _movieNames.Clear();
             _theaterNames.Clear();
 
-            _shows.AddRange(await ShowApi.GetAllAsync() ?? []);
+            var showResponse = await ShowApi.GetAllAsync();
+            _shows.AddRange(showResponse?.Body ?? []);
 
-            foreach (var movie in await MovieApi.GetAllAsync() ?? [])
+            var movieResponse = await MovieApi.GetAllAsync();
+            foreach (var movie in movieResponse?.Body ?? [])
             {
                 _movieNames[movie.Id] = movie.Title;
             }
 
-            foreach (var theater in await TheaterApi.GetAllAsync() ?? [])
+            var theaterResponse = await TheaterApi.GetAllAsync();
+            foreach (var theater in theaterResponse?.Body ?? [])
             {
                 _theaterNames[theater.Id] = theater.Name;
             }

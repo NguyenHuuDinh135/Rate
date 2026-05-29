@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
+@source "../../**/*.razor";
+@source "../../**/*.cshtml";
+@source "../../**/*.html";
+
 :root {
   /* Overwrite Fluent UI harsh blue accent with our premium Netflix Red globally */
   --accent-color: #E50914 !important;
@@ -40,6 +46,21 @@
     background-color: #090D16;
     color: #E2E8F0;
     font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  }
+
+  /* Robustly remove underlines globally from all links, buttons, and web components */
+  a, 
+  fluent-anchor, 
+  .fluent-anchor, 
+  [role="link"] {
+    text-decoration: none !important;
+  }
+  
+  a:hover, 
+  fluent-anchor:hover, 
+  .fluent-anchor:hover, 
+  [role="link"]:hover {
+    text-decoration: none !important;
   }
 }
 

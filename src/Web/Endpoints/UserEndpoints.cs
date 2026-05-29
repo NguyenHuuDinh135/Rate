@@ -5,6 +5,7 @@ using backend.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace backend.Web.Endpoints;
 
@@ -21,12 +22,41 @@ public class UserEndpoints : IEndpointGroup
         group.MapPut("/update", Update).RequireAuthorization();
         group.MapDelete("/delete/{id}", Delete).RequireAuthorization();
         group.MapGet("/activity", GetActivity).RequireAuthorization();
+        group.MapPut("/me", UpdateMe).RequireAuthorization();
     }
 
     public static async Task<Results<Ok<UserDto>, UnauthorizedHttpResult>> GetMe(ISender sender)
     {
         var result = await sender.Send(new GetMyUserInfoQuery());
         return result is null ? TypedResults.Unauthorized() : TypedResults.Ok(result);
+    }
+
+    public static async Task<Results<NoContent, NotFound, BadRequest<Result>>> UpdateMe(
+        UserManager<ApplicationUser> userManager,
+        HttpContext httpContext,
+        UpdateMeRequest request)
+    {
+        var userId = httpContext.User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier)
+                     ?? httpContext.User.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub);
+
+        if (string.IsNullOrWhiteSpace(userId))
+            return TypedResults.NotFound();
+
+        var user = await userManager.FindByIdAsync(userId);
+        if (user is null)
+            return TypedResults.NotFound();
+
+        user.UserName = request.UserName.Trim();
+        user.Email = request.Email.Trim();
+        user.UpdatedAt = DateTime.UtcNow;
+
+        var updateResult = await userManager.UpdateAsync(user);
+        if (!updateResult.Succeeded)
+        {
+            return TypedResults.BadRequest(Result.Failure(updateResult.Errors.Select(x => x.Description)));
+        }
+
+        return TypedResults.NoContent();
     }
 
     public static async Task<Results<Ok<AdminUserDto>, NotFound>> GetById(
@@ -257,6 +287,8 @@ public class UserEndpoints : IEndpointGroup
     public sealed record CreateAdminUserRequest(string UserName, string Email, string Password, List<string>? Roles);
 
     public sealed record UpdateAdminUserRequest(string Id, string UserName, string Email, List<string>? Roles);
+    
+    public sealed record UpdateMeRequest(string UserName, string Email);
 
     public sealed record UserActivityDto(int Id, string UserName, string Action, string Type, DateTime OccurredAt);
 

@@ -1,0 +1,109 @@
+<div class="group cursor-pointer select-none space-y-3 flex flex-col transition-all duration-300 transform hover:-translate-y-1.5"
+     @onclick="HandleClick">
+    
+    @* Poster Container *@
+    <div class="relative aspect-[2/3] w-full rounded-xl overflow-hidden shadow-lg border border-slate-200 bg-white dark:border-white/10 dark:bg-[#1e1e1e] transition-all duration-500 group-hover:shadow-[#e50914]/20 group-hover:shadow-2xl">
+        
+        @* Image with hover scale 110% *@
+        <img src="@ResolvedPosterUrl"
+             alt="@Title"
+             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ease-out" 
+             onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=600&auto=format&fit=crop';" />
+
+        @* Rating Badge (Top Left) *@
+        <div class="absolute top-3 left-3 bg-white/80 backdrop-blur-md dark:bg-black/70 px-2.5 py-1 rounded-lg text-[10px] font-black flex items-center gap-1 border border-slate-200 dark:border-white/10 shadow-md">
+            @if (IsUpcoming)
+            {
+                <span class="text-[#f59e0b] uppercase font-extrabold tracking-widest text-[9px]">TBA</span>
+            }
+            else
+            {
+                <span class="text-[#f59e0b] text-xs">★</span>
+                <span class="text-slate-800 dark:text-white font-bold">@Rating</span>
+            }
+        </div>
+    </div>
+
+    @* Meta Area *@
+    <div class="px-1 text-left">
+        <h3 class="font-bold text-sm tracking-wide uppercase truncate text-slate-800 dark:text-white group-hover:text-[#e50914] dark:group-hover:text-[#e50914] transition-colors duration-300">
+            @Title
+        </h3>
+        <p class="text-slate-500 dark:text-[#a0a0a0] text-[11px] font-medium mt-1">@Type • @Year</p>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string Year { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Type { get; set; } = "Phim rạp";
+
+    [Parameter]
+    public string Rating { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string PosterUrl { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool IsUpcoming { get; set; }
+
+    [Parameter]
+    public string Status { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+
+    private string ResolvedPosterUrl
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(PosterUrl))
+                return GetDefaultFallback();
+
+            var upperTitle = Title?.ToUpperInvariant() ?? string.Empty;
+            if (upperTitle.Contains("GODZILLA") || upperTitle.Contains("KONG"))
+                return "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=600&auto=format&fit=crop";
+            if (upperTitle.Contains("JOKER"))
+                return "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=600&auto=format&fit=crop";
+            if (upperTitle.Contains("BATMAN"))
+                return "https://images.unsplash.com/photo-1509248961158-e54f6934749c?q=80&w=600&auto=format&fit=crop";
+            if (upperTitle.Contains("DUNE"))
+                return "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=600&auto=format&fit=crop";
+            if (upperTitle.Contains("DEADPOOL") || upperTitle.Contains("SUICIDE") || upperTitle.Contains("SQUAD"))
+                return "https://images.unsplash.com/photo-1569003339405-ea396a5a8a90?q=80&w=600&auto=format&fit=crop";
+            if (upperTitle.Contains("TWILIGHT"))
+                return "https://images.unsplash.com/photo-1509248961158-e54f6934749c?q=80&w=600&auto=format&fit=crop";
+            if (upperTitle.Contains("LIGHTHOUSE"))
+                return "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=600&auto=format&fit=crop";
+            if (upperTitle.Contains("MAX") || upperTitle.Contains("FURY"))
+                return "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=600&auto=format&fit=crop";
+            if (upperTitle.Contains("PRISONERS"))
+                return "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=600&auto=format&fit=crop";
+            if (upperTitle.Contains("STRANGER") || upperTitle.Contains("THINGS"))
+                return "https://images.unsplash.com/photo-1608889174632-414630e4afde?q=80&w=600&auto=format&fit=crop";
+
+            if (PosterUrl.StartsWith("data:image"))
+                return PosterUrl; // Allow base64
+
+            return PosterUrl;
+        }
+    }
+
+    private string GetDefaultFallback()
+    {
+        return "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=600&auto=format&fit=crop";
+    }
+
+    private async Task HandleClick()
+    {
+        if (OnClick.HasDelegate)
+        {
+            await OnClick.InvokeAsync();
+        }
+    }
+}

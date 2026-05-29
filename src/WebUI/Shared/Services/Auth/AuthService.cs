@@ -16,16 +16,16 @@ public sealed class AuthService(
     {
         var token = await authApi.LoginAsync(request);
 
-        if (string.IsNullOrWhiteSpace(token.AccessToken))
+        if (string.IsNullOrWhiteSpace(token.Body.AccessToken))
         {
             throw new InvalidOperationException("Login response did not include an access token.");
         }
 
-        await tokenStorage.SetAccessTokenAsync(token.AccessToken);
+        await tokenStorage.SetAccessTokenAsync(token.Body.AccessToken);
 
-        if (!string.IsNullOrWhiteSpace(token.RefreshToken))
+        if (!string.IsNullOrWhiteSpace(token.Body.RefreshToken))
         {
-            await tokenStorage.SetRefreshTokenAsync(token.RefreshToken);
+            await tokenStorage.SetRefreshTokenAsync(token.Body.RefreshToken);
         }
 
         var user = await GetCurrentUserAsync();
@@ -38,8 +38,10 @@ public sealed class AuthService(
         return user;
     }
 
-    public Task<OperationResultDto> RegisterAsync(RegisterRequest request)
-        => authApi.RegisterAsync(request);
+    public async Task<OperationResultDto> RegisterAsync(RegisterRequest request)
+    {
+        return await authApi.RegisterAsync(request);
+    }
 
     public async Task LogoutAsync()
     {
@@ -63,7 +65,7 @@ public sealed class AuthService(
         {
             return await userApi.GetMeAsync();
         }
-        catch (ApiException ex) when (ex.StatusCode is HttpStatusCode.Unauthorized)
+        catch (System.Exception)
         {
             return null;
         }

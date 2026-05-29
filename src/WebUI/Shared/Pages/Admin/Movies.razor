@@ -108,7 +108,8 @@
         try
         {
             _movies.Clear();
-            _movies.AddRange(await MovieApi.GetAllAsync() ?? []);
+            var response = await MovieApi.GetAllAsync();
+            _movies.AddRange(response.Body ?? []);
         }
         catch
         {

@@ -7,16 +7,16 @@ namespace WebUI.Shared.Services.Api;
 public interface IBookingApi
 {
     [Get("/api/bookings/all")]
-    Task<List<BookingDto>> GetAllAsync();
+    Task<WebUI.Shared.Models.Common.ApiResponse<List<BookingDto>>> GetAllAsync();
 
     [Get("/api/bookings/id/{id}")]
-    Task<BookingDto> GetByIdAsync(int id);
+    Task<WebUI.Shared.Models.Common.ApiResponse<BookingDto>> GetByIdAsync(int id);
 
     [Get("/api/bookings/users/{userId}")]
-    Task<List<BookingDto>> GetByUserAsync(string userId);
+    Task<WebUI.Shared.Models.Common.ApiResponse<List<BookingDto>>> GetByUserAsync(string userId);
 
     [Get("/api/bookings/shows/{showId}")]
-    Task<List<BookedSeatDto>> GetBookedSeatsAsync(int showId);
+    Task<WebUI.Shared.Models.Common.ApiResponse<List<BookedSeatDto>>> GetBookedSeatsAsync(int showId);
 
     [Post("/api/bookings/create")]
     Task<OperationResultDto<int>> CreateAsync([Body] CreateBookingCommand payload);

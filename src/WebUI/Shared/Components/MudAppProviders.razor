@@ -1,9 +1,11 @@
 @using MudBlazor
 @using WebUI.Shared.Services.Admin
+@using Microsoft.FluentUI.AspNetCore.Components
 @implements IDisposable
 @inject IAdminThemeService AdminThemeService
 
 <MudThemeProvider Theme="@RateTheme" @bind-IsDarkMode="_isDarkMode" />
+<FluentDesignTheme Mode="@(_isDarkMode ? Microsoft.FluentUI.AspNetCore.Components.DesignThemeModes.Dark : Microsoft.FluentUI.AspNetCore.Components.DesignThemeModes.Light)" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />

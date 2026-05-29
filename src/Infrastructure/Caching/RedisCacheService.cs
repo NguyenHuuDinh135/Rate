@@ -15,25 +15,48 @@ public sealed class RedisCacheService(
 
     public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
     {
-        var value = await _db.StringGetAsync(Prefix(key)).ConfigureAwait(false);
-        if (!value.HasValue)
+        try
+        {
+            var value = await _db.StringGetAsync(Prefix(key)).ConfigureAwait(false);
+            if (!value.HasValue)
+            {
+                return default;
+            }
+
+            var json = value.ToString();
+            return JsonSerializer.Deserialize<T>(json);
+        }
+        catch
         {
             return default;
         }
-
-        var json = value.ToString();
-        return JsonSerializer.Deserialize<T>(json);
     }
 
-    public Task SetAsync<T>(string key, T value, TimeSpan? ttl = null, CancellationToken cancellationToken = default)
+    public async Task SetAsync<T>(string key, T value, TimeSpan? ttl = null, CancellationToken cancellationToken = default)
     {
-        var expiry = ttl ?? TimeSpan.FromSeconds(_options.DefaultTtlSeconds);
-        var json = JsonSerializer.Serialize(value);
-        return _db.StringSetAsync(Prefix(key), json, expiry);
+        try
+        {
+            var expiry = ttl ?? TimeSpan.FromSeconds(_options.DefaultTtlSeconds);
+            var json = JsonSerializer.Serialize(value);
+            await _db.StringSetAsync(Prefix(key), json, expiry).ConfigureAwait(false);
+        }
+        catch
+        {
+            // Gracefully ignore cache write failures
+        }
     }
 
-    public Task RemoveAsync(string key, CancellationToken cancellationToken = default)
-        => _db.KeyDeleteAsync(Prefix(key));
+    public async Task RemoveAsync(string key, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await _db.KeyDeleteAsync(Prefix(key)).ConfigureAwait(false);
+        }
+        catch
+        {
+            // Gracefully ignore cache remove failures
+        }
+    }
 
     private string Prefix(string key) => $"{_options.InstanceName}:{key}";
 }

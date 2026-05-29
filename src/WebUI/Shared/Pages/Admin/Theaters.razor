@@ -89,7 +89,8 @@
         try
         {
             _theaters.Clear();
-            _theaters.AddRange(await TheaterApi.GetAllAsync() ?? []);
+            var response = await TheaterApi.GetAllAsync();
+            _theaters.AddRange(response?.Body ?? []);
         }
         catch
         {

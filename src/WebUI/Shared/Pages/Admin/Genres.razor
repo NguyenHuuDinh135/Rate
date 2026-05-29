@@ -77,7 +77,7 @@
         try
         {
             _genres.Clear();
-            _genres.AddRange(await GenreApi.GetAllAsync() ?? []);
+            _genres.AddRange((await GenreApi.GetAllAsync()).Body ?? []);
         }
         catch
         {

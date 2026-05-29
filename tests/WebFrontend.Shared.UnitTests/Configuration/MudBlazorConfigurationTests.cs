@@ -51,7 +51,7 @@ public class MudBlazorConfigurationTests
         program.ShouldContain("AddHttpMessageHandler<BearerTokenHandler>()");
     }
 
-    [Fact(Skip = "BFF Proxy is not implemented")]
+    [Fact]
     public void ServerHost_Should_ForwardBearerTokensThroughBffProxy()
     {
         var program = Read("src/WebUI/Server/Program.cs");

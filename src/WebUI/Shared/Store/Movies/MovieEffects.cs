@@ -10,11 +10,14 @@ public class MovieEffects(IMovieApi movieApi)
     {
         try
         {
-            var movies = await movieApi.GetAllAsync();
-            dispatcher.Dispatch(new LoadMoviesSuccessAction(movies));
+            System.Console.WriteLine("[MovieEffects] Start loading movies via IMovieApi.GetAllAsync()...");
+            var response = await movieApi.GetAllAsync();
+            System.Console.WriteLine($"[MovieEffects] Loaded movies successfully. Body Count = {response.Body?.Count ?? 0}");
+            dispatcher.Dispatch(new LoadMoviesSuccessAction(response.Body ?? new()));
         }
-        catch (Exception ex)
+        catch (System.Exception ex)
         {
+            System.Console.WriteLine($"[MovieEffects] Exception caught in HandleLoadMovies: {ex.Message}\n{ex.StackTrace}");
             dispatcher.Dispatch(new LoadMoviesFailureAction(ex.Message));
         }
     }
@@ -24,8 +27,8 @@ public class MovieEffects(IMovieApi movieApi)
     {
         try
         {
-            var movie = await movieApi.GetByIdAsync(action.Id);
-            dispatcher.Dispatch(new LoadMovieByIdSuccessAction(movie));
+            var response = await movieApi.GetByIdAsync(action.Id);
+            dispatcher.Dispatch(new LoadMovieByIdSuccessAction(response.Body));
         }
         catch (Exception ex)
         {

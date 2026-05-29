@@ -150,9 +150,14 @@
             _activities.Clear();
             _roles.Clear();
 
-            _users.AddRange(await UserApi.GetAllAsync() ?? []);
-            _activities.AddRange(await UserApi.GetActivityAsync() ?? []);
-            _roles.AddRange(await PermissionApi.GetAllRolesAsync() ?? []);
+            var usersResponse = await UserApi.GetAllAsync();
+            _users.AddRange(usersResponse?.Body ?? []);
+
+            var activityResponse = await UserApi.GetActivityAsync();
+            _activities.AddRange(activityResponse?.Body ?? []);
+            
+            var rolesResponse = await PermissionApi.GetAllRolesAsync();
+            _roles.AddRange(rolesResponse?.Body ?? []);
             _selectedUser = _selectedUser is null
                 ? _users.FirstOrDefault()
                 : _users.FirstOrDefault(x => x.Id == _selectedUser.Id) ?? _users.FirstOrDefault();

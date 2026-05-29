@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi" class="notranslate" translate="no">
 
 <head>
     <meta charset="utf-8" />
@@ -18,8 +18,7 @@
         (() => {
             try {
                 const stored = window.localStorage.getItem("rate-theme");
-                const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-                const isDarkMode = stored === "dark" || (!stored && prefersDark);
+                const isDarkMode = stored !== "light";
                 document.documentElement.classList.toggle("dark", isDarkMode);
                 document.documentElement.dataset.theme = isDarkMode ? "dark" : "light";
             } catch {

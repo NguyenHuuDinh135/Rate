@@ -123,7 +123,22 @@ public static class DependencyInjection
 
             Guard.Against.NullOrWhiteSpace(redisConnectionString, "Redis not configured.");
 
-            return ConnectionMultiplexer.Connect(redisConnectionString);
+            var options = ConfigurationOptions.Parse(redisConnectionString);
+            
+            // In local development/unsecured transport, disable SSL to prevent connection failures 
+            // since the default Docker Redis image does not support SSL.
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPIRE_ALLOW_UNSECURED_TRANSPORT")) ||
+                !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_DASHBOARD_OTLP_ENDPOINT_URL")))
+            {
+                options.Ssl = false;
+            }
+            else if (options.Ssl)
+            {
+                // Accept self-signed certificates in other environments
+                options.CertificateValidation += (sender, cert, chain, errors) => true;
+            }
+
+            return ConnectionMultiplexer.Connect(options);
         });
 
         services.AddSingleton<IDistributedLockProvider>(sp =>

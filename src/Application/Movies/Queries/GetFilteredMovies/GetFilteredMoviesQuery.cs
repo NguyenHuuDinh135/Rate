@@ -1,6 +1,7 @@
 using backend.Application.Common.Interfaces;
 using backend.Application.Movies.Queries.GetMovies;
 using backend.Domain.Enums;
+using backend.Application.Genres.Queries.GetGenres;
 
 namespace backend.Application.Movies.Queries.GetFilteredMovies;
 
@@ -22,7 +23,17 @@ public sealed class GetFilteredMoviesQueryHandler(IApplicationDbContext db)
 
         return await query
             .OrderByDescending(x => x.Year)
-            .Select(x => new MovieBriefDto(x.Id, x.Title, x.Summary, x.Year, x.Rating, x.TrailerUrl, x.PosterUrl, x.MovieType))
+            .Select(x => new MovieBriefDto(
+                x.Id, 
+                x.Title, 
+                x.Summary, 
+                x.Year, 
+                x.Rating, 
+                x.TrailerUrl, 
+                x.PosterUrl, 
+                x.MovieType,
+                x.MovieGenres.Select(mg => new GenreBriefDto(mg.Genre.Id, mg.Genre.Name)).ToList()
+            ))
             .ToListAsync(ct);
     }
 }

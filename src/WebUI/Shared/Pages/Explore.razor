@@ -56,7 +56,8 @@
     {
         try
         {
-            var allMovies = await MovieApi.GetAllAsync();
+            var response = await MovieApi.GetAllAsync();
+            var allMovies = response.Body;
             movies = allMovies.Where(m => !string.IsNullOrEmpty(m.TrailerUrl)).OrderBy(_ => Guid.NewGuid()).ToList();
         }
         catch (Exception ex)
